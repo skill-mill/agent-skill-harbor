@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser, dev } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import SkillList from '$lib/components/SkillList.svelte';
@@ -68,7 +68,7 @@
 </script>
 
 <svelte:head>
-	<title>{$t('catalog.pageTitle')}</title>
+	<title>{dev ? '(Dev) ' : ''}{$t('catalog.pageTitle')}</title>
 	<meta name="description" content={$t('catalog.pageDescription')} />
 </svelte:head>
 

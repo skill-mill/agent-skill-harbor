@@ -7,7 +7,7 @@
 	import { initLocale } from '$lib/i18n';
 	import { onMount } from 'svelte';
 
-	let { children } = $props();
+	let { data, children } = $props();
 
 	onMount(() => {
 		initTheme();
@@ -17,7 +17,7 @@
 
 <TooltipProvider delayDuration={700}>
 	<div class="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
-		<Header />
+		<Header orgName={data.orgName} />
 		<main class="flex-1">
 			{@render children()}
 		</main>

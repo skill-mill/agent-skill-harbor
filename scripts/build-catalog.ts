@@ -266,7 +266,7 @@ function buildFlatCatalog(
 	orgName: string | null,
 	bodyMap: Map<string, string>,
 	freshPeriodDays: number
-): { generated_at: string; fresh_period_days: number; skills: FlatSkillEntry[] } {
+): { generated_at: string; org_name: string | null; fresh_period_days: number; skills: FlatSkillEntry[] } {
 	const skills: FlatSkillEntry[] = [];
 
 	for (const [repoKey, repoEntry] of Object.entries(catalog.repositories)) {
@@ -318,7 +318,7 @@ function buildFlatCatalog(
 		return nameA.localeCompare(nameB);
 	});
 
-	return { generated_at: new Date().toISOString(), fresh_period_days: freshPeriodDays, skills };
+	return { generated_at: new Date().toISOString(), org_name: orgName, fresh_period_days: freshPeriodDays, skills };
 }
 
 function main(): void {

@@ -3,6 +3,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import { t, locale } from '$lib/i18n';
+	import { dev } from '$app/environment';
 	import { base } from '$app/paths';
 	import { marked } from 'marked';
 	import DOMPurify from 'isomorphic-dompurify';
@@ -91,7 +92,7 @@
 </script>
 
 <svelte:head>
-	<title>{skillName} - Agent Skill Harbor</title>
+	<title>{dev ? '(Dev) ' : ''}{skillName} - Agent Skill Harbor</title>
 	<meta name="description" content={skillDescription} />
 </svelte:head>
 

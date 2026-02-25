@@ -47,6 +47,7 @@ export interface FlatSkillEntry {
 
 export interface FlatCatalog {
 	generated_at: string;
+	org_name: string | null;
 	fresh_period_days: number;
 	skills: FlatSkillEntry[];
 }
