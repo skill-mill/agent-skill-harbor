@@ -23,54 +23,31 @@ Agent Skill Harbor collects Agent Skills (SKILL.md) from your GitHub Organizatio
 
 ## Quick Start
 
-### Prerequisites
-
-- Node.js 22+
-- pnpm 10+
-
-### Development
-
 ```bash
-# Install dependencies
 pnpm install
-
-# Start development server
 pnpm dev
-
-# Build catalog from YAML data
-pnpm run build:catalog
-
-# Build everything (catalog + web)
-pnpm run build
 ```
 
-### Organization Setup
+See [Local Development](docs/02-local-development.md) for build commands, skill collection, and project structure.
+
+## Organization Setup
 
 1. Clone this repository privately into your organization
-2. Configure GitHub repository variables and secrets:
-   - Variable `GH_ORG`: Your GitHub organization name
-   - Secret `ORG_GITHUB_TOKEN`: A token with `repo` scope for your organization
+2. Configure GitHub repository secrets (`ORG_GITHUB_TOKEN`)
 3. Enable GitHub Pages (Settings > Pages > Source: GitHub Actions)
-4. Edit `config/governance.yaml` to define your governance policies
-5. Trigger the "Collect Skills" workflow manually for initial collection
+4. Trigger the "Collect Skills" workflow for initial collection
 
-## Project Structure
-
-```
-├── config/               # Human-managed configuration
-│   ├── admin.yaml        # Application settings
-│   └── governance.yaml   # Governance policy definitions
-├── data/                 # Machine-generated skill data
-│   ├── catalog.yaml      # Skill catalog metadata
-│   └── skills/           # Collected SKILL.md files
-├── scripts/              # Collection and build scripts
-├── web/                  # SvelteKit frontend application
-└── .github/workflows/    # GitHub Actions (collect + deploy)
-```
+See [Organization Setup Guide](docs/01-organization-setup.md) for detailed instructions.
 
 ## Skill Provenance Tracking
 
 Using [agent-command-sync](https://github.com/hatappo/agent-command-sync) (`acs`) to install and manage skills automatically records the `_from` history in SKILL.md frontmatter, enabling your organization to trace the origin of every skill.
+
+## Documentation
+
+- [Organization Setup](docs/01-organization-setup.md)
+- [Local Development](docs/02-local-development.md)
+- [Governance Guide](docs/03-governance-guide.md)
 
 ## License
 

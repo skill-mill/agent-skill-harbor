@@ -11,7 +11,10 @@
 	},
 	"filter": {
 		"label": "Filter:",
-		"clearAll": "Clear all"
+		"clearAll": "Clear all",
+		"allVisibility": "Visibility",
+		"allOrigin": "Origin",
+		"all": "All"
 	},
 	"skillList": {
 		"empty": "No skills found matching your criteria."
@@ -63,6 +66,9 @@
 		"title": "Page not found",
 		"message": "The page you're looking for doesn't exist or has been moved.",
 		"backToCatalog": "Back to Catalog"
+	},
+	"docs": {
+		"nav": "Docs"
 	},
 	"detail": {
 		"viewRepository": "View Repository",

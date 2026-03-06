@@ -7,11 +7,27 @@
 @theme inline {
 	--color-background: oklch(1 0 0);
 	--color-foreground: oklch(0.145 0.004 285.82);
+	--color-popover: oklch(1 0 0);
+	--color-popover-foreground: oklch(0.21 0.034 264.67);
+	--color-accent: oklch(0.968 0.003 264.54);
+	--color-accent-foreground: oklch(0.21 0.034 264.67);
+	--color-muted-foreground: oklch(0.553 0.023 260.03);
+	--color-input: oklch(0.929 0.006 264.53);
+	--color-ring: oklch(0.704 0.022 261.33);
+	--color-border: oklch(0.929 0.006 264.53);
 }
 
 @layer base {
 	.dark {
 		--color-background: oklch(0.145 0.004 285.82);
 		--color-foreground: oklch(0.985 0 0);
+		--color-popover: oklch(0.278 0.033 256.85);
+		--color-popover-foreground: oklch(0.968 0.003 264.54);
+		--color-accent: oklch(0.373 0.034 259.73);
+		--color-accent-foreground: oklch(0.968 0.003 264.54);
+		--color-muted-foreground: oklch(0.704 0.022 261.33);
+		--color-input: oklch(0.373 0.034 259.73);
+		--color-ring: oklch(0.553 0.023 260.03);
+		--color-border: oklch(0.373 0.034 259.73);
 	}
 }

@@ -17,60 +17,37 @@
 Agent Skill Harbor は、GitHub Organization 内のリポジトリから Agent Skill (SKILL.md) を収集し、ガバナンス管理機能を提供し、GitHub Pages 上でブラウズ可能なカタログを公開します。
 
 - トレーサビリティ — 外部からインストールしたスキルも含め、すべてのスキルの出所・来歴を追跡可能
-- 柔軟な監査 - 社内スキルの監査はプロンプトを柔軟に設定可能
-- Serverless/DB-less — 社内スキルのクローリングと監査は GitHub Actions 、データは Git に YAML/JSON として保存し、GitHub Pages でプライベート・ホスティング
-- 運用負荷なし/コスト最適 - 常時稼働リソースがないのでメンテナンスが楽で安価
+- 柔軟な監査 — 社内スキルの監査はプロンプトを柔軟に設定可能
+- Serverless/DB-less — GitHub Actions でクローリング、データは Git に YAML/JSON として保存、GitHub Pages でプライベート・ホスティング
+- 運用負荷なし/コスト最適 — 常時稼働リソースがないのでメンテナンスが楽で安価
 
 ## クイックスタート
 
-### 前提条件
-
-- Node.js 22+
-- pnpm 10+
-
-### 開発
-
 ```bash
-# 依存関係のインストール
 pnpm install
-
-# 開発サーバーの起動
 pnpm dev
-
-# YAML データからカタログをビルド
-pnpm run build:catalog
-
-# すべてをビルド (カタログ + Web)
-pnpm run build
 ```
 
-### 組織へのセットアップ
+ビルドコマンド、スキル収集、プロジェクト構成については [ローカル開発](docs/02-local-development_ja.md) を参照してください。
+
+## 組織へのセットアップ
 
 1. このリポジトリを組織内にプライベートとしてクローン
-2. GitHub リポジトリの変数とシークレットを設定:
-   - 変数 `GH_ORG`: GitHub Organization 名
-   - シークレット `ORG_GITHUB_TOKEN`: Organization の `repo` スコープを持つトークン
+2. GitHub リポジトリのシークレットを設定 (`ORG_GITHUB_TOKEN`)
 3. GitHub Pages を有効化 (Settings > Pages > Source: GitHub Actions)
-4. `config/governance.yaml` を編集してガバナンスポリシーを定義
-5. "Collect Skills" ワークフローを手動トリガーして初回収集を実行
+4. "Collect Skills" ワークフローを手動トリガーして初回収集を実行
 
-## プロジェクト構成
-
-```
-├── config/               # 人が管理する設定
-│   ├── admin.yaml        # アプリケーション設定
-│   └── governance.yaml   # ガバナンスポリシー定義
-├── data/                 # マシン生成の収集データ
-│   ├── catalog.yaml      # スキルカタログメタデータ
-│   └── skills/           # 収集された SKILL.md ファイル
-├── scripts/              # 収集・ビルドスクリプト
-├── web/                  # SvelteKit フロントエンドアプリケーション
-└── .github/workflows/    # GitHub Actions (収集 + デプロイ)
-```
+詳細は [組織セットアップガイド](docs/01-organization-setup_ja.md) を参照してください。
 
 ## スキルの来歴追跡
 
 [agent-command-sync](https://github.com/hatappo/agent-command-sync) (`acs`) を使ってスキルのインストール・管理を行うと、SKILL.md frontmatter の `_from` 履歴が自動記録され、すべてのスキルの出所を追跡できます。
+
+## ドキュメント
+
+- [組織セットアップ](docs/01-organization-setup_ja.md)
+- [ローカル開発](docs/02-local-development_ja.md)
+- [ガバナンスガイド](docs/03-governance-guide_ja.md)
 
 ## ライセンス
 

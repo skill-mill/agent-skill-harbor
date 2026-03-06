@@ -6,10 +6,13 @@
 	import LocaleToggle from './LocaleToggle.svelte';
 
 	interface Props {
-		orgName?: string | null;
+		repoFullName?: string | null;
 	}
 
-	let { orgName = null }: Props = $props();
+	let { repoFullName = null }: Props = $props();
+
+	let orgName = $derived(repoFullName?.split('/')[0] ?? null);
+	let repoName = $derived(repoFullName?.split('/')[1] ?? null);
 </script>
 
 <header class="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
@@ -19,8 +22,16 @@
 			{$t('header.title')}
 		</a>
 		<nav class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+			<a href="{base}/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100">{$t('header.catalog')}</a>
+			<a href="{base}/docs/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100">{$t('docs.nav')}</a>
 			{#if orgName}
-				<span class="font-medium text-gray-900 dark:text-gray-100">{orgName}</span>
+				<span class="font-bold text-gray-900 dark:text-gray-100">
+					<a href="https://github.com/{orgName}" target="_blank" rel="noopener noreferrer" class="hover:underline">{orgName}</a>
+					{#if repoName}
+						<span class="mx-0.5">/</span>
+						<a href="https://github.com/{orgName}/{repoName}" target="_blank" rel="noopener noreferrer" class="hover:underline">{repoName}</a>
+					{/if}
+				</span>
 			{/if}
 			<LocaleToggle />
 			<ThemeToggle />

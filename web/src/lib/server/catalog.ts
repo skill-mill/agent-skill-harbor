@@ -3,7 +3,7 @@ import { load as yamlLoad } from 'js-yaml';
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { GH_ORG } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type { FlatSkillEntry, Visibility } from '$lib/types';
 
 declare const __PROJECT_ROOT__: string;
@@ -44,6 +44,7 @@ interface CatalogYaml {
 
 interface CatalogResult {
 	orgName: string | null;
+	repoFullName: string | null;
 	freshPeriodDays: number;
 	skills: FlatSkillEntry[];
 	bodyMap: Map<string, string>;
@@ -60,23 +61,31 @@ const CONFIG_DIR = join(PROJECT_ROOT, 'config');
 const GOVERNANCE_PATH = join(CONFIG_DIR, 'governance.yaml');
 const ADMIN_PATH = join(CONFIG_DIR, 'admin.yaml');
 
-function detectOrg(): string | null {
-	if (GH_ORG) {
-		return GH_ORG;
-	}
+function detectOrgRepo(): { org: string | null; repo: string | null } {
+	let org: string | null = env.GH_ORG || null;
+	let repo: string | null = env.GH_REPO || null;
+	if (org && repo) return { org, repo };
 	try {
 		const remoteUrl = execSync('git remote get-url origin', {
 			encoding: 'utf-8',
 			cwd: PROJECT_ROOT
 		}).trim();
-		const sshMatch = remoteUrl.match(/^git@[^:]+:([^/]+)\//);
-		if (sshMatch) return sshMatch[1];
-		const httpsMatch = remoteUrl.match(/^https?:\/\/[^/]+\/([^/]+)\//);
-		if (httpsMatch) return httpsMatch[1];
+		const sshMatch = remoteUrl.match(/^git@[^:]+:([^/]+)\/([^/.]+)/);
+		if (sshMatch) {
+			org = org ?? sshMatch[1];
+			repo = repo ?? sshMatch[2];
+			return { org, repo };
+		}
+		const httpsMatch = remoteUrl.match(/^https?:\/\/[^/]+\/([^/]+)\/([^/.]+)/);
+		if (httpsMatch) {
+			org = org ?? httpsMatch[1];
+			repo = repo ?? httpsMatch[2];
+			return { org, repo };
+		}
 	} catch {
 		// git command failed
 	}
-	return null;
+	return { org, repo };
 }
 
 function loadGovernance(): Record<string, GovernanceEntry> {
@@ -138,7 +147,8 @@ function walkForSkillMd(
 }
 
 function buildCatalogData(): CatalogResult {
-	const orgName = detectOrg();
+	const { org: orgName, repo: repoName } = detectOrgRepo();
+	const repoFullName = orgName && repoName ? `${orgName}/${repoName}` : orgName;
 	const admin = loadAdmin();
 	const freshPeriodDays = admin.catalog?.skill?.fresh_period_days ?? 0;
 	const governance = loadGovernance();
@@ -149,7 +159,7 @@ function buildCatalogData(): CatalogResult {
 
 	const platformDir = join(SKILLS_DIR, 'github.com');
 	if (!existsSync(platformDir)) {
-		return { orgName, freshPeriodDays, skills, bodyMap };
+		return { orgName, repoFullName, freshPeriodDays, skills, bodyMap };
 	}
 
 	// Scan SKILL.md files per repo
@@ -223,7 +233,7 @@ function buildCatalogData(): CatalogResult {
 		return nameA.localeCompare(nameB);
 	});
 
-	return { orgName, freshPeriodDays, skills, bodyMap };
+	return { orgName, repoFullName, freshPeriodDays, skills, bodyMap };
 }
 
 export function loadCatalog(): CatalogResult {

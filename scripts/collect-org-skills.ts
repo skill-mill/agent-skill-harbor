@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import matter from 'gray-matter';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
+import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -257,12 +258,43 @@ async function fetchFileContent(
 	return Buffer.from(data.content, 'base64').toString('utf-8');
 }
 
+function detectOrgRepo(): { org: string | null; repo: string | null } {
+	let org = process.env.GH_ORG || null;
+	let repo = process.env.GH_REPO || null;
+	if (org && repo) return { org, repo };
+	try {
+		const remoteUrl = execSync('git remote get-url origin', {
+			encoding: 'utf-8',
+			cwd: join(import.meta.dirname, '..')
+		}).trim();
+		const sshMatch = remoteUrl.match(/^git@[^:]+:([^/]+)\/([^/.]+)/);
+		if (sshMatch) {
+			org = org ?? sshMatch[1];
+			repo = repo ?? sshMatch[2];
+			return { org, repo };
+		}
+		const httpsMatch = remoteUrl.match(/^https?:\/\/[^/]+\/([^/]+)\/([^/.]+)/);
+		if (httpsMatch) {
+			org = org ?? httpsMatch[1];
+			repo = repo ?? httpsMatch[2];
+			return { org, repo };
+		}
+	} catch {
+		// git command failed
+	}
+	return { org, repo };
+}
+
 async function main(): Promise<void> {
 	const token = process.env.GITHUB_TOKEN;
-	const org = process.env.GH_ORG;
+	const { org, repo: selfRepo } = detectOrgRepo();
 
-	if (!token || !org) {
-		console.error('Error: GITHUB_TOKEN and GH_ORG environment variables are required.');
+	if (!token) {
+		console.error('Error: GITHUB_TOKEN environment variable is required.');
+		process.exit(1);
+	}
+	if (!org) {
+		console.error('Error: GH_ORG environment variable is not set and could not be detected from git remote URL.');
 		process.exit(1);
 	}
 
@@ -271,6 +303,9 @@ async function main(): Promise<void> {
 	const catalog = loadCatalog();
 
 	console.log(`Collecting skills from organization: ${org}`);
+	if (selfRepo) {
+		console.log(`Excluding self repository: ${org}/${selfRepo}`);
+	}
 
 	const admin = loadAdmin();
 	const excludeForks = admin.collector?.exclude_forks ?? false;
@@ -297,6 +332,7 @@ async function main(): Promise<void> {
 		if (data.length === 0) break;
 
 		for (const repo of data) {
+			if (selfRepo && repo.name === selfRepo) continue;
 			if (excludeForks && repo.fork) continue;
 			repos.push({
 				name: repo.name,

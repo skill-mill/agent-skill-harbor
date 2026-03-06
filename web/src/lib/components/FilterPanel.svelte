@@ -3,6 +3,7 @@
 	import type { FilterState, OrgOwnership } from '$lib/utils/filter';
 	import { t } from '$lib/i18n';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import * as Select from '$lib/components/ui/select';
 
 	interface Props {
 		filters: FilterState;
@@ -18,15 +19,15 @@
 		{ value: 'none', labelKey: 'governance.unclassified', tooltipKey: 'governance.unclassifiedTip', color: 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600' }
 	];
 
-	const visibilityOptions: { value: Visibility; labelKey: string; tooltipKey: string }[] = [
-		{ value: 'public', labelKey: 'common.visibility.public', tooltipKey: 'common.visibility.publicTip' },
-		{ value: 'private', labelKey: 'common.visibility.private', tooltipKey: 'common.visibility.privateTip' },
-		{ value: 'internal', labelKey: 'common.visibility.internal', tooltipKey: 'common.visibility.internalTip' }
+	const visibilityOptions: { value: Visibility; labelKey: string }[] = [
+		{ value: 'public', labelKey: 'common.visibility.public' },
+		{ value: 'private', labelKey: 'common.visibility.private' },
+		{ value: 'internal', labelKey: 'common.visibility.internal' }
 	];
 
-	const orgOwnershipOptions: { value: OrgOwnership; labelKey: string; tooltipKey: string }[] = [
-		{ value: 'org', labelKey: 'common.orgOwnership.org', tooltipKey: 'common.orgOwnership.orgTip' },
-		{ value: 'community', labelKey: 'common.orgOwnership.community', tooltipKey: 'common.orgOwnership.communityTip' }
+	const orgOwnershipOptions: { value: OrgOwnership; labelKey: string }[] = [
+		{ value: 'org', labelKey: 'common.orgOwnership.org' },
+		{ value: 'community', labelKey: 'common.orgOwnership.community' }
 	];
 
 	function toggleStatus(status: UsagePolicy) {
@@ -36,19 +37,18 @@
 		onchange({ ...filters, statuses });
 	}
 
-	function toggleVisibility(visibility: Visibility) {
-		const visibilities = filters.visibilities.includes(visibility)
-			? filters.visibilities.filter((v) => v !== visibility)
-			: [...filters.visibilities, visibility];
+	function onVisibilityChange(value: string | undefined) {
+		const visibilities = value && value !== '__all__' ? [value as Visibility] : [];
 		onchange({ ...filters, visibilities });
 	}
 
-	function toggleOrgOwnership(ownership: OrgOwnership) {
-		const orgOwnerships = filters.orgOwnerships.includes(ownership)
-			? filters.orgOwnerships.filter((o) => o !== ownership)
-			: [...filters.orgOwnerships, ownership];
+	function onOrgOwnershipChange(value: string | undefined) {
+		const orgOwnerships = value && value !== '__all__' ? [value as OrgOwnership] : [];
 		onchange({ ...filters, orgOwnerships });
 	}
+
+	let visibilityValue = $derived(filters.visibilities[0] ?? '__all__');
+	let orgOwnershipValue = $derived(filters.orgOwnerships[0] ?? '__all__');
 
 	let hasActiveFilters = $derived(filters.statuses.length > 0 || filters.visibilities.length > 0 || filters.orgOwnerships.length > 0);
 
@@ -82,47 +82,39 @@
 
 	<span class="mx-1 text-gray-300 dark:text-gray-600">|</span>
 
-	<!-- Visibility filters -->
-	{#each visibilityOptions as opt}
-		<Tooltip.Root>
-			<Tooltip.Trigger>
-				{#snippet child({ props })}
-					<button
-						{...props}
-						onclick={() => toggleVisibility(opt.value)}
-						class="rounded-full border px-3 py-1 text-xs font-medium transition-colors {filters.visibilities.includes(opt.value)
-							? 'border-indigo-300 bg-indigo-100 text-indigo-800 ring-1 ring-offset-1 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 dark:ring-offset-gray-950'
-							: 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'}"
-					>
-						{$t(opt.labelKey)}
-					</button>
-				{/snippet}
-			</Tooltip.Trigger>
-			<Tooltip.Content>{$t(opt.tooltipKey)}</Tooltip.Content>
-		</Tooltip.Root>
-	{/each}
+	<!-- Visibility select -->
+	<Select.Root type="single" value={visibilityValue} onValueChange={onVisibilityChange}>
+		<Select.Trigger size="sm" class="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {filters.visibilities.length > 0
+			? 'border-indigo-300 bg-indigo-100 text-indigo-800 dark:border-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+			: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}">
+			{filters.visibilities.length > 0
+				? $t(visibilityOptions.find((o) => o.value === filters.visibilities[0])?.labelKey ?? '')
+				: $t('filter.allVisibility')}
+		</Select.Trigger>
+		<Select.Content>
+			<Select.Item value="__all__" label={$t('filter.all')} />
+			{#each visibilityOptions as opt}
+				<Select.Item value={opt.value} label={$t(opt.labelKey)} />
+			{/each}
+		</Select.Content>
+	</Select.Root>
 
-	<span class="mx-1 text-gray-300 dark:text-gray-600">|</span>
-
-	<!-- Org ownership filters -->
-	{#each orgOwnershipOptions as opt}
-		<Tooltip.Root>
-			<Tooltip.Trigger>
-				{#snippet child({ props })}
-					<button
-						{...props}
-						onclick={() => toggleOrgOwnership(opt.value)}
-						class="rounded-full border px-3 py-1 text-xs font-medium transition-colors {filters.orgOwnerships.includes(opt.value)
-							? 'border-blue-300 bg-blue-100 text-blue-800 ring-1 ring-offset-1 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300 dark:ring-offset-gray-950'
-							: 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'}"
-					>
-						{$t(opt.labelKey)}
-					</button>
-				{/snippet}
-			</Tooltip.Trigger>
-			<Tooltip.Content>{$t(opt.tooltipKey)}</Tooltip.Content>
-		</Tooltip.Root>
-	{/each}
+	<!-- Org ownership select -->
+	<Select.Root type="single" value={orgOwnershipValue} onValueChange={onOrgOwnershipChange}>
+		<Select.Trigger size="sm" class="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {filters.orgOwnerships.length > 0
+			? 'border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+			: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}">
+			{filters.orgOwnerships.length > 0
+				? $t(orgOwnershipOptions.find((o) => o.value === filters.orgOwnerships[0])?.labelKey ?? '')
+				: $t('filter.allOrigin')}
+		</Select.Trigger>
+		<Select.Content>
+			<Select.Item value="__all__" label={$t('filter.all')} />
+			{#each orgOwnershipOptions as opt}
+				<Select.Item value={opt.value} label={$t(opt.labelKey)} />
+			{/each}
+		</Select.Content>
+	</Select.Root>
 
 	{#if hasActiveFilters}
 		<button

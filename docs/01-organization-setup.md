@@ -1,10 +1,10 @@
-# Setup Guide
+# Organization Setup
 
 This guide explains how to deploy Agent Skill Harbor for your organization.
 
 ## Prerequisites
 
-- GitHub Organization
+- GitHub Enterprise Cloud (only if hosting the web UI privately on GitHub Pages)
 - Node.js 22+
 - pnpm 10+
 
@@ -24,15 +24,16 @@ Go to your repository's **Settings > Secrets and variables > Actions**.
 
 ### Repository Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `GH_ORG` | Your GitHub organization name | `my-org` |
+| Variable | Required | Description | Default | Example |
+|----------|----------|-------------|---------|---------|
+| `GH_ORG` | No | Your GitHub organization name | Auto-detected from git remote URL | `my-org` |
+| `GH_REPO` | No | This repository name. Used for self-exclusion during collection and header display. | Auto-detected from git remote URL | `agent-skill-harbor` |
 
 ### Repository Secrets
 
-| Secret | Description |
-|--------|-------------|
-| `ORG_GITHUB_TOKEN` | Personal Access Token (classic) or GitHub App token with `repo` scope for your organization |
+| Secret | Required | Description | Default |
+|--------|----------|-------------|---------|
+| `ORG_GITHUB_TOKEN` | Yes | Personal Access Token (classic) or GitHub App token with `repo` scope for your organization | — |
 
 The token needs read access to all repositories in the organization to scan for SKILL.md files.
 
@@ -40,7 +41,9 @@ The token needs read access to all repositories in the organization to scan for 
 
 1. Go to **Settings > Pages**
 2. Set **Source** to **GitHub Actions**
-3. For internal repositories, the page will be accessible only to organization members
+3. Under **Visibility**, set to **Private** to restrict access to organization members only
+
+> **Warning:** If you do not set the Pages visibility to Private, your catalog page — including all collected skill data — will be publicly accessible to anyone on the internet. Private GitHub Pages visibility requires a **GitHub Enterprise Cloud** plan. If your organization does not have Enterprise Cloud, GitHub Pages will always be public regardless of the repository's visibility setting.
 
 ## Step 4: Initial Skill Collection
 
@@ -54,19 +57,10 @@ The token needs read access to all repositories in the organization to scan for 
 Edit `config/governance.yaml` to define your organization's skill policies:
 
 ```yaml
-version: "1"
-
-defaults:
-  org_skills: "none"
-  public_skills: "none"
-
 policies:
-  - slug: "your-skill-repo"
-    source: "org"
-    status: "recommended"    # recommended | discouraged | prohibited | none
+  github.com/your-org/your-repo/.claude/skills/your-skill/SKILL.md:
+    usage_policy: recommended    # recommended | discouraged | prohibited | none
     note: "Reason for this status"
-    updated_by: "team-name"
-    updated_at: "2026-02-24T00:00:00Z"
 ```
 
 Commit and push the changes. The deploy workflow will automatically rebuild the web UI.
@@ -79,21 +73,6 @@ Use the Claude Code slash command to add public skills:
 /manage-skill add owner/repo
 ```
 
-Or manually create `data/skills/public/{owner}_{repo}/skill.yaml`.
-
-## Local Development
-
-```bash
-# Build catalog from YAML data
-pnpm run build:catalog
-
-# Copy catalog to web static (needed for dev server)
-cp data/catalog.json web/static/catalog.json
-
-# Start development server
-pnpm dev
-```
-
 ## Workflow Overview
 
 ```
@@ -102,7 +81,6 @@ pnpm dev
 │  - Scan org repos       │
 │  - Parse SKILL.md       │
 │  - Write YAML           │
-│  - Build catalog.json   │
 │  - Commit & push        │
 └────────┬────────────────┘
          │ triggers

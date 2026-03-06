@@ -11,7 +11,10 @@
 	},
 	"filter": {
 		"label": "\u30d5\u30a3\u30eb\u30bf\u30fc:",
-		"clearAll": "\u3059\u3079\u3066\u89e3\u9664"
+		"clearAll": "\u3059\u3079\u3066\u89e3\u9664",
+		"allVisibility": "\u516c\u958b\u7bc4\u56f2",
+		"allOrigin": "\u30aa\u30fc\u30ca\u30fc",
+		"all": "\u3059\u3079\u3066"
 	},
 	"skillList": {
 		"empty": "\u6761\u4ef6\u306b\u4e00\u81f4\u3059\u308b\u30b9\u30ad\u30eb\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3002"
@@ -63,6 +66,9 @@
 		"title": "ページが見つかりません",
 		"message": "お探しのページは存在しないか、移動された可能性があります。",
 		"backToCatalog": "カタログに戻る"
+	},
+	"docs": {
+		"nav": "Docs"
 	},
 	"detail": {
 		"viewRepository": "\u30ea\u30dd\u30b8\u30c8\u30ea\u3092\u898b\u308b",
