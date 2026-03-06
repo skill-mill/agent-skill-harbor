@@ -1,5 +1,4 @@
 import { Octokit } from '@octokit/rest';
-import matter from 'gray-matter';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
 import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -220,30 +219,6 @@ async function findSkillFilesFallback(
 	return skills;
 }
 
-/**
- * Append a source URL to the _from array in SKILL.md frontmatter.
- * Returns the modified content, or the original content if it's not a SKILL.md.
- */
-function appendFromToSkillMd(content: string, sourceUrl: string): string {
-	const parsed = matter(content);
-	const existing = parsed.data._from;
-	let fromArray: string[];
-
-	if (Array.isArray(existing)) {
-		fromArray = existing;
-	} else if (existing != null) {
-		fromArray = [String(existing)];
-	} else {
-		fromArray = [];
-	}
-
-	if (!fromArray.includes(sourceUrl)) {
-		fromArray.push(sourceUrl);
-	}
-
-	parsed.data._from = fromArray;
-	return matter.stringify(parsed.content, parsed.data);
-}
 
 async function fetchFileContent(
 	octokit: Octokit,
@@ -409,17 +384,9 @@ async function main(): Promise<void> {
 				}
 
 				// Download all files in the skill directory
-				const repoBaseUrl = `https://${platform}/${org}/${repo.name}`;
-				const skillDir = skill.skillPath.replace(/\/SKILL\.md$/, '').replace(/^SKILL\.md$/, '');
-				const sourceUrl = skillDir
-					? `${repoBaseUrl}/tree/HEAD/${skillDir}`
-					: `${repoBaseUrl}/blob/HEAD/SKILL.md`;
 				for (const filePath of skill.filePaths) {
 					try {
-						let content = await fetchFileContent(octokit, org, repo.name, filePath);
-						if (filePath.endsWith('/SKILL.md') || filePath === 'SKILL.md') {
-							content = appendFromToSkillMd(content, sourceUrl);
-						}
+						const content = await fetchFileContent(octokit, org, repo.name, filePath);
 						saveFile(repoDir, filePath, content);
 						console.log(`  [collected] ${org}/${repo.name} -> ${filePath}`);
 					} catch (error) {

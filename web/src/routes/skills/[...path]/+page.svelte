@@ -45,36 +45,17 @@
 	);
 	let metadata = $derived((skill.frontmatter.metadata ?? {}) as Record<string, unknown>);
 	let formatDate = (iso: string) => new Date(iso).toLocaleDateString($locale, { year: 'numeric', month: 'short', day: 'numeric' });
-	let fromHistory = $derived(
-		Array.isArray(skill.frontmatter._from) ? skill.frontmatter._from.map(String) : []
+	let fromRef = $derived(
+		typeof skill.frontmatter._from === 'string' ? skill.frontmatter._from : null
 	);
-
-	let isPublic = $derived(skill.visibility === 'public');
-
-	// Build a map from _from URL pattern to usage_policy for governance badge lookup
-	let policyByKey = $derived.by(() => {
-		const map = new Map<string, UsagePolicy>();
-		for (const s of data.allSkills) {
-			map.set(s.key, s.usage_policy as UsagePolicy);
-		}
-		return map;
+	let fromUrl = $derived.by(() => {
+		if (!fromRef) return null;
+		const match = fromRef.match(/^([^@]+)@(.+)$/);
+		if (!match) return null;
+		return `https://github.com/${match[1]}/tree/${match[2]}`;
 	});
 
-	function fromUrlToKey(url: string): string | null {
-		try {
-			const parsed = new URL(url);
-			const pathname = parsed.pathname.replace(/\/(tree|blob)\/[^/]+\//, '/');
-			return (parsed.host + pathname + '/SKILL.md').replace(/\/+/g, '/');
-		} catch {
-			return null;
-		}
-	}
-
-	function getPolicyForFromUrl(url: string): UsagePolicy | null {
-		const key = fromUrlToKey(url);
-		if (!key) return null;
-		return policyByKey.get(key) ?? null;
-	}
+	let isPublic = $derived(skill.visibility === 'public');
 
 	let skillsmpUrl = $derived.by(() => {
 		const dir = skill.skillPath.replace(/\/SKILL\.md$/, '').replace(/^SKILL\.md$/, '');
@@ -312,29 +293,21 @@
 	{/if}
 
 	<!-- Source History -->
-	{#if fromHistory.length > 0}
+	{#if fromRef}
 		<div class="mb-8 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
 			<h2 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">{$t('detail.section.sourceHistory')}</h2>
-			<ol class="list-decimal space-y-2 pl-5">
-				{#each fromHistory as url}
-					{@const policy = getPolicyForFromUrl(url)}
-					<li>
-						<div class="flex flex-wrap items-center gap-2">
-							<a
-								href={url}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="text-sm text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-							>
-								{url}
-							</a>
-							{#if policy && policy !== 'none'}
-								<GovernanceBadge status={policy} />
-							{/if}
-						</div>
-					</li>
-				{/each}
-			</ol>
+			{#if fromUrl}
+				<a
+					href={fromUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-sm text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+				>
+					{fromRef}
+				</a>
+			{:else}
+				<span class="text-sm text-gray-700 dark:text-gray-300">{fromRef}</span>
+			{/if}
 		</div>
 	{/if}
 

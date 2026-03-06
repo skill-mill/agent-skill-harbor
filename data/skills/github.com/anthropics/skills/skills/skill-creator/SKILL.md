@@ -2,9 +2,7 @@
 name: skill-creator
 description: "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities."
 license: Complete terms in LICENSE.txt
-_from:
-  - https://github.com/anthropics/skills/tree/main/skills/skill-creator
-  - https://github.com/example-org/onboarding-toolkit/tree/main/skills/skill-creator
+_from: example-org/onboarding-toolkit@e4f5a6b
 ---
 
 # Skill Creator
