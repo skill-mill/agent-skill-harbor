@@ -1,8 +1,7 @@
 ---
 name: postgresql-table-design
 description: "Design a PostgreSQL-specific schema. Covers best-practices, data types, indexing, constraints, performance patterns, and advanced features."
-_from:
-  - https://github.com/wshobson/agents/tree/main/plugins/database-design/skills/postgresql
+_from: wshobson/agents@9a0b1c2
 ---
 
 # PostgreSQL Table Design

@@ -1,7 +1,7 @@
 {
 	"header": {
 		"title": "Agent Skill Harbor",
-		"catalog": "Catalog"
+		"catalog": "Skills"
 	},
 	"footer": {
 		"tagline": "Agent Skill Harbor \u2014 Know what your agents know."
@@ -55,7 +55,7 @@
 		"system": "System"
 	},
 	"catalog": {
-		"title": "Skill Catalog",
+		"title": "Skills",
 		"pageTitle": "Agent Skill Harbor",
 		"pageDescription": "Internal agent skill catalog and governance",
 		"skillCount_one": "{count} skill registered",

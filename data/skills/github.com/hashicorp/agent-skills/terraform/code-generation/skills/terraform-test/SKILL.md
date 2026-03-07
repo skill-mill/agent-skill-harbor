@@ -4,9 +4,7 @@ description: "Comprehensive guide for writing and running Terraform tests. Use w
 metadata:
   copyright: Copyright IBM Corp. 2026
   version: "0.0.1"
-_from:
-  - https://github.com/hashicorp/agent-skills/tree/main/terraform/code-generation/skills/terraform-test
-  - https://github.com/example-org/infra-skills/tree/main/skills/terraform-test
+_from: example-org/infra-skills@f7a8b9c
 ---
 
 # Terraform Test Guide

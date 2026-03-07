@@ -5,8 +5,7 @@ license: UNLICENSED
 metadata:
   author: data-team
   version: 0.9.0
-_from:
-  - https://github.com/example-org/data-team-tools/tree/main/skills/manual-db-migration
+_from: example-org/data-team-tools@d1e2f3a
 ---
 
 # Manual Database Migration

@@ -5,8 +5,7 @@ license: UNLICENSED
 metadata:
   author: platform-team
   version: 1.2.0
-_from:
-  - https://github.com/example-org/dev-standards/tree/main/skills/legacy-rest-client
+_from: example-org/dev-standards@b4c5d6e
 ---
 
 # Legacy Platform API v1 Client

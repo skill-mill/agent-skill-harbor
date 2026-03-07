@@ -1,7 +1,7 @@
 {
 	"header": {
 		"title": "Agent Skill Harbor",
-		"catalog": "Catalog"
+		"catalog": "Skills"
 	},
 	"footer": {
 		"tagline": "Agent Skill Harbor \u2014 Know what your agents know."
@@ -55,7 +55,7 @@
 		"system": "\u30b7\u30b9\u30c6\u30e0"
 	},
 	"catalog": {
-		"title": "\u30b9\u30ad\u30eb\u30ab\u30bf\u30ed\u30b0",
+		"title": "Skills",
 		"pageTitle": "Agent Skill Harbor",
 		"pageDescription": "\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u30b9\u30ad\u30eb\u30ab\u30bf\u30ed\u30b0\u3068\u30ac\u30d0\u30ca\u30f3\u30b9",
 		"skillCount_one": "{count} \u4ef6\u306e\u30b9\u30ad\u30eb\u304c\u767b\u9332\u6e08\u307f",
