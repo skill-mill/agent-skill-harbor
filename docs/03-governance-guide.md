@@ -4,12 +4,12 @@ Agent Skill Harbor provides governance controls to manage how Agent Skills are u
 
 ## Governance Statuses
 
-| Status | Description | Badge Color |
-|--------|-------------|-------------|
-| **recommended** | Encouraged for use, reviewed and approved | Green |
-| **deprecated** | Should be phased out, use alternatives | Amber |
-| **prohibited** | Must not be used due to security/compliance concerns | Red |
-| **none** | No governance policy assigned (default) | Gray |
+| Status          | Description                                          | Badge Color |
+| --------------- | ---------------------------------------------------- | ----------- |
+| **recommended** | Encouraged for use, reviewed and approved            | Green       |
+| **discouraged** | Use is not recommended, consider alternatives        | Amber       |
+| **prohibited**  | Must not be used due to security/compliance concerns | Red         |
+| **none**        | No governance policy assigned (default)              | Gray        |
 
 ## Configuration
 
@@ -18,29 +18,18 @@ Governance policies are defined in `config/governance.yaml`.
 ### Structure
 
 ```yaml
-version: "1"
-
-defaults:
-  org_skills: "none"      # Default status for org-collected skills
-  public_skills: "none"   # Default status for manually-added public skills
-
 policies:
-  - slug: "skill-slug"
-    source: "org"          # "org" or "public"
-    status: "recommended"
-    note: "Reason for this policy"
-    updated_by: "team-or-person"
-    updated_at: "2026-02-24T00:00:00Z"
+  github.com/your-org/your-repo/skills/your-skill/SKILL.md:
+    usage_policy: recommended # recommended | discouraged | prohibited | none
+    note: 'Reason for this policy'
 ```
+
+Each key is a skill path in the format `github.com/{org}/{repo}/{skillPath}`.
 
 ### Fields
 
-- **slug**: The skill identifier (repository name for org skills, `{owner}_{repo}` for public skills)
-- **source**: Whether the skill is from the organization (`org`) or publicly added (`public`)
-- **status**: One of the governance statuses listed above
-- **note**: Human-readable explanation of why this status was assigned
-- **updated_by**: The team or person who set this policy
-- **updated_at**: When the policy was last updated
+- **usage_policy**: One of the governance statuses listed above
+- **note**: Human-readable explanation of why this policy was assigned
 
 ## Managing Policies
 
@@ -70,15 +59,14 @@ For organizations that require governance changes to go through review:
 
 ## Collection Behavior
 
-During skill collection (via GitHub Actions), the governance status from `config/governance.yaml` is merged into each skill's YAML data. This means:
+During skill collection (via GitHub Actions), the governance status from `config/governance.yaml` is merged into each skill's data. This means:
 
-- Governance changes take effect on the next collection run or catalog build
+- Governance changes take effect on the next catalog build
 - The web UI always reflects the latest governance state after a build
-- Skills without a specific policy use the default status
+- Skills without a specific policy default to `none`
 
 ## Best Practices
 
-1. **Document your reasoning** - Always include a `note` explaining why a status was assigned
-2. **Track ownership** - Use `updated_by` to record which team made the decision
+1. **Document your reasoning** - Always include a `note` explaining why a policy was assigned
+2. **Use PRs for changes** - Governance changes should go through your normal code review process
 3. **Review regularly** - Periodically review policies to ensure they're still relevant
-4. **Use PRs for changes** - Governance changes should go through your normal code review process

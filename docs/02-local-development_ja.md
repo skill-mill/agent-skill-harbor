@@ -1,59 +1,85 @@
 # ローカル開発
 
-## 前提条件
+## ユーザー向け（npm パッケージ）
+
+`npx agent-skill-harbor init` でプロジェクトを作成した場合:
+
+```bash
+pnpm install
+pnpm dev          # 開発サーバーの起動
+pnpm collect      # 組織からスキルを収集
+pnpm build        # 静的サイトをビルド
+pnpm preview      # ビルド結果をプレビュー
+```
+
+これらのスクリプトは内部的に `skill-harbor` CLI を呼び出します。
+
+## コントリビューター向け（ソースから）
+
+### 前提条件
 
 - Node.js 22+
 - pnpm 10+
 
-## はじめに
+### はじめに
 
 ```bash
-# 依存関係のインストール
+git clone https://github.com/anthropics/agent-skill-harbor.git
+cd agent-skill-harbor
 pnpm install
-
-# 開発サーバーの起動
+pnpm setup:dev    # テンプレートとフィクスチャをコピー
+# .env を編集: GH_TOKEN, GH_ORG のコメントを外して設定
 pnpm dev
 ```
 
 開発サーバーは `http://localhost:5173` で起動します。
 
-## ビルド
+`pnpm setup:dev` は以下をプロジェクトルートにコピーします（すべて gitignore 対象）:
+
+1. `templates/.env.example` → `.env`
+2. `templates/config/*` → `config/`
+3. `fixtures/config/*` → `config/`（サンプルのガバナンスポリシーで上書き）
+4. `fixtures/data/*` → `data/`（サンプルのカタログ・スキルデータ）
+
+### コマンド
 
 ```bash
-# すべてをビルド (Web)
-pnpm run build
+pnpm dev          # 開発サーバーの起動
+pnpm build        # Web アプリのビルド
+pnpm preview      # ビルド結果のプレビュー
+pnpm check        # 型チェック
+pnpm lint         # リント
+pnpm format       # Prettier でフォーマット
+pnpm collect      # スキル収集（GH_TOKEN が必要）
+pnpm build:cli    # CLI をビルド（bin/ や src/ を変更した後に実行）
+pnpm setup:dev    # テンプレートとフィクスチャを再コピー
 ```
 
-## スキル収集
-
-組織のリポジトリからローカルでスキルを収集するには:
-
-```bash
-# 必要な環境変数を設定
-export GITHUB_TOKEN=your_token
-export GH_ORG=your_org
-
-# スキル収集を実行
-pnpm run collect
-```
-
-## プロジェクト構成
+### プロジェクト構成
 
 ```
-├── config/               # 人が管理する設定
-│   ├── admin.yaml        # アプリケーション設定
-│   └── governance.yaml   # ガバナンスポリシー定義
-├── data/                 # マシン生成の収集データ
-│   ├── catalog.yaml      # スキルカタログメタデータ
-│   └── skills/           # 収集された SKILL.md ファイル
-├── scripts/              # 収集・ビルドスクリプト
+├── bin/                  # CLI エントリポイント
+├── src/cli/              # CLI コマンド (init, collect, build, dev, preview)
+├── scripts/              # 開発用スクリプト (setup-dev, collect)
 ├── web/                  # SvelteKit フロントエンドアプリケーション
-└── .github/workflows/    # GitHub Actions (収集 + デプロイ)
+│   ├── src/lib/server/   # サーバーサイドデータ読み込み (catalog, docs)
+│   ├── src/routes/       # ページ (カタログ, スキル詳細, グラフ, ドキュメント)
+│   └── src/lib/i18n/     # 国際化 (en, ja)
+├── templates/            # プロジェクト雛形テンプレート（init コマンド用）
+│   ├── .env.example      # 環境変数テンプレート
+│   ├── config/           # デフォルト設定ファイル
+│   └── .github/workflows/# GitHub Actions ワークフロー
+├── fixtures/             # ローカル開発用サンプルデータ
+│   ├── config/           # サンプルのガバナンスポリシー
+│   └── data/             # サンプルのカタログ・スキルデータ
+├── config/               # 設定ファイル（gitignore 対象、setup:dev で作成）
+├── data/                 # 収集データ（gitignore 対象、setup:dev で作成）
+└── docs/                 # ドキュメント
 ```
 
-### 主要ディレクトリ
+### 主要アーキテクチャ
 
-- **config/**: 人が編集する設定ファイル。`admin.yaml` はアプリケーション設定（新着期間、フォーク除外など）を管理。`governance.yaml` はスキルごとのガバナンスポリシーを定義。
-- **data/**: マシン生成データ。`catalog.yaml` は収集された全スキルのメタデータを保持。`skills/` にはプラットフォーム/オーナー/リポジトリごとに整理されたキャッシュ済み SKILL.md ファイルが格納。
-- **scripts/**: `collect-org-skills.ts` スクリプトが GitHub API を使用して Org 内の全リポジトリから SKILL.md ファイルをスキャン。
-- **web/**: adapter-static によるプリレンダリングを使用した SvelteKit アプリケーション。すべてのページはビルド時に生成され、静的 HTML として配信。
+- **`SKILL_HARBOR_ROOT` 環境変数**: データ・設定・ドキュメントの読み取り先を制御。CLI 使用時はユーザーのプロジェクトディレクトリに自動設定。開発時はリポジトリルートにフォールバック。
+- **`web/vite.config.ts`**: `SKILL_HARBOR_ROOT` からコンパイル時定数 `__PROJECT_ROOT__` を注入。
+- **`web/src/lib/server/catalog.ts`**: プリレンダリング時に `data/catalog.yaml` と `data/skills/` を読み込み。
+- **`adapter-static`**: すべてのページはビルド時にプリレンダリングされ、静的 HTML として配信。サーバーランタイム不要。
