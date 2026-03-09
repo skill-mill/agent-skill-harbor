@@ -1,0 +1,6 @@
+collector:
+  exclude_forks: true # skip forked repositories when collecting
+
+catalog:
+  skill:
+    fresh_period_days: 30 # 0 = disable "New" badge

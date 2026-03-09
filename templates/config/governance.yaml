@@ -1,0 +1,8 @@
+# Skill governance policies
+# Each key is a skill path (github.com/{org}/{repo}/{skillPath})
+# Supported usage_policy values: recommended, discouraged, prohibited, none
+policies: {}
+  # Example:
+  # github.com/your-org/repo/skills/example-skill/SKILL.md:
+  #   usage_policy: recommended
+  #   note: "Approved for production use"
