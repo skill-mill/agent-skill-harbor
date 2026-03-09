@@ -1,4 +1,5 @@
 import { Octokit } from '@octokit/rest';
+import matter from 'gray-matter';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
 import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -15,6 +16,7 @@ interface AdminConfig {
 	collector?: {
 		exclude_forks?: boolean;
 		exclude_repos?: string[];
+		collect_public_origin_repos?: boolean;
 	};
 }
 
@@ -65,6 +67,23 @@ interface DiscoveredSkill {
 	filePaths: string[];
 }
 
+interface RepoTarget {
+	owner: string;
+	repo: string;
+	default_branch: string;
+	html_url: string;
+	visibility: string;
+	fork: boolean;
+	source: 'org' | 'from';
+}
+
+interface ParsedFromRef {
+	owner: string;
+	repo: string;
+	repoKey: string;
+	sha: string | null;
+}
+
 function loadCatalog(): CatalogYaml {
 	if (!existsSync(CATALOG_YAML_PATH)) {
 		return { repositories: {} };
@@ -88,6 +107,19 @@ function saveFile(repoDir: string, filePath: string, content: string): void {
 		mkdirSync(dir, { recursive: true });
 	}
 	writeFileSync(fullPath, content);
+}
+
+function readFrontmatterFromSavedSkill(repoDir: string, skillPath: string): Record<string, unknown> {
+	const fullPath = join(repoDir, skillPath);
+	if (!existsSync(fullPath)) return {};
+	try {
+		const parsed = matter(readFileSync(fullPath, 'utf-8'));
+		const frontmatter = { ...parsed.data } as Record<string, unknown>;
+		delete frontmatter._excerpt;
+		return frontmatter;
+	} catch {
+		return {};
+	}
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -219,6 +251,171 @@ async function fetchFileContent(octokit: Octokit, owner: string, repo: string, p
 	return Buffer.from(data.content, 'base64').toString('utf-8');
 }
 
+function normalizeRepoKey(platform: string, owner: string, repo: string): string {
+	return `${platform}/${owner}/${repo}`;
+}
+
+function parseFromRepoRef(platform: string, from: unknown): ParsedFromRef | null {
+	if (typeof from !== 'string') return null;
+	const trimmed = from.trim();
+	const match = trimmed.match(/^([^/\s]+)\/([^@\s]+)(?:@(.+))?$/);
+	if (!match) return null;
+	return {
+		owner: match[1],
+		repo: match[2],
+		repoKey: normalizeRepoKey(platform, match[1], match[2]),
+		sha: match[3] ?? null,
+	};
+}
+
+function collectFromRefsFromFrontmatter(
+	platform: string,
+	frontmatter: Record<string, unknown>,
+	seenRepoKeys: Set<string>,
+	queuedRepoKeys: Set<string>,
+): ParsedFromRef[] {
+	const parsed = parseFromRepoRef(platform, frontmatter._from);
+	if (!parsed) return [];
+	if (seenRepoKeys.has(parsed.repoKey) || queuedRepoKeys.has(parsed.repoKey)) return [];
+	queuedRepoKeys.add(parsed.repoKey);
+	return [parsed];
+}
+
+async function fetchRepoTarget(octokit: Octokit, platform: string, owner: string, repo: string): Promise<RepoTarget | null> {
+	try {
+		await checkRateLimit(octokit);
+		const { data } = await octokit.repos.get({ owner, repo });
+		if (data.private) {
+			console.log(`  [skip] ${owner}/${repo} (referenced via _from, not public)`);
+			return null;
+		}
+		return {
+			owner,
+			repo,
+			default_branch: data.default_branch ?? 'main',
+			html_url: data.html_url,
+			visibility: 'public',
+			fork: data.fork,
+			source: 'from',
+		};
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		console.log(`  [skip] ${owner}/${repo} (referenced via _from, unavailable: ${message})`);
+		return null;
+	}
+}
+
+async function collectRepoSkills(
+	octokit: Octokit,
+	platform: string,
+	target: RepoTarget,
+	catalog: CatalogYaml,
+	fromRefs: ParsedFromRef[],
+	seenRepoKeys: Set<string>,
+	queuedRepoKeys: Set<string>,
+	counts: { collectedCount: number; skippedRepoCount: number; skippedSkillCount: number },
+	collectFromRefs: boolean,
+): Promise<void> {
+	const repoKey = normalizeRepoKey(platform, target.owner, target.repo);
+	const existingRepo = catalog.repositories[repoKey];
+
+	await checkRateLimit(octokit);
+	const { data: branchData } = await octokit.repos.getBranch({
+		owner: target.owner,
+		repo: target.repo,
+		branch: target.default_branch,
+	});
+	const headSha = branchData.commit.sha;
+
+	const repoDir = join(SKILLS_DIR, platform, target.owner, target.repo);
+	if (existingRepo?.repo_sha === headSha) {
+		counts.skippedRepoCount++;
+		console.log(`  [skip] ${target.owner}/${target.repo} (repo unchanged)`);
+		if (collectFromRefs) {
+			for (const skillPath of Object.keys(existingRepo.skills)) {
+				const frontmatter = readFrontmatterFromSavedSkill(repoDir, skillPath);
+				fromRefs.push(...collectFromRefsFromFrontmatter(platform, frontmatter, seenRepoKeys, queuedRepoKeys));
+			}
+		}
+		return;
+	}
+
+	await checkRateLimit(octokit);
+	const { data: treeData } = await octokit.git.getTree({
+		owner: target.owner,
+		repo: target.repo,
+		tree_sha: headSha,
+		recursive: 'true',
+	});
+
+	let discoveredSkills: DiscoveredSkill[];
+	if (treeData.truncated) {
+		console.log(`  [warn] ${target.owner}/${target.repo}: tree truncated, falling back to getContent`);
+		discoveredSkills = await findSkillFilesFallback(octokit, target.owner, target.repo);
+	} else {
+		discoveredSkills = discoverSkillsFromTree(treeData.tree as TreeEntry[]);
+	}
+
+	if (discoveredSkills.length === 0) return;
+
+	const newSkills: Record<string, SkillEntry> = {};
+
+	for (const skill of discoveredSkills) {
+		const existingSkill = existingRepo?.skills?.[skill.skillPath];
+		if (skill.treeSha && existingSkill?.tree_sha === skill.treeSha) {
+			newSkills[skill.skillPath] = existingSkill;
+			counts.skippedSkillCount++;
+			console.log(`  [skip] ${target.owner}/${target.repo} -> ${skill.skillPath} (tree_sha unchanged)`);
+			if (collectFromRefs) {
+				const frontmatter = readFrontmatterFromSavedSkill(repoDir, skill.skillPath);
+				fromRefs.push(...collectFromRefsFromFrontmatter(platform, frontmatter, seenRepoKeys, queuedRepoKeys));
+			}
+			continue;
+		}
+
+		let collectedFrontmatter: Record<string, unknown> = {};
+		for (const filePath of skill.filePaths) {
+			try {
+				const content = await fetchFileContent(octokit, target.owner, target.repo, filePath);
+				saveFile(repoDir, filePath, content);
+				console.log(`  [collected:${target.source}] ${target.owner}/${target.repo} -> ${filePath}`);
+				if (filePath === skill.skillPath) {
+					const parsed = matter(content);
+					collectedFrontmatter = { ...parsed.data } as Record<string, unknown>;
+					delete collectedFrontmatter._excerpt;
+				}
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error);
+				console.error(`  [error] ${target.owner}/${target.repo} -> ${filePath}: ${message}`);
+			}
+		}
+
+		if (collectFromRefs) {
+			fromRefs.push(...collectFromRefsFromFrontmatter(platform, collectedFrontmatter, seenRepoKeys, queuedRepoKeys));
+		}
+
+		counts.collectedCount++;
+		const now = new Date().toISOString();
+		newSkills[skill.skillPath] = {
+			tree_sha: skill.treeSha,
+			updated_at: now,
+			registered_at: existingSkill?.registered_at ?? now,
+			frontmatter: collectedFrontmatter,
+			files: skill.filePaths,
+		};
+	}
+
+	catalog.repositories[repoKey] = {
+		visibility: target.visibility,
+		repo_sha: headSha,
+		...(target.fork ? { fork: true } : {}),
+		skills: {
+			...existingRepo?.skills,
+			...newSkills,
+		},
+	};
+}
+
 function detectOrgRepo(): { org: string | null; repo: string | null } {
 	let org = process.env.GH_ORG || null;
 	let repo = process.env.GH_REPO || null;
@@ -271,15 +468,10 @@ async function main(): Promise<void> {
 	const admin = loadAdmin();
 	const excludeForks = admin.collector?.exclude_forks ?? false;
 	const excludeRepos = new Set(admin.collector?.exclude_repos ?? []);
+	const collectPublicOriginRepos = admin.collector?.collect_public_origin_repos ?? true;
 
 	// Fetch all repositories in the org
-	const repos: Array<{
-		name: string;
-		default_branch: string;
-		html_url: string;
-		visibility: string;
-		fork: boolean;
-	}> = [];
+	const repos: RepoTarget[] = [];
 	let page = 1;
 
 	while (true) {
@@ -298,11 +490,13 @@ async function main(): Promise<void> {
 			if (excludeForks && repo.fork) continue;
 			if (excludeRepos.has(repo.name)) continue;
 			repos.push({
-				name: repo.name,
+				owner: org,
+				repo: repo.name,
 				default_branch: repo.default_branch ?? 'main',
 				html_url: repo.html_url,
 				visibility: repo.visibility ?? 'private',
 				fork: repo.fork,
+				source: 'org',
 			});
 		}
 
@@ -313,109 +507,69 @@ async function main(): Promise<void> {
 		.filter(Boolean)
 		.join(', ');
 	console.log(`Found ${repos.length} repositories${filters ? ` (${filters})` : ''}`);
+	if (collectPublicOriginRepos) {
+		console.log(`Following public _from repositories: enabled`);
+	}
 
 	let collectedCount = 0;
 	let skippedRepoCount = 0;
 	let skippedSkillCount = 0;
+	const counts = { collectedCount, skippedRepoCount, skippedSkillCount };
+	const seenRepoKeys = new Set<string>();
+	const queuedExternalRepoKeys = new Set<string>();
+	const fromRefs: ParsedFromRef[] = [];
 
 	for (const repo of repos) {
 		try {
-			const repoKey = `${platform}/${org}/${repo.name}`;
-			const existingRepo = catalog.repositories[repoKey];
-
-			// Check HEAD SHA to skip unchanged repos
-			await checkRateLimit(octokit);
-			const { data: branchData } = await octokit.repos.getBranch({
-				owner: org,
-				repo: repo.name,
-				branch: repo.default_branch,
-			});
-			const headSha = branchData.commit.sha;
-
-			if (existingRepo?.repo_sha === headSha) {
-				skippedRepoCount++;
-				continue;
-			}
-
-			// Get recursive tree for skill discovery and tree_sha extraction
-			await checkRateLimit(octokit);
-			const { data: treeData } = await octokit.git.getTree({
-				owner: org,
-				repo: repo.name,
-				tree_sha: headSha,
-				recursive: 'true',
-			});
-
-			let discoveredSkills: DiscoveredSkill[];
-
-			if (treeData.truncated) {
-				console.log(`  [warn] ${repo.name}: tree truncated, falling back to getContent`);
-				discoveredSkills = await findSkillFilesFallback(octokit, org, repo.name);
-			} else {
-				discoveredSkills = discoverSkillsFromTree(treeData.tree as TreeEntry[]);
-			}
-
-			if (discoveredSkills.length === 0) continue;
-
-			const repoDir = join(SKILLS_DIR, platform, org, repo.name);
-			const newSkills: Record<string, SkillEntry> = {};
-
-			for (const skill of discoveredSkills) {
-				// Check tree_sha for skill-level skip
-				const existingSkill = existingRepo?.skills?.[skill.skillPath];
-				if (skill.treeSha && existingSkill?.tree_sha === skill.treeSha) {
-					// Skill directory unchanged, preserve existing entry
-					newSkills[skill.skillPath] = existingSkill;
-					skippedSkillCount++;
-					console.log(`  [skip] ${org}/${repo.name} -> ${skill.skillPath} (tree_sha unchanged)`);
-					continue;
-				}
-
-				// Download all files in the skill directory
-				for (const filePath of skill.filePaths) {
-					try {
-						const content = await fetchFileContent(octokit, org, repo.name, filePath);
-						saveFile(repoDir, filePath, content);
-						console.log(`  [collected] ${org}/${repo.name} -> ${filePath}`);
-					} catch (error) {
-						const message = error instanceof Error ? error.message : String(error);
-						console.error(`  [error] ${org}/${repo.name} -> ${filePath}: ${message}`);
-					}
-				}
-
-				collectedCount++;
-
-				const now = new Date().toISOString();
-				newSkills[skill.skillPath] = {
-					tree_sha: skill.treeSha,
-					updated_at: now,
-					registered_at: existingSkill?.registered_at ?? now,
-					frontmatter: {},
-					files: skill.filePaths,
-				};
-			}
-
-			// Update catalog entry
-			catalog.repositories[repoKey] = {
-				visibility: repo.visibility,
-				repo_sha: headSha,
-				...(repo.fork ? { fork: true } : {}),
-				skills: {
-					...existingRepo?.skills,
-					...newSkills,
-				},
-			};
+			const repoKey = normalizeRepoKey(platform, repo.owner, repo.repo);
+			seenRepoKeys.add(repoKey);
+			await collectRepoSkills(
+				octokit,
+				platform,
+				repo,
+				catalog,
+				fromRefs,
+				seenRepoKeys,
+					queuedExternalRepoKeys,
+					counts,
+					collectPublicOriginRepos,
+				);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
-			console.error(`  [error] ${repo.name}: ${message}`);
+			console.error(`  [error] ${repo.owner}/${repo.repo}: ${message}`);
+		}
+	}
+
+	if (collectPublicOriginRepos) {
+		for (const fromRef of fromRefs) {
+			if (seenRepoKeys.has(fromRef.repoKey)) continue;
+			seenRepoKeys.add(fromRef.repoKey);
+			const target = await fetchRepoTarget(octokit, platform, fromRef.owner, fromRef.repo);
+			if (!target) continue;
+			try {
+				await collectRepoSkills(
+					octokit,
+					platform,
+					target,
+					catalog,
+					[],
+					seenRepoKeys,
+					queuedExternalRepoKeys,
+					counts,
+					false,
+				);
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error);
+				console.error(`  [error] ${target.owner}/${target.repo}: ${message}`);
+			}
 		}
 	}
 
 	saveCatalog(catalog);
 	console.log(
-		`\nDone: ${collectedCount} skill(s) collected, ` +
-			`${skippedRepoCount} repo(s) unchanged, ` +
-			`${skippedSkillCount} skill(s) unchanged (tree_sha)`,
+		`\nDone: ${counts.collectedCount} skill(s) collected, ` +
+			`${counts.skippedRepoCount} repo(s) unchanged, ` +
+			`${counts.skippedSkillCount} skill(s) unchanged (tree_sha)`,
 	);
 }
 

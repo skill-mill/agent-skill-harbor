@@ -2,6 +2,7 @@ collector:
   exclude_forks: true # skip forked repositories when collecting
   # exclude_repos:    # repository names to skip when collecting
   #   - some-repo-name
+  collect_public_origin_repos: true # collect public repositories referenced by _from (1 level, deduped by owner/repo)
 
 catalog:
   skill:
