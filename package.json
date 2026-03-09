@@ -7,10 +7,10 @@
 	"license": "MIT",
 	"packageManager": "pnpm@10.30.2",
 	"engines": {
-		"node": ">=22"
+		"node": ">=24"
 	},
 	"bin": {
-		"skill-harbor": "./dist/bin/cli.js",
+		"harbor": "./dist/bin/cli.js",
 		"agent-skill-harbor": "./dist/bin/cli.js"
 	},
 	"files": [

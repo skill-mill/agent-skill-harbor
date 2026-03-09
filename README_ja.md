@@ -53,21 +53,21 @@ pnpm dev
 
 ## CLI コマンド
 
-依存パッケージとしてインストール後、`skill-harbor` または `agent-skill-harbor` として利用可能：
+依存パッケージとしてインストール後、`harbor` または `agent-skill-harbor` として利用可能：
 
-| コマンド                  | 説明                                 |
-| ------------------------- | ------------------------------------ |
-| `skill-harbor init [dir]` | 新しいプロジェクトをスキャフォールド |
-| `skill-harbor collect`    | GitHub Organization からスキルを収集 |
-| `skill-harbor build`      | 静的サイトをビルド                   |
-| `skill-harbor dev`        | 開発サーバーを起動                   |
-| `skill-harbor preview`    | ビルド結果をプレビュー               |
+| コマンド              | 説明                                 |
+| --------------------- | ------------------------------------ |
+| `harbor init [dir]`   | 新しいプロジェクトをスキャフォールド |
+| `harbor collect`      | GitHub Organization からスキルを収集 |
+| `harbor build`        | 静的サイトをビルド                   |
+| `harbor dev`          | 開発サーバーを起動                   |
+| `harbor preview`      | ビルド結果をプレビュー               |
 
 ### ビルドオプション
 
 ```bash
 # GitHub Pages デプロイ用のベースパスを設定
-skill-harbor build --base=/my-repo-name
+harbor build --base=/my-repo-name
 ```
 
 ## 組織へのセットアップ

@@ -11,7 +11,7 @@ export default defineConfig({
 		'src/cli/commands/init': 'src/cli/commands/init.ts',
 	},
 	format: 'esm',
-	target: 'node22',
+	target: 'node24',
 	outDir: 'dist',
 	clean: true,
 	splitting: false,

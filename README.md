@@ -54,21 +54,21 @@ pnpm dev
 
 ## CLI Commands
 
-When installed as a dependency, the CLI is available as `skill-harbor` or `agent-skill-harbor`:
+When installed as a dependency, the CLI is available as `harbor` or `agent-skill-harbor`:
 
-| Command                   | Description                             |
-| ------------------------- | --------------------------------------- |
-| `skill-harbor init [dir]` | Scaffold a new project                  |
-| `skill-harbor collect`    | Collect skills from GitHub organization |
-| `skill-harbor build`      | Build the static site                   |
-| `skill-harbor dev`        | Start development server                |
-| `skill-harbor preview`    | Preview the built site                  |
+| Command                | Description                             |
+| ---------------------- | --------------------------------------- |
+| `harbor init [dir]`    | Scaffold a new project                  |
+| `harbor collect`       | Collect skills from GitHub organization |
+| `harbor build`         | Build the static site                   |
+| `harbor dev`           | Start development server                |
+| `harbor preview`       | Preview the built site                  |
 
 ### Build options
 
 ```bash
 # Set base path for GitHub Pages deployment
-skill-harbor build --base=/my-repo-name
+harbor build --base=/my-repo-name
 ```
 
 ## Organization Setup

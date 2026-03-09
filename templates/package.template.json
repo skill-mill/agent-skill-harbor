@@ -1,0 +1,14 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "collect": "harbor collect",
+    "build": "harbor build",
+    "dev": "harbor dev",
+    "preview": "harbor preview"
+  },
+  "dependencies": {
+    "agent-skill-harbor": "^0.1.0"
+  }
+}

@@ -2,7 +2,7 @@
 
 const USAGE = `agent-skill-harbor CLI
 
-Usage: skill-harbor <command>
+Usage: harbor <command>
 
 Commands:
   init      Scaffold a new project
