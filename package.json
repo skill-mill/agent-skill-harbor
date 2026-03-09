@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"type": "module",
 	"description": "Agent skill catalog and governance for organizations",
 	"license": "MIT",
