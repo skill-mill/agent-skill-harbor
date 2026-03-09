@@ -5,7 +5,7 @@ This guide explains how to deploy Agent Skill Harbor for your organization.
 ## Prerequisites
 
 - GitHub Enterprise Cloud (only if hosting the web UI privately on GitHub Pages)
-- Node.js 22+
+- Node.js 24+
 - pnpm 10+ (or npm)
 
 ## Step 1: Create a New Project

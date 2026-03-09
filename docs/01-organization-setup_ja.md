@@ -5,7 +5,7 @@
 ## 前提条件
 
 - GitHub Enterprise Cloud（Web UI を GitHub Pages に Private でホストする場合のみ）
-- Node.js 22+
+- Node.js 24+
 - pnpm 10+（または npm）
 
 ## ステップ 1: プロジェクトの作成

@@ -12,13 +12,13 @@ pnpm build        # Build static site
 pnpm preview      # Preview built site
 ```
 
-These scripts call the `skill-harbor` CLI under the hood.
+These scripts call the `harbor` CLI under the hood.
 
 ## For Contributors (from source)
 
 ### Prerequisites
 
-- Node.js 22+
+- Node.js 24+
 - pnpm 10+
 
 ### Getting Started
