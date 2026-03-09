@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { dev } from '$app/environment';
+	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
@@ -16,6 +17,20 @@
 	let graphRef:
 		| { zoomIn: () => void; zoomOut: () => void; zoomReset: () => void; getCanvasDataURL: () => string | null }
 		| undefined = $state();
+
+	$effect(() => {
+		if (!browser) return;
+		const params = new URLSearchParams(window.location.search);
+		searchQuery = params.get('q') ?? '';
+	});
+
+	function updateUrl(newQuery: string) {
+		if (!browser) return;
+		const params = new URLSearchParams();
+		if (newQuery) params.set('q', newQuery);
+		const search = params.toString();
+		goto(`${base}/graph/${search ? `?${search}` : ''}`, { replaceState: true, keepFocus: true, noScroll: true });
+	}
 
 	function handlePrint() {
 		const dataURL = graphRef?.getCanvasDataURL();
@@ -41,6 +56,32 @@
 		selectedNodeId = null;
 		selectedAttrs = null;
 	}
+
+	$effect(() => {
+		const selected = selectedAttrs;
+		const skills = data.skills;
+		if (!selected) return;
+
+		if (
+			selected.nodeType === 'skill' &&
+			!skills.some((skill) => `skill:${skill.key}` === selectedNodeId)
+		) {
+			closePanel();
+			return;
+		}
+
+		if (
+			selected.nodeType === 'repo' &&
+			!skills.some((skill) => {
+				const ownerRepo = `${skill.owner}/${skill.repo}`;
+				const fromStr =
+					typeof skill.frontmatter._from === 'string' ? skill.frontmatter._from.replace(/@.*$/, '') : null;
+				return ownerRepo === selected.label || fromStr === selected.label;
+			})
+		) {
+			closePanel();
+		}
+	});
 
 	let skillDetailPath = $derived.by(() => {
 		if (!selectedAttrs || selectedAttrs.nodeType !== 'skill') return null;
@@ -73,7 +114,12 @@
 	<div class="relative min-h-0 flex-1 bg-gray-50 dark:bg-gray-950">
 		{#if browser}
 			{#await import('$lib/components/SkillGraph.svelte') then module}
-				<module.default bind:this={graphRef} skills={data.skills} {searchQuery} onNodeSelect={handleNodeSelect} />
+				<module.default
+					bind:this={graphRef}
+					skills={data.skills}
+					{searchQuery}
+					onNodeSelect={handleNodeSelect}
+				/>
 			{/await}
 		{/if}
 
@@ -94,12 +140,16 @@
 				<input
 					type="text"
 					bind:value={searchQuery}
+					oninput={() => updateUrl(searchQuery)}
 					placeholder="Search nodes..."
 					class="w-56 rounded-lg border border-gray-200 bg-white/80 py-1.5 pl-8 pr-8 text-sm text-gray-900 shadow-sm backdrop-blur-sm placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 				/>
 				{#if searchQuery}
 					<button
-						onclick={() => (searchQuery = '')}
+						onclick={() => {
+							searchQuery = '';
+							updateUrl('');
+						}}
 						class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
 						aria-label="Clear search"
 					>

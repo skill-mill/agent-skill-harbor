@@ -1,4 +1,3 @@
-import Graph from 'graphology';
 import type { FlatSkillEntry } from '$lib/types';
 
 export interface SkillNodeAttrs {
@@ -25,16 +24,30 @@ export interface RepoNodeAttrs {
 
 export type GraphNodeAttrs = SkillNodeAttrs | RepoNodeAttrs;
 
+export type GraphNode = GraphNodeAttrs & { id: string };
+
+export interface GraphLink {
+	source: string;
+	target: string;
+	edgeType: 'lives_in' | 'derived_from';
+	color: string;
+}
+
+export interface GraphData {
+	nodes: GraphNode[];
+	links: GraphLink[];
+}
+
 const COLORS = {
-	skill: '#3b82f6', // blue-500
-	repo: '#10b981', // emerald-500
-	edgeDerivedFrom: '#f59e0b', // amber-500
+	skill: '#6366f1', // indigo-500
+	repo: '#0d9488', // teal-600
+	edgeDerivedFrom: '#d97706', // amber-600
 	edgeLivesIn: '#cbd5e1', // slate-300
 };
 
 const COLORS_DARK = {
-	skill: '#60a5fa', // blue-400
-	repo: '#34d399', // emerald-400
+	skill: '#a5b4fc', // indigo-300
+	repo: '#5eead4', // teal-300
 	edgeDerivedFrom: '#fbbf24', // amber-400
 	edgeLivesIn: '#475569', // slate-600
 };
@@ -50,15 +63,6 @@ function parseFrom(from: unknown): { owner: string; repo: string; sha: string } 
 	return { owner: match[1], repo: match[2], sha: match[3] };
 }
 
-/** Simple deterministic hash → [0, 1) float from a string */
-function hashToFloat(s: string, seed: number): number {
-	let h = seed | 0;
-	for (let i = 0; i < s.length; i++) {
-		h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-	}
-	return ((h >>> 0) % 10000) / 10000;
-}
-
 function repoNodeId(owner: string, repo: string): string {
 	return `repo:${owner}/${repo}`;
 }
@@ -67,12 +71,14 @@ function skillNodeId(key: string): string {
 	return `skill:${key}`;
 }
 
-export function buildSkillGraph(skills: FlatSkillEntry[], dark = false): Graph {
-	const graph = new Graph({ multi: false, type: 'mixed' });
+export function buildGraphData(skills: FlatSkillEntry[], dark = false): GraphData {
 	const colors = getColors(dark);
+	const nodes: GraphNode[] = [];
+	const links: GraphLink[] = [];
 	const repoSkillCounts = new Map<string, number>();
+	const repoNodeIds = new Set<string>();
 
-	// Pre-compute repo sizes (number of connected skills)
+	// Pre-compute repo sizes
 	for (const skill of skills) {
 		const catalogRepo = repoNodeId(skill.owner, skill.repo);
 		repoSkillCounts.set(catalogRepo, (repoSkillCounts.get(catalogRepo) ?? 0) + 1);
@@ -89,62 +95,62 @@ export function buildSkillGraph(skills: FlatSkillEntry[], dark = false): Graph {
 	// Add repo nodes
 	for (const [id, count] of repoSkillCounts) {
 		const parts = id.replace('repo:', '').split('/');
-		graph.addNode(id, {
+		repoNodeIds.add(id);
+		nodes.push({
+			id,
 			nodeType: 'repo',
 			label: `${parts[0]}/${parts[1]}`,
 			color: colors.repo,
-			size: Math.max(8, Math.min(20, 6 + count * 3)),
+			size: Math.max(2, Math.min(6, 1.5 + count * 0.8)),
 			owner: parts[0],
 			repo: parts[1],
 			url: `https://github.com/${parts[0]}/${parts[1]}`,
-			x: hashToFloat(id, 1) * 100,
-			y: hashToFloat(id, 2) * 100,
-		});
+		} as GraphNode);
 	}
 
-	// Add skill nodes and edges
+	// Add skill nodes and links
 	for (const skill of skills) {
 		const sId = skillNodeId(skill.key);
 		const name = String(skill.frontmatter.name ?? skill.repo);
 
-		graph.addNode(sId, {
+		nodes.push({
+			id: sId,
 			nodeType: 'skill',
 			label: name,
 			color: colors.skill,
-			size: 5,
+			size: 1.5,
 			skillKey: skill.key,
 			description: String(skill.frontmatter.description ?? ''),
 			owner: skill.owner,
 			repo: skill.repo,
 			usagePolicy: skill.usage_policy,
-			x: hashToFloat(sId, 1) * 100,
-			y: hashToFloat(sId, 2) * 100,
-		});
+		} as GraphNode);
 
-		// lives_in edge: skill ↔ catalog repo (undirected)
+		// lives_in link
 		const catalogRepo = repoNodeId(skill.owner, skill.repo);
-		if (graph.hasNode(catalogRepo)) {
-			graph.addUndirectedEdge(sId, catalogRepo, {
+		if (repoNodeIds.has(catalogRepo)) {
+			links.push({
+				source: sId,
+				target: catalogRepo,
 				edgeType: 'lives_in',
 				color: colors.edgeLivesIn,
-				size: 1,
 			});
 		}
 
-		// derived_from edge: skill → source repo (directed arrow)
+		// derived_from link
 		const from = parseFrom(skill.frontmatter._from);
 		if (from) {
 			const sourceRepo = repoNodeId(from.owner, from.repo);
-			if (sourceRepo !== catalogRepo && graph.hasNode(sourceRepo)) {
-				graph.addDirectedEdge(sId, sourceRepo, {
+			if (sourceRepo !== catalogRepo && repoNodeIds.has(sourceRepo)) {
+				links.push({
+					source: sId,
+					target: sourceRepo,
 					edgeType: 'derived_from',
-					type: 'arrow',
 					color: colors.edgeDerivedFrom,
-					size: 2,
 				});
 			}
 		}
 	}
 
-	return graph;
+	return { nodes, links };
 }
