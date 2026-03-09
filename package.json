@@ -1,7 +1,6 @@
 {
 	"name": "agent-skill-harbor",
 	"version": "0.1.0",
-	"private": true,
 	"type": "module",
 	"description": "Agent skill catalog and governance for organizations",
 	"license": "MIT",
@@ -15,8 +14,13 @@
 	},
 	"files": [
 		"dist/",
-		"web/",
-		"scripts/",
+		"web/src/",
+		"web/static/",
+		"web/package.json",
+		"web/svelte.config.js",
+		"web/tsconfig.json",
+		"web/vite.config.ts",
+		"web/components.json",
 		"templates/"
 	],
 	"scripts": {
