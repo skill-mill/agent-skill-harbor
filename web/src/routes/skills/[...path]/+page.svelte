@@ -8,15 +8,6 @@
 	import { marked } from 'marked';
 	import DOMPurify from 'isomorphic-dompurify';
 
-	// Layer 1: Escape any HTML in Markdown source (SKILL.md should never contain HTML)
-	marked.use({
-		renderer: {
-			html({ text }) {
-				return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-			},
-		},
-	});
-
 	interface Props {
 		data: { skill: FlatSkillEntry; allSkills: FlatSkillEntry[]; body: string; freshPeriodDays: number };
 	}
@@ -31,9 +22,72 @@
 			Date.now() - new Date(skill.registered_at).getTime() < freshPeriodDays * 86_400_000,
 	);
 
+	function escapeHtml(text: string): string {
+		return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+	}
+
+	function isRelativeLink(href: string): boolean {
+		return !/^(?:[a-z]+:)?\/\//i.test(href) && !href.startsWith('#') && !href.startsWith('mailto:');
+	}
+
+	function slugifyHeading(text: string): string {
+		return text
+			.toLowerCase()
+			.trim()
+			.replace(/<[^>]+>/g, '')
+			.replace(/[^\w\s-]/g, '')
+			.replace(/\s+/g, '-')
+			.replace(/-+/g, '-');
+	}
+
+	function resolveRepoPath(baseSkillPath: string, href: string): string {
+		const [pathPart, hash = ''] = href.split('#');
+		const segments = baseSkillPath.replace(/\/SKILL\.md$/, '').split('/').filter(Boolean);
+
+		for (const part of pathPart.split('/').filter(Boolean)) {
+			if (part === '.') continue;
+			if (part === '..') {
+				segments.pop();
+				continue;
+			}
+			segments.push(part);
+		}
+
+		const resolvedPath = segments.join('/');
+		return hash ? `${resolvedPath}#${hash}` : resolvedPath;
+	}
+
+	function renderSkillMarkdown(markdown: string, skill: FlatSkillEntry): string {
+		const renderer = new marked.Renderer();
+
+		renderer.html = ({ text }) => escapeHtml(text);
+		renderer.heading = ({ tokens, depth }) => {
+			const text = renderer.parser.parseInline(tokens);
+			const id = slugifyHeading(text);
+			return `<h${depth} id="${escapeHtml(id)}">${text}</h${depth}>`;
+		};
+		renderer.link = function ({ href, title, tokens }) {
+			const rawHref = href ?? '';
+			const text = this.parser.parseInline(tokens);
+			const safeTitle = title ? ` title="${escapeHtml(title)}"` : '';
+
+			if (!rawHref) {
+				return text;
+			}
+
+			const finalHref = isRelativeLink(rawHref)
+				? `https://${skill.repoKey}/blob/HEAD/${resolveRepoPath(skill.skillPath, rawHref)}`
+				: rawHref;
+
+			return `<a href="${escapeHtml(finalHref)}"${safeTitle}>${text}</a>`;
+		};
+
+		return marked(markdown, { renderer }) as string;
+	}
+
 	let viewMode = $state<'rendered' | 'raw'>('rendered');
 	// Layer 2: DOMPurify as final safety net
-	let renderedBody = $derived(body ? DOMPurify.sanitize(marked(body) as string) : '');
+	let renderedBody = $derived(body ? DOMPurify.sanitize(renderSkillMarkdown(body, skill)) : '');
 
 	let skillName = $derived(String(skill.frontmatter.name ?? skill.repo));
 	let skillDescription = $derived(String(skill.frontmatter.description ?? ''));
