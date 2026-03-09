@@ -4,10 +4,11 @@ import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-const DATA_DIR = join(import.meta.dirname, '..', 'data');
+const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..');
+const DATA_DIR = join(PROJECT_ROOT, 'data');
 const SKILLS_DIR = join(DATA_DIR, 'skills');
 const CATALOG_YAML_PATH = join(DATA_DIR, 'catalog.yaml');
-const CONFIG_DIR = join(import.meta.dirname, '..', 'config');
+const CONFIG_DIR = join(PROJECT_ROOT, 'config');
 const ADMIN_PATH = join(CONFIG_DIR, 'admin.yaml');
 
 interface AdminConfig {
@@ -112,14 +113,10 @@ async function checkRateLimit(octokit: Octokit): Promise<void> {
  */
 function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
 	// Find all SKILL.md blobs
-	const skillMdEntries = treeEntries.filter(
-		(e) => e.type === 'blob' && e.path?.endsWith('/SKILL.md')
-	);
+	const skillMdEntries = treeEntries.filter((e) => e.type === 'blob' && e.path?.endsWith('/SKILL.md'));
 
 	// Also check for root-level SKILL.md
-	const rootSkillMd = treeEntries.find(
-		(e) => e.type === 'blob' && e.path === 'SKILL.md'
-	);
+	const rootSkillMd = treeEntries.find((e) => e.type === 'blob' && e.path === 'SKILL.md');
 
 	const skills: DiscoveredSkill[] = [];
 
@@ -129,7 +126,7 @@ function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
 			skillPath: 'SKILL.md',
 			dirPath: null,
 			treeSha: null,
-			filePaths: ['SKILL.md']
+			filePaths: ['SKILL.md'],
 		});
 	}
 
@@ -139,9 +136,7 @@ function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
 		const dirPath = skillPath.replace(/\/SKILL\.md$/, '');
 
 		// Find tree SHA for the skill directory
-		const dirTreeEntry = treeEntries.find(
-			(e) => e.type === 'tree' && e.path === dirPath
-		);
+		const dirTreeEntry = treeEntries.find((e) => e.type === 'tree' && e.path === dirPath);
 		const treeSha = dirTreeEntry?.sha ?? null;
 
 		// Find all files under this directory
@@ -154,7 +149,7 @@ function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
 			skillPath,
 			dirPath,
 			treeSha,
-			filePaths
+			filePaths,
 		});
 	}
 
@@ -164,11 +159,7 @@ function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
 /**
  * Fallback: find skills using getContent API (when tree is truncated).
  */
-async function findSkillFilesFallback(
-	octokit: Octokit,
-	owner: string,
-	repo: string
-): Promise<DiscoveredSkill[]> {
+async function findSkillFilesFallback(octokit: Octokit, owner: string, repo: string): Promise<DiscoveredSkill[]> {
 	const skills: DiscoveredSkill[] = [];
 
 	// Check root SKILL.md
@@ -179,7 +170,7 @@ async function findSkillFilesFallback(
 				skillPath: 'SKILL.md',
 				dirPath: null,
 				treeSha: null,
-				filePaths: ['SKILL.md']
+				filePaths: ['SKILL.md'],
 			});
 		}
 	} catch {
@@ -196,14 +187,14 @@ async function findSkillFilesFallback(
 						const { data: skillFile } = await octokit.repos.getContent({
 							owner,
 							repo,
-							path: `${item.path}/SKILL.md`
+							path: `${item.path}/SKILL.md`,
 						});
 						if (!Array.isArray(skillFile) && skillFile.type === 'file') {
 							skills.push({
 								skillPath: `${item.path}/SKILL.md`,
 								dirPath: item.path,
 								treeSha: null,
-								filePaths: [`${item.path}/SKILL.md`]
+								filePaths: [`${item.path}/SKILL.md`],
 							});
 						}
 					} catch {
@@ -219,13 +210,7 @@ async function findSkillFilesFallback(
 	return skills;
 }
 
-
-async function fetchFileContent(
-	octokit: Octokit,
-	owner: string,
-	repo: string,
-	path: string
-): Promise<string> {
+async function fetchFileContent(octokit: Octokit, owner: string, repo: string, path: string): Promise<string> {
 	const { data } = await octokit.repos.getContent({ owner, repo, path });
 	if (Array.isArray(data) || data.type !== 'file' || !data.content) {
 		throw new Error(`Unexpected response for ${path}`);
@@ -240,7 +225,7 @@ function detectOrgRepo(): { org: string | null; repo: string | null } {
 	try {
 		const remoteUrl = execSync('git remote get-url origin', {
 			encoding: 'utf-8',
-			cwd: join(import.meta.dirname, '..')
+			cwd: PROJECT_ROOT,
 		}).trim();
 		const sshMatch = remoteUrl.match(/^git@[^:]+:([^/]+)\/([^/.]+)/);
 		if (sshMatch) {
@@ -261,11 +246,11 @@ function detectOrgRepo(): { org: string | null; repo: string | null } {
 }
 
 async function main(): Promise<void> {
-	const token = process.env.GITHUB_TOKEN;
+	const token = process.env.GH_TOKEN;
 	const { org, repo: selfRepo } = detectOrgRepo();
 
 	if (!token) {
-		console.error('Error: GITHUB_TOKEN environment variable is required.');
+		console.error('Error: GH_TOKEN environment variable is required.');
 		process.exit(1);
 	}
 	if (!org) {
@@ -301,7 +286,7 @@ async function main(): Promise<void> {
 			org,
 			type: 'all',
 			per_page: 100,
-			page
+			page,
 		});
 
 		if (data.length === 0) break;
@@ -314,7 +299,7 @@ async function main(): Promise<void> {
 				default_branch: repo.default_branch ?? 'main',
 				html_url: repo.html_url,
 				visibility: repo.visibility ?? 'private',
-				fork: repo.fork
+				fork: repo.fork,
 			});
 		}
 
@@ -337,7 +322,7 @@ async function main(): Promise<void> {
 			const { data: branchData } = await octokit.repos.getBranch({
 				owner: org,
 				repo: repo.name,
-				branch: repo.default_branch
+				branch: repo.default_branch,
 			});
 			const headSha = branchData.commit.sha;
 
@@ -352,7 +337,7 @@ async function main(): Promise<void> {
 				owner: org,
 				repo: repo.name,
 				tree_sha: headSha,
-				recursive: 'true'
+				recursive: 'true',
 			});
 
 			let discoveredSkills: DiscoveredSkill[];
@@ -372,10 +357,7 @@ async function main(): Promise<void> {
 			for (const skill of discoveredSkills) {
 				// Check tree_sha for skill-level skip
 				const existingSkill = existingRepo?.skills?.[skill.skillPath];
-				if (
-					skill.treeSha &&
-					existingSkill?.tree_sha === skill.treeSha
-				) {
+				if (skill.treeSha && existingSkill?.tree_sha === skill.treeSha) {
 					// Skill directory unchanged, preserve existing entry
 					newSkills[skill.skillPath] = existingSkill;
 					skippedSkillCount++;
@@ -403,7 +385,7 @@ async function main(): Promise<void> {
 					updated_at: now,
 					registered_at: existingSkill?.registered_at ?? now,
 					frontmatter: {},
-					files: skill.filePaths
+					files: skill.filePaths,
 				};
 			}
 
@@ -414,8 +396,8 @@ async function main(): Promise<void> {
 				...(repo.fork ? { fork: true } : {}),
 				skills: {
 					...existingRepo?.skills,
-					...newSkills
-				}
+					...newSkills,
+				},
 			};
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
@@ -427,7 +409,7 @@ async function main(): Promise<void> {
 	console.log(
 		`\nDone: ${collectedCount} skill(s) collected, ` +
 			`${skippedRepoCount} repo(s) unchanged, ` +
-			`${skippedSkillCount} skill(s) unchanged (tree_sha)`
+			`${skippedSkillCount} skill(s) unchanged (tree_sha)`,
 	);
 }
 

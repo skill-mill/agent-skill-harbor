@@ -5,9 +5,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
-	envDir: resolve(import.meta.dirname, '..'),
+	envDir: process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..'),
 	define: {
-		__PROJECT_ROOT__: JSON.stringify(resolve(import.meta.dirname, '..'))
+		__PROJECT_ROOT__: JSON.stringify(process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..')),
 	},
-	ssr: { external: ['gray-matter'] }
+	ssr: { external: ['gray-matter'] },
 });
