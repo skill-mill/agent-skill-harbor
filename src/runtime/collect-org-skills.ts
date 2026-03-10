@@ -1,11 +1,11 @@
 import { Octokit } from '@octokit/rest';
-import matter from 'gray-matter';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
 import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..');
+const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..', '..');
 const DATA_DIR = join(PROJECT_ROOT, 'data');
 const SKILLS_DIR = join(DATA_DIR, 'skills');
 const CATALOG_YAML_PATH = join(DATA_DIR, 'catalog.yaml');
@@ -62,7 +62,7 @@ interface TreeEntry {
 
 interface DiscoveredSkill {
 	skillPath: string;
-	dirPath: string | null; // null for root-level SKILL.md
+	dirPath: string | null;
 	treeSha: string | null;
 	filePaths: string[];
 }
@@ -109,14 +109,27 @@ function saveFile(repoDir: string, filePath: string, content: string): void {
 	writeFileSync(fullPath, content);
 }
 
+function parseFrontmatter(content: string): Record<string, unknown> {
+	if (!content.startsWith('---')) return {};
+	const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+	if (!match) return {};
+
+	try {
+		const parsed = yamlLoad(match[1]);
+		if (!parsed || typeof parsed !== 'object') return {};
+		const frontmatter = { ...(parsed as Record<string, unknown>) };
+		delete frontmatter._excerpt;
+		return frontmatter;
+	} catch {
+		return {};
+	}
+}
+
 function readFrontmatterFromSavedSkill(repoDir: string, skillPath: string): Record<string, unknown> {
 	const fullPath = join(repoDir, skillPath);
 	if (!existsSync(fullPath)) return {};
 	try {
-		const parsed = matter(readFileSync(fullPath, 'utf-8'));
-		const frontmatter = { ...parsed.data } as Record<string, unknown>;
-		delete frontmatter._excerpt;
-		return frontmatter;
+		return parseFrontmatter(readFileSync(fullPath, 'utf-8'));
 	} catch {
 		return {};
 	}
@@ -140,20 +153,11 @@ async function checkRateLimit(octokit: Octokit): Promise<void> {
 	}
 }
 
-/**
- * Discover skills from the recursive tree.
- * Returns SKILL.md locations, their parent directory tree SHAs, and related file paths.
- */
 function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
-	// Find all SKILL.md blobs
 	const skillMdEntries = treeEntries.filter((e) => e.type === 'blob' && e.path?.endsWith('/SKILL.md'));
-
-	// Also check for root-level SKILL.md
 	const rootSkillMd = treeEntries.find((e) => e.type === 'blob' && e.path === 'SKILL.md');
-
 	const skills: DiscoveredSkill[] = [];
 
-	// Root-level SKILL.md
 	if (rootSkillMd) {
 		skills.push({
 			skillPath: 'SKILL.md',
@@ -163,16 +167,11 @@ function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
 		});
 	}
 
-	// Nested SKILL.md files
 	for (const entry of skillMdEntries) {
 		const skillPath = entry.path!;
 		const dirPath = skillPath.replace(/\/SKILL\.md$/, '');
-
-		// Find tree SHA for the skill directory
 		const dirTreeEntry = treeEntries.find((e) => e.type === 'tree' && e.path === dirPath);
 		const treeSha = dirTreeEntry?.sha ?? null;
-
-		// Find all files under this directory
 		const filePaths = treeEntries
 			.filter((e) => e.type === 'blob' && e.path?.startsWith(`${dirPath}/`))
 			.map((e) => e.path!)
@@ -189,13 +188,9 @@ function discoverSkillsFromTree(treeEntries: TreeEntry[]): DiscoveredSkill[] {
 	return skills;
 }
 
-/**
- * Fallback: find skills using getContent API (when tree is truncated).
- */
 async function findSkillFilesFallback(octokit: Octokit, owner: string, repo: string): Promise<DiscoveredSkill[]> {
 	const skills: DiscoveredSkill[] = [];
 
-	// Check root SKILL.md
 	try {
 		const { data } = await octokit.repos.getContent({ owner, repo, path: 'SKILL.md' });
 		if (!Array.isArray(data) && data.type === 'file') {
@@ -210,7 +205,6 @@ async function findSkillFilesFallback(octokit: Octokit, owner: string, repo: str
 		// Not found at root
 	}
 
-	// Check .claude/skills/*/SKILL.md
 	try {
 		const { data } = await octokit.repos.getContent({ owner, repo, path: '.claude/skills' });
 		if (Array.isArray(data)) {
@@ -380,9 +374,7 @@ async function collectRepoSkills(
 				saveFile(repoDir, filePath, content);
 				console.log(`  [collected:${target.source}] ${target.owner}/${target.repo} -> ${filePath}`);
 				if (filePath === skill.skillPath) {
-					const parsed = matter(content);
-					collectedFrontmatter = { ...parsed.data } as Record<string, unknown>;
-					delete collectedFrontmatter._excerpt;
+					collectedFrontmatter = parseFrontmatter(content);
 				}
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
@@ -443,17 +435,15 @@ function detectOrgRepo(): { org: string | null; repo: string | null } {
 	return { org, repo };
 }
 
-async function main(): Promise<void> {
+export async function runCollectOrgSkills(): Promise<void> {
 	const token = process.env.GH_TOKEN;
 	const { org, repo: selfRepo } = detectOrgRepo();
 
 	if (!token) {
-		console.error('Error: GH_TOKEN environment variable is required.');
-		process.exit(1);
+		throw new Error('GH_TOKEN environment variable is required.');
 	}
 	if (!org) {
-		console.error('Error: GH_ORG environment variable is not set and could not be detected from git remote URL.');
-		process.exit(1);
+		throw new Error('GH_ORG environment variable is not set and could not be detected from git remote URL.');
 	}
 
 	const octokit = new Octokit({ auth: token });
@@ -470,7 +460,6 @@ async function main(): Promise<void> {
 	const excludeRepos = new Set(admin.collector?.exclude_repos ?? []);
 	const collectPublicOriginRepos = admin.collector?.collect_public_origin_repos ?? true;
 
-	// Fetch all repositories in the org
 	const repos: RepoTarget[] = [];
 	let page = 1;
 
@@ -505,16 +494,13 @@ async function main(): Promise<void> {
 
 	const filters = [excludeForks && 'forks excluded', excludeRepos.size > 0 && `${excludeRepos.size} repo(s) excluded`]
 		.filter(Boolean)
-		.join(', ');
+		join(', ');
 	console.log(`Found ${repos.length} repositories${filters ? ` (${filters})` : ''}`);
 	if (collectPublicOriginRepos) {
 		console.log(`Following public _from repositories: enabled`);
 	}
 
-	let collectedCount = 0;
-	let skippedRepoCount = 0;
-	let skippedSkillCount = 0;
-	const counts = { collectedCount, skippedRepoCount, skippedSkillCount };
+	const counts = { collectedCount: 0, skippedRepoCount: 0, skippedSkillCount: 0 };
 	const seenRepoKeys = new Set<string>();
 	const queuedExternalRepoKeys = new Set<string>();
 	const fromRefs: ParsedFromRef[] = [];
@@ -530,10 +516,10 @@ async function main(): Promise<void> {
 				catalog,
 				fromRefs,
 				seenRepoKeys,
-					queuedExternalRepoKeys,
-					counts,
-					collectPublicOriginRepos,
-				);
+				queuedExternalRepoKeys,
+				counts,
+				collectPublicOriginRepos,
+			);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			console.error(`  [error] ${repo.owner}/${repo.repo}: ${message}`);
@@ -573,4 +559,11 @@ async function main(): Promise<void> {
 	);
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+	try {
+		await runCollectOrgSkills();
+	} catch (error) {
+		console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+		process.exit(1);
+	}
+}

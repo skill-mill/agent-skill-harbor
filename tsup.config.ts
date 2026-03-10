@@ -9,6 +9,7 @@ export default defineConfig({
 		'src/cli/commands/preview': 'src/cli/commands/preview.ts',
 		'src/cli/commands/collect': 'src/cli/commands/collect.ts',
 		'src/cli/commands/init': 'src/cli/commands/init.ts',
+		'src/runtime/collect-org-skills': 'src/runtime/collect-org-skills.ts',
 	},
 	format: 'esm',
 	target: 'node24',
