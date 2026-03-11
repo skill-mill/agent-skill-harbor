@@ -67,22 +67,14 @@
 		if (!graph3d) return;
 		const pos = graph3d.cameraPosition();
 		const scale = 0.75;
-		graph3d.cameraPosition(
-			{ x: pos.x * scale, y: pos.y * scale, z: pos.z * scale },
-			graph3d.scene().position,
-			300,
-		);
+		graph3d.cameraPosition({ x: pos.x * scale, y: pos.y * scale, z: pos.z * scale }, graph3d.scene().position, 300);
 	}
 
 	export function zoomOut() {
 		if (!graph3d) return;
 		const pos = graph3d.cameraPosition();
 		const scale = 1.33;
-		graph3d.cameraPosition(
-			{ x: pos.x * scale, y: pos.y * scale, z: pos.z * scale },
-			graph3d.scene().position,
-			300,
-		);
+		graph3d.cameraPosition({ x: pos.x * scale, y: pos.y * scale, z: pos.z * scale }, graph3d.scene().position, 300);
 	}
 
 	export function zoomReset() {
@@ -240,7 +232,9 @@
 			.sort((a, b) => a.distance - b.distance);
 
 		const distanceThreshold =
-			scored.length > 0 ? scored[Math.min(MAX_VISIBLE_LABELS - 1, scored.length - 1)].distance + LABEL_DISTANCE_PADDING : 0;
+			scored.length > 0
+				? scored[Math.min(MAX_VISIBLE_LABELS - 1, scored.length - 1)].distance + LABEL_DISTANCE_PADDING
+				: 0;
 
 		for (const [index, entry] of scored.entries()) {
 			const matchesSearch =
@@ -339,9 +333,7 @@
 			.linkOpacity(0.6)
 			.linkDirectionalArrowLength((link: any) => (link.edgeType === 'derived_from' ? 3 : 0))
 			.linkDirectionalArrowRelPos(1)
-			.linkDirectionalArrowColor((link: any) =>
-				link.edgeType === 'derived_from' ? colors.edgeDerivedFrom : null,
-			)
+			.linkDirectionalArrowColor((link: any) => (link.edgeType === 'derived_from' ? colors.edgeDerivedFrom : null))
 			.onNodeClick((node: GraphNode) => {
 				onNodeSelect?.(node.id, node as GraphNodeAttrs);
 			})

@@ -57,10 +57,20 @@
 
 	let columns = $derived([
 		{ key: 'name' as SortKey, label: $t('skillTable.name'), sortable: true, hideClass: '' },
-		{ key: null as SortKey | null, label: $t('skillTable.description'), sortable: false, hideClass: 'hidden md:table-cell' },
+		{
+			key: null as SortKey | null,
+			label: $t('skillTable.description'),
+			sortable: false,
+			hideClass: 'hidden md:table-cell',
+		},
 		{ key: 'repo' as SortKey, label: $t('skillTable.repository'), sortable: true, hideClass: 'hidden md:table-cell' },
 		{ key: 'status' as SortKey, label: $t('skillTable.status'), sortable: true, hideClass: '' },
-		{ key: 'visibility' as SortKey, label: $t('skillTable.visibility'), sortable: true, hideClass: 'hidden lg:table-cell' },
+		{
+			key: 'visibility' as SortKey,
+			label: $t('skillTable.visibility'),
+			sortable: true,
+			hideClass: 'hidden lg:table-cell',
+		},
 		{ key: 'owner' as SortKey, label: $t('skillTable.owner'), sortable: true, hideClass: 'hidden lg:table-cell' },
 		{ key: 'version' as SortKey, label: $t('skillTable.version'), sortable: true, hideClass: 'hidden md:table-cell' },
 	]);
@@ -184,9 +194,7 @@
 								</span>
 							{/if}
 						</td>
-						<td
-							class="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell"
-						>
+						<td class="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
 							{metadata.version ? `v${metadata.version}` : '—'}
 						</td>
 					</tr>

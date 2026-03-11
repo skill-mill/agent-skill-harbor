@@ -3,14 +3,14 @@
 # Agent Skill Harbor
 
 > Skill Governance for companies.  
-> Skill Discovery for teams.  
+> Skill Discovery for teams.
 
 組織とチームのための Skill 管理ツール。
 
 ## スクリーンショット
 
-|                        スキルカタログ                        |                        スキル詳細                        |
-| :----------------------------------------------------------: | :------------------------------------------------------: |
+|                                                          スキルカタログ                                                           |                                                          スキル詳細                                                           |
+| :-------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------: |
 | ![スキルカタログ](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/agent-skill-harbor-screenshot02.jpeg) | ![スキル詳細](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/agent-skill-harbor-screenshot01.jpeg) |
 
 ### グラフビュー
@@ -61,14 +61,14 @@ pnpm dev
 
 依存パッケージとしてインストール後、`harbor` または `agent-skill-harbor` として利用可能：
 
-| コマンド              | 説明                                 |
-| --------------------- | ------------------------------------ |
-| `harbor init [dir]`   | 新しいプロジェクトをスキャフォールド |
-| `harbor collect`      | GitHub Organization からスキルを収集 |
-| `harbor build`        | 静的サイトをビルド                   |
-| `harbor deploy <target>` | ビルド済みカタログをデプロイ       |
-| `harbor dev`          | 開発サーバーを起動                   |
-| `harbor preview`      | ビルド結果をプレビュー               |
+| コマンド                 | 説明                                 |
+| ------------------------ | ------------------------------------ |
+| `harbor init [dir]`      | 新しいプロジェクトをスキャフォールド |
+| `harbor collect`         | GitHub Organization からスキルを収集 |
+| `harbor build`           | 静的サイトをビルド                   |
+| `harbor deploy <target>` | ビルド済みカタログをデプロイ         |
+| `harbor dev`             | 開発サーバーを起動                   |
+| `harbor preview`         | ビルド結果をプレビュー               |
 
 ### ビルドオプション
 

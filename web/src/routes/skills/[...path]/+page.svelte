@@ -43,7 +43,10 @@
 
 	function resolveRepoPath(baseSkillPath: string, href: string): string {
 		const [pathPart, hash = ''] = href.split('#');
-		const segments = baseSkillPath.replace(/\/SKILL\.md$/, '').split('/').filter(Boolean);
+		const segments = baseSkillPath
+			.replace(/\/SKILL\.md$/, '')
+			.split('/')
+			.filter(Boolean);
 
 		for (const part of pathPart.split('/').filter(Boolean)) {
 			if (part === '.') continue;

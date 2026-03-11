@@ -27,10 +27,7 @@ function loadOptionalEnvFile(filePath: string): void {
 		if (!key || process.env[key] !== undefined) continue;
 
 		let value = normalized.slice(separator + 1).trim();
-		if (
-			(value.startsWith('"') && value.endsWith('"')) ||
-			(value.startsWith("'") && value.endsWith("'"))
-		) {
+		if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
 			value = value.slice(1, -1);
 		}
 

@@ -82,7 +82,9 @@
 					style="padding-left: {depth * 16 + 4}px"
 				>
 					<svg
-						class="h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform dark:text-gray-500 {openDirs.has(node.path) ? 'rotate-90' : ''}"
+						class="h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform dark:text-gray-500 {openDirs.has(node.path)
+							? 'rotate-90'
+							: ''}"
 						viewBox="0 0 20 20"
 						fill="currentColor"
 					>

@@ -3,14 +3,14 @@
 # Agent Skill Harbor
 
 > Skill Governance for companies.  
-> Skill Discovery for teams.  
+> Skill Discovery for teams.
 
 Agent skill catalog and governance tool for organizations.
 
 ## Screenshots
 
-|                        Skill Catalog                        |                        Skill Detail                        |
-| :---------------------------------------------------------: | :--------------------------------------------------------: |
+|                                                          Skill Catalog                                                           |                                                          Skill Detail                                                           |
+| :------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
 | ![Skill Catalog](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/agent-skill-harbor-screenshot02.jpeg) | ![Skill Detail](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/agent-skill-harbor-screenshot01.jpeg) |
 
 ### Graph View
@@ -62,14 +62,14 @@ pnpm dev
 
 When installed as a dependency, the CLI is available as `harbor` or `agent-skill-harbor`:
 
-| Command                | Description                             |
-| ---------------------- | --------------------------------------- |
-| `harbor init [dir]`    | Scaffold a new project                  |
-| `harbor collect`       | Collect skills from GitHub organization |
-| `harbor build`         | Build the static site                   |
-| `harbor deploy <target>` | Deploy the built catalog              |
-| `harbor dev`           | Start development server                |
-| `harbor preview`       | Preview the built site                  |
+| Command                  | Description                             |
+| ------------------------ | --------------------------------------- |
+| `harbor init [dir]`      | Scaffold a new project                  |
+| `harbor collect`         | Collect skills from GitHub organization |
+| `harbor build`           | Build the static site                   |
+| `harbor deploy <target>` | Deploy the built catalog                |
+| `harbor dev`             | Start development server                |
+| `harbor preview`         | Preview the built site                  |
 
 ### Build options
 

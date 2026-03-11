@@ -1,15 +1,15 @@
 {
-  "name": "{{PROJECT_NAME}}",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "collect": "harbor collect",
-    "build": "harbor build",
-    "deploy:cloudflare": "harbor deploy cloudflare-pages",
-    "dev": "harbor dev",
-    "preview": "harbor preview"
-  },
-  "dependencies": {
-    "agent-skill-harbor": "^0.1.0"
-  }
+	"name": "{{PROJECT_NAME}}",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"collect": "harbor collect",
+		"build": "harbor build",
+		"deploy:cloudflare": "harbor deploy cloudflare-pages",
+		"dev": "harbor dev",
+		"preview": "harbor preview"
+	},
+	"dependencies": {
+		"agent-skill-harbor": "^0.1.0"
+	}
 }

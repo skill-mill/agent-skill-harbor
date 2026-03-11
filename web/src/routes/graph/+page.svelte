@@ -63,10 +63,7 @@
 		const skills = data.skills;
 		if (!selected) return;
 
-		if (
-			selected.nodeType === 'skill' &&
-			!skills.some((skill) => `skill:${skill.key}` === selectedNodeId)
-		) {
+		if (selected.nodeType === 'skill' && !skills.some((skill) => `skill:${skill.key}` === selectedNodeId)) {
 			closePanel();
 			return;
 		}
@@ -76,7 +73,13 @@
 			!skills.some((skill) => {
 				const ownerRepo = `${skill.owner}/${skill.repo}`;
 				const fromRaw = skill.frontmatter._from;
-				const fromStr = (typeof fromRaw === 'string' ? fromRaw : Array.isArray(fromRaw) && fromRaw.length > 0 ? String(fromRaw[fromRaw.length - 1]) : '').replace(/@.*$/, '');
+				const fromStr = (
+					typeof fromRaw === 'string'
+						? fromRaw
+						: Array.isArray(fromRaw) && fromRaw.length > 0
+							? String(fromRaw[fromRaw.length - 1])
+							: ''
+				).replace(/@.*$/, '');
 				return ownerRepo === selected.label || fromStr === selected.label;
 			})
 		) {
@@ -101,7 +104,13 @@
 		return data.skills.filter((s) => {
 			const ownerRepo = `${s.owner}/${s.repo}`;
 			const fromRaw = s.frontmatter._from;
-			const fromStr = (typeof fromRaw === 'string' ? fromRaw : Array.isArray(fromRaw) && fromRaw.length > 0 ? String(fromRaw[fromRaw.length - 1]) : '').replace(/@.*$/, '');
+			const fromStr = (
+				typeof fromRaw === 'string'
+					? fromRaw
+					: Array.isArray(fromRaw) && fromRaw.length > 0
+						? String(fromRaw[fromRaw.length - 1])
+						: ''
+			).replace(/@.*$/, '');
 			return ownerRepo === repoLabel || fromStr === repoLabel;
 		});
 	});
@@ -116,12 +125,7 @@
 	<div class="relative min-h-0 flex-1 bg-gray-50 dark:bg-gray-950">
 		{#if browser}
 			{#await import('$lib/components/SkillGraph.svelte') then module}
-				<module.default
-					bind:this={graphRef}
-					skills={data.skills}
-					{searchQuery}
-					onNodeSelect={handleNodeSelect}
-				/>
+				<module.default bind:this={graphRef} skills={data.skills} {searchQuery} onNodeSelect={handleNodeSelect} />
 			{/await}
 		{/if}
 
