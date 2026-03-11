@@ -17,14 +17,13 @@
 
 <header class="border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
 	<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-		<a href="{base}/" class="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-gray-100">
+		<a href="{base}/skills/" class="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-gray-100">
 			{#if dev}<span class="text-orange-500">(Dev)</span>{/if}
 			{$t('header.title')}
 		</a>
 		<nav class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-			<a href="{base}/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100">{$t('header.catalog')}</a
+			<a href="{base}/skills/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100">{$t('header.catalog')}</a
 			>
-			<a href="{base}/graph/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100">Graph</a>
 			<a href="{base}/docs/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100">{$t('docs.nav')}</a>
 			{#if orgName}
 				<span class="font-bold text-gray-900 dark:text-gray-100">

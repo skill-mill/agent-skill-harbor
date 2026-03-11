@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
+	import ViewTabs from '$lib/components/ViewTabs.svelte';
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import type { GraphNodeAttrs, SkillNodeAttrs, RepoNodeAttrs } from '$lib/utils/graph';
 
@@ -122,6 +123,15 @@
 				/>
 			{/await}
 		{/if}
+
+		<!-- Tab overlay (top-center) -->
+		<div class="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2">
+			<div
+				class="pointer-events-auto rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80"
+			>
+				<ViewTabs activeView="graph" />
+			</div>
+		</div>
 
 		<!-- Search overlay (top-left) -->
 		<div class="pointer-events-none absolute left-3 top-3 z-10">

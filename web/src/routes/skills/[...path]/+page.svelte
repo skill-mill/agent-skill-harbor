@@ -133,7 +133,7 @@
 <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 	<!-- Breadcrumb -->
 	<nav class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-		<a href="{base}/" class="hover:text-gray-700 dark:hover:text-gray-200">{$t('header.catalog')}</a>
+		<a href="{base}/skills/" class="hover:text-gray-700 dark:hover:text-gray-200">{$t('header.catalog')}</a>
 		<span class="mx-2">/</span>
 		<span class="text-gray-900 dark:text-gray-100">{skillName}</span>
 	</nav>
@@ -313,10 +313,6 @@
 							</Tooltip.Root>
 						{/if}
 					</dd>
-				</div>
-				<div class="flex gap-2">
-					<dt class="text-gray-500 dark:text-gray-400">{$t('detail.field.platform')}</dt>
-					<dd class="font-medium text-gray-900 dark:text-gray-100">{skill.platform}</dd>
 				</div>
 				<div class="flex gap-2">
 					<dt class="text-gray-500 dark:text-gray-400">{$t('detail.field.visibility')}</dt>

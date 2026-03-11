@@ -3,8 +3,11 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import SkillList from '$lib/components/SkillList.svelte';
+	import SkillTable from '$lib/components/SkillTable.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import FilterPanel from '$lib/components/FilterPanel.svelte';
+	import ViewTabs from '$lib/components/ViewTabs.svelte';
+	import type { ViewMode } from '$lib/components/ViewTabs.svelte';
 	import type { FlatSkillEntry, UsagePolicy, Visibility } from '$lib/types';
 	import { createSearchIndex, searchSkills } from '$lib/utils/search';
 	import { filterSkills, type FilterState, type OrgOwnership } from '$lib/utils/filter';
@@ -22,6 +25,7 @@
 	// Client-side state
 	let query = $state('');
 	let filters = $state<FilterState>({ statuses: [], visibilities: [], orgOwnerships: [] });
+	let view = $state<'card' | 'list'>('card');
 
 	// Read initial state from URL on mount
 	$effect(() => {
@@ -33,6 +37,8 @@
 				visibilities: (params.get('visibility')?.split(',').filter(Boolean) ?? []) as Visibility[],
 				orgOwnerships: (params.get('origin')?.split(',').filter(Boolean) ?? []) as OrgOwnership[],
 			};
+			const v = params.get('view');
+			view = v === 'list' ? 'list' : 'card';
 		}
 	});
 
@@ -43,15 +49,17 @@
 		return result;
 	});
 
-	function updateUrl(newQuery: string, newFilters: FilterState) {
+	function updateUrl(newQuery: string, newFilters: FilterState, newView: 'card' | 'list' = view) {
 		if (!browser) return;
 		const params = new URLSearchParams();
 		if (newQuery) params.set('q', newQuery);
 		if (newFilters.statuses.length) params.set('status', newFilters.statuses.join(','));
 		if (newFilters.visibilities.length) params.set('visibility', newFilters.visibilities.join(','));
 		if (newFilters.orgOwnerships.length) params.set('origin', newFilters.orgOwnerships.join(','));
+		if (newView === 'list') params.set('view', 'list');
 		const search = params.toString();
-		goto(`${base}/${search ? '?' + search : ''}`, { replaceState: true, keepFocus: true, noScroll: true });
+		const pathname = window.location.pathname;
+		goto(`${pathname}${search ? '?' + search : ''}`, { replaceState: true, keepFocus: true, noScroll: true });
 	}
 
 	function handleSearch(value: string) {
@@ -62,6 +70,12 @@
 	function handleFilterChange(newFilters: FilterState) {
 		filters = newFilters;
 		updateUrl(query, newFilters);
+	}
+
+	function handleViewChange(newView: ViewMode) {
+		if (newView === 'graph') return;
+		view = newView;
+		updateUrl(query, filters, newView);
 	}
 
 	let hasFilters = $derived(
@@ -75,23 +89,27 @@
 </svelte:head>
 
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-	<div class="mb-8">
-		<h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{$t('catalog.title')}</h1>
-		<p class="mt-2 text-gray-600 dark:text-gray-400">
-			{$t('catalog.skillCount', { count: allSkills.length })}
-		</p>
+	<div class="mb-6">
+		<ViewTabs activeView={view} onchange={handleViewChange} />
 	</div>
 
 	<div class="mb-6 space-y-4">
 		<SearchBar value={query} onchange={handleSearch} />
-		<FilterPanel {filters} onchange={handleFilterChange} />
+		<div class="flex items-center gap-3">
+			<span class="w-24 shrink-0 tabular-nums text-sm text-gray-500 dark:text-gray-400">
+				{#if hasFilters}
+					{displayedSkills.length} / {allSkills.length}
+				{:else}
+					{allSkills.length} skills
+				{/if}
+			</span>
+			<FilterPanel {filters} onchange={handleFilterChange} />
+		</div>
 	</div>
 
-	{#if hasFilters}
-		<p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
-			{$t('catalog.showing', { displayed: displayedSkills.length, total: allSkills.length })}
-		</p>
+	{#if view === 'list'}
+		<SkillTable skills={displayedSkills} {freshPeriodDays} />
+	{:else}
+		<SkillList skills={displayedSkills} {freshPeriodDays} />
 	{/if}
-
-	<SkillList skills={displayedSkills} {freshPeriodDays} />
 </div>

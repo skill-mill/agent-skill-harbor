@@ -17,7 +17,7 @@
 		{$t('error.message')}
 	</p>
 	<a
-		href="{base}/"
+		href="{base}/skills/"
 		class="mt-8 inline-flex items-center gap-2 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-300"
 	>
 		<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
