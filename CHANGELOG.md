@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1] - 2026-03-12
+
+### Changed
+- Updated tagline and package description
+
 ## [0.5.0] - 2026-03-12
 
 ### Added
