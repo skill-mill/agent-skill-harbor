@@ -5,6 +5,7 @@
   "scripts": {
     "collect": "harbor collect",
     "build": "harbor build",
+    "deploy:cloudflare": "harbor deploy cloudflare-pages",
     "dev": "harbor dev",
     "preview": "harbor preview"
   },

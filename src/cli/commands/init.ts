@@ -5,7 +5,7 @@ import { packageRoot } from '../paths.js';
 const args = process.argv.slice(3);
 const targetDir = args[0] ? resolve(process.cwd(), args[0]) : process.cwd();
 const projectName = basename(targetDir);
-const templatesDir = resolve(packageRoot, 'templates');
+const templatesDir = resolve(packageRoot, 'templates/init');
 
 console.log(`\nInitializing Agent Skill Harbor project: ${projectName}`);
 console.log(`  Directory: ${targetDir}\n`);
@@ -43,9 +43,13 @@ console.log('  Created .gitignore');
 // .github/workflows/
 cpSync(join(templatesDir, '.github'), join(targetDir, '.github'), { recursive: true });
 console.log('  Created .github/workflows/collect-skills.yml');
+console.log('  Created .github/workflows/deploy-cloudflare-pages.yml');
 console.log('  Created .github/workflows/deploy-github-pages.yml');
 console.log('    - workflow name: CollectSkills');
+console.log('    - workflow name: DeployCloudflarePages');
 console.log('    - workflow name: DeployGitHubPages');
+console.log('    - enable workflow_run in exactly one deploy workflow');
+console.log('    - Cloudflare Pages uses CLOUDFLARE_PW_<USERNAME> secrets');
 
 // config/
 cpSync(join(templatesDir, 'config'), join(targetDir, 'config'), { recursive: true });

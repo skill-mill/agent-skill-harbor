@@ -3,16 +3,16 @@
  * This is for source repo contributors only, not for end users.
  *
  * Steps:
- *   1. templates/.env.example  → .env
- *   2. templates/config/*      → config/
- *   3. fixtures/config/*       → config/  (overwrites with sample governance)
- *   4. fixtures/data/*         → data/
+ *   1. templates/init/.env.example  → .env
+ *   2. templates/init/config/*      → config/
+ *   3. fixtures/config/*            → config/  (overwrites with sample governance)
+ *   4. fixtures/data/*              → data/
  */
 import { join, resolve } from 'node:path';
 import { existsSync, cpSync, copyFileSync } from 'node:fs';
 
 const projectRoot = resolve(import.meta.dirname, '..');
-const templatesDir = join(projectRoot, 'templates');
+const templatesDir = join(projectRoot, 'templates/init');
 const fixturesDir = join(projectRoot, 'fixtures');
 
 console.log('\nSetting up local development environment...\n');
