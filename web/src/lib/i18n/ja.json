@@ -4,63 +4,63 @@
 		"catalog": "Skills"
 	},
 	"footer": {
-		"tagline": "Agent Skill Harbor \u2014 Know what your agents know."
+		"tagline": "Agent Skill Harbor — Know what your agents know."
 	},
 	"search": {
-		"placeholder": "\u30b9\u30ad\u30eb\u3092\u691c\u7d22..."
+		"placeholder": "スキルを検索..."
 	},
 	"filter": {
 		"label": "絞り込み:",
-		"clearAll": "\u3059\u3079\u3066\u89e3\u9664",
-		"allVisibility": "\u516c\u958b\u7bc4\u56f2",
-		"allOwner": "\u30aa\u30fc\u30ca\u30fc",
-		"all": "\u3059\u3079\u3066"
+		"clearAll": "すべて解除",
+		"allVisibility": "公開範囲",
+		"allOwner": "オーナー",
+		"all": "すべて"
 	},
 	"skillList": {
-		"empty": "\u6761\u4ef6\u306b\u4e00\u81f4\u3059\u308b\u30b9\u30ad\u30eb\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3002"
+		"empty": "条件に一致するスキルが見つかりません。"
 	},
 	"skillCard": {
-		"community": "\u30b3\u30df\u30e5\u30cb\u30c6\u30a3",
+		"community": "コミュニティ",
 		"new": "New"
 	},
 	"governance": {
-		"recommended": "\u63a8\u5968",
-		"discouraged": "\u975e\u63a8\u5968",
-		"prohibited": "\u7981\u6b62",
-		"unclassified": "\u672a\u5206\u985e",
-		"recommendedTip": "\u4f7f\u7528\u63a8\u5968 \u2014 \u30ec\u30d3\u30e5\u30fc\u6e08\u307f\u30fb\u627f\u8a8d\u6e08\u307f",
-		"discouragedTip": "\u4f7f\u7528\u975e\u63a8\u5968 \u2014 \u3088\u308a\u826f\u3044\u4ee3\u66ff\u624b\u6bb5\u3042\u308a",
-		"prohibitedTip": "\u4f7f\u7528\u7981\u6b62 \u2014 \u30dd\u30ea\u30b7\u30fc\u3067\u30d6\u30ed\u30c3\u30af",
-		"unclassifiedTip": "\u30ac\u30d0\u30ca\u30f3\u30b9\u672a\u30ec\u30d3\u30e5\u30fc"
+		"recommended": "推奨",
+		"discouraged": "非推奨",
+		"prohibited": "禁止",
+		"unclassified": "未分類",
+		"recommendedTip": "使用推奨 — レビュー済み・承認済み",
+		"discouragedTip": "使用非推奨 — より良い代替手段あり",
+		"prohibitedTip": "使用禁止 — ポリシーでブロック",
+		"unclassifiedTip": "ガバナンス未レビュー"
 	},
 	"common": {
 		"visibility": {
-			"public": "\u30d1\u30d6\u30ea\u30c3\u30af",
-			"private": "\u30d7\u30e9\u30a4\u30d9\u30fc\u30c8",
-			"internal": "\u30a4\u30f3\u30bf\u30fc\u30ca\u30eb",
-			"publicTip": "\u8ab0\u3067\u3082\u95b2\u89a7\u53ef\u80fd",
-			"privateTip": "\u30ea\u30dd\u30b8\u30c8\u30ea\u306e\u5354\u529b\u8005\u306e\u307f",
-			"internalTip": "\u7d44\u7e54\u5185\u306e\u307f\u95b2\u89a7\u53ef\u80fd"
+			"public": "パブリック",
+			"private": "プライベート",
+			"internal": "インターナル",
+			"publicTip": "誰でも閲覧可能",
+			"privateTip": "リポジトリの協力者のみ",
+			"internalTip": "組織内のみ閲覧可能"
 		},
 		"orgOwnership": {
-			"org": "\u81ea\u793e",
-			"community": "\u30b3\u30df\u30e5\u30cb\u30c6\u30a3",
-			"orgTip": "\u81ea\u7d44\u7e54\u304c\u6240\u6709",
-			"communityTip": "\u30b3\u30df\u30e5\u30cb\u30c6\u30a3\u304c\u4f5c\u6210"
+			"org": "自社",
+			"community": "コミュニティ",
+			"orgTip": "自組織が所有",
+			"communityTip": "コミュニティが作成"
 		}
 	},
 	"theme": {
-		"light": "\u30e9\u30a4\u30c8",
-		"dark": "\u30c0\u30fc\u30af",
-		"system": "\u30b7\u30b9\u30c6\u30e0"
+		"light": "ライト",
+		"dark": "ダーク",
+		"system": "システム"
 	},
 	"catalog": {
 		"title": "Skills",
 		"pageTitle": "Agent Skill Harbor",
-		"pageDescription": "\u30a8\u30fc\u30b8\u30a7\u30f3\u30c8\u30b9\u30ad\u30eb\u30ab\u30bf\u30ed\u30b0\u3068\u30ac\u30d0\u30ca\u30f3\u30b9",
-		"skillCount_one": "{count} \u4ef6\u306e\u30b9\u30ad\u30eb\u304c\u767b\u9332\u6e08\u307f",
-		"skillCount_other": "{count} \u4ef6\u306e\u30b9\u30ad\u30eb\u304c\u767b\u9332\u6e08\u307f",
-		"showing": "{total} \u4ef6\u4e2d {displayed} \u4ef6\u3092\u8868\u793a"
+		"pageDescription": "エージェントスキルカタログとガバナンス",
+		"skillCount_one": "{count} 件のスキルが登録済み",
+		"skillCount_other": "{count} 件のスキルが登録済み",
+		"showing": "{total} 件中 {displayed} 件を表示"
 	},
 	"error": {
 		"title": "ページが見つかりません",
@@ -99,15 +99,15 @@
 		"nav": "Docs"
 	},
 	"detail": {
-		"viewRepository": "\u30ea\u30dd\u30b8\u30c8\u30ea\u3092\u898b\u308b",
-		"viewSkillMd": "SKILL.md \u3092\u898b\u308b",
-		"community": "\u30b3\u30df\u30e5\u30cb\u30c6\u30a3",
+		"viewRepository": "リポジトリを見る",
+		"viewSkillMd": "SKILL.md を見る",
+		"community": "コミュニティ",
 		"section": {
-			"details": "\u8a73\u7d30",
-			"governance": "\u30ac\u30d0\u30ca\u30f3\u30b9",
-			"sourceHistory": "\u30bd\u30fc\u30b9\u5c65\u6b74",
-			"instructions": "\u30b9\u30ad\u30eb\u6307\u793a",
-			"files": "\u30d5\u30a1\u30a4\u30eb"
+			"details": "詳細",
+			"governance": "ガバナンス",
+			"sourceHistory": "ソース履歴",
+			"instructions": "スキル指示",
+			"files": "ファイル"
 		},
 		"viewMode": {
 			"raw": "Raw",
@@ -116,14 +116,14 @@
 		"field": {
 			"owner": "オーナー:",
 			"origin": "オリジン:",
-			"repository": "\u30ea\u30dd\u30b8\u30c8\u30ea:",
-			"skillPath": "\u30b9\u30ad\u30eb\u30d1\u30b9:",
-			"platform": "\u30d7\u30e9\u30c3\u30c8\u30d5\u30a9\u30fc\u30e0:",
-			"visibility": "\u516c\u958b\u7bc4\u56f2:",
-			"author": "\u4f5c\u8005:",
-			"version": "\u30d0\u30fc\u30b8\u30e7\u30f3:",
-			"registeredAt": "\u767b\u9332\u65e5:",
-			"updatedAt": "\u66f4\u65b0\u65e5:"
+			"repository": "リポジトリ:",
+			"skillPath": "スキルパス:",
+			"platform": "プラットフォーム:",
+			"visibility": "公開範囲:",
+			"author": "作者:",
+			"version": "バージョン:",
+			"registeredAt": "登録日:",
+			"updatedAt": "更新日:"
 		}
 	}
 }
