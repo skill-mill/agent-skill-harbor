@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.0] - 2026-03-12
+
+### Added
+- FileTree component for skill detail page file browser
+- Tooltip for truncated descriptions in list view
+- Collection summary output with repo/skill/file counts and elapsed time
+- Collection metadata (`meta` block) saved to skills.yaml
+
+### Changed
+- Renamed `catalog.yaml` to `skills.yaml`
+- Renamed detail field "Origin" to "Owner", merged Source History into Details section
+- `_from` frontmatter standardized as scalar (`owner/repo@sha`), with array backward compatibility
+- Removed redundant `files` field from skills.yaml (derived from filesystem cache)
+- Truncate long skill names in list view with max width
+
 ## [0.4.0] - 2026-03-12
 
 ### Added
