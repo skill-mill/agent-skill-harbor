@@ -2,7 +2,7 @@
 name: skill-creator
 description: "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities."
 license: Complete terms in LICENSE.txt
-_from: example-org/onboarding-toolkit@e4f5a6b
+_from: skill-mill/sk-onboarding-kit@7196b39e893b5317f303447822e30ee44abfce88
 ---
 
 # Skill Creator

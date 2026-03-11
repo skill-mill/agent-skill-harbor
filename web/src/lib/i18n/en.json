@@ -100,6 +100,7 @@
 			"rendered": "Rendered"
 		},
 		"field": {
+			"owner": "Owner:",
 			"origin": "Origin:",
 			"repository": "Repository:",
 			"skillPath": "Skill path:",

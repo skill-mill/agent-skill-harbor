@@ -75,8 +75,8 @@
 			selected.nodeType === 'repo' &&
 			!skills.some((skill) => {
 				const ownerRepo = `${skill.owner}/${skill.repo}`;
-				const fromStr =
-					typeof skill.frontmatter._from === 'string' ? skill.frontmatter._from.replace(/@.*$/, '') : null;
+				const fromRaw = skill.frontmatter._from;
+				const fromStr = (typeof fromRaw === 'string' ? fromRaw : Array.isArray(fromRaw) && fromRaw.length > 0 ? String(fromRaw[fromRaw.length - 1]) : '').replace(/@.*$/, '');
 				return ownerRepo === selected.label || fromStr === selected.label;
 			})
 		) {
@@ -100,7 +100,8 @@
 		const repoLabel = selectedAttrs.label;
 		return data.skills.filter((s) => {
 			const ownerRepo = `${s.owner}/${s.repo}`;
-			const fromStr = typeof s.frontmatter._from === 'string' ? s.frontmatter._from.replace(/@.*$/, '') : null;
+			const fromRaw = s.frontmatter._from;
+			const fromStr = (typeof fromRaw === 'string' ? fromRaw : Array.isArray(fromRaw) && fromRaw.length > 0 ? String(fromRaw[fromRaw.length - 1]) : '').replace(/@.*$/, '');
 			return ownerRepo === repoLabel || fromStr === repoLabel;
 		});
 	});

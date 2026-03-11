@@ -126,20 +126,23 @@
 								? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
 								: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'}
 					<tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50">
-						<td class="whitespace-nowrap px-4 py-3">
-							<a
-								href="{base}/skills/{skill.key}/"
-								class="font-medium text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
-							>
-								{skillName}
-							</a>
-							{#if isNew(skill)}
-								<span
-									class="ml-1.5 inline-flex items-center rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+						<td class="max-w-[20rem] px-4 py-3">
+							<div class="flex items-center gap-1.5">
+								<a
+									href="{base}/skills/{skill.key}/"
+									class="truncate font-medium text-gray-900 hover:text-blue-600 dark:text-gray-100 dark:hover:text-blue-400"
+									title={skillName}
 								>
-									{$t('skillCard.new')}
-								</span>
-							{/if}
+									{skillName}
+								</a>
+								{#if isNew(skill)}
+									<span
+										class="shrink-0 inline-flex items-center rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+									>
+										{$t('skillCard.new')}
+									</span>
+								{/if}
+							</div>
 						</td>
 						<td class="hidden max-w-xs px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
 							{#if skillDescription}

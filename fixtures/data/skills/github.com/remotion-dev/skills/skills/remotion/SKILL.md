@@ -3,7 +3,7 @@ name: remotion-best-practices
 description: "Best practices for Remotion - Video creation in React."
 metadata:
   tags: remotion, video, react, animation, composition
-_from: example-org/creative-tools@5d6e7f8
+_from: skill-mill/sk-creative-tools@d20608c5fcf813d430a2e8599eac1a2cb0d6ebb4
 ---
 
 # Remotion Best Practices

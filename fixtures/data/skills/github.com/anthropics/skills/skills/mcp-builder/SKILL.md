@@ -2,7 +2,7 @@
 name: mcp-builder
 description: "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools."
 license: Complete terms in LICENSE.txt
-_from: example-org/curated-skills@c7d8e9f
+_from: skill-mill/sk-mcp-toolkit@f563876de3c1b2356695b7f375c475652f3621d6
 ---
 
 # MCP Server Builder

@@ -4,7 +4,7 @@ description: "Comprehensive guide for writing and running Terraform tests. Use w
 metadata:
   copyright: Copyright IBM Corp. 2026
   version: "0.0.1"
-_from: example-org/infra-skills@f7a8b9c
+_from: skill-mill/sk-infra-automation@b9be7d34027ea96c42932b5514caac3830c78681
 ---
 
 # Terraform Test Guide

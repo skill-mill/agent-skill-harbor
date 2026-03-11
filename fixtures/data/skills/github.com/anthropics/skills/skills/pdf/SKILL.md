@@ -2,7 +2,7 @@
 name: pdf
 description: "Use this skill whenever the user wants to do anything with PDF files."
 license: Proprietary. LICENSE.txt has complete terms
-_from: anthropics/skills@a1b2c3d
+_from: skill-mill/sk-doc-tools@c6a2ea78213a7d0356e93846b73a484acc76b166
 ---
 
 # PDF Processing

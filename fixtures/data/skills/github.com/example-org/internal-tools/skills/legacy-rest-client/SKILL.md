@@ -5,7 +5,7 @@ license: UNLICENSED
 metadata:
   author: platform-team
   version: 1.2.0
-_from: example-org/dev-standards@b4c5d6e
+_from: skill-mill/sk-code-quality@d382462ec4e7f587df04c912ab80cfedf6256add
 ---
 
 # Legacy Platform API v1 Client

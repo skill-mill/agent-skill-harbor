@@ -2,7 +2,7 @@
 name: frontend-design
 description: "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications."
 license: Complete terms in LICENSE.txt
-_from: anthropics/skills@a1b2c3d
+_from: skill-mill/sk-frontend-kit@41456e9c51152090f4c65a8e06438b25fa6a9be2
 ---
 
 # Frontend Design

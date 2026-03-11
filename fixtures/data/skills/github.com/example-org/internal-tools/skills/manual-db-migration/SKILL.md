@@ -5,7 +5,7 @@ license: UNLICENSED
 metadata:
   author: data-team
   version: 0.9.0
-_from: example-org/data-team-tools@d1e2f3a
+_from: skill-mill/sk-data-pipeline@9d7ac6fdaa1059c8dc3a4778d5c54a09a863e6e2
 ---
 
 # Manual Database Migration

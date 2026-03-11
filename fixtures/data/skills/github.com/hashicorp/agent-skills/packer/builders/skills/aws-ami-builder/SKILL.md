@@ -1,7 +1,7 @@
 ---
 name: aws-ami-builder
 description: "Build Amazon Machine Images (AMIs) with Packer using the amazon-ebs builder. Use when creating custom AMIs for EC2 instances."
-_from: hashicorp/agent-skills@1a2b3c4
+_from: skill-mill/sk-devops-handbook@ddf642a6cc111a2f427e31b17d75291be71dbe08
 ---
 
 # AWS AMI Builder
