@@ -8,6 +8,7 @@ Commands:
   init      Scaffold a new project
   collect   Collect skills from GitHub organization
   build     Build the web catalog (static site)
+  deploy    Deploy the built catalog
   dev       Start development server
   preview   Preview the built site
 
@@ -25,6 +26,9 @@ switch (command) {
 		break;
 	case 'build':
 		await import('../src/cli/commands/build.js');
+		break;
+	case 'deploy':
+		await import('../src/cli/commands/deploy.js');
 		break;
 	case 'dev':
 		await import('../src/cli/commands/dev.js');

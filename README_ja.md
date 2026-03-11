@@ -19,10 +19,10 @@
 
 ## 概要
 
-Agent Skill Harbor は、GitHub Organization 内のリポジトリから Agent Skill (SKILL.md) を収集し、ガバナンス管理機能を提供し、GitHub Pages 上でブラウズ可能なカタログを公開します。
+Agent Skill Harbor は、GitHub Organization 内のリポジトリから Agent Skill (SKILL.md) を収集し、ガバナンス管理機能を提供し、GitHub Pages または Cloudflare Pages 上でブラウズ可能なカタログを公開します。
 
 - トレーサビリティ — 外部からインストールしたスキルも含め、すべてのスキルの出所・来歴を追跡可能
-- Serverless/DB-less — GitHub Actions でクローリング、データは Git に YAML/JSON として保存、GitHub Pages でプライベート・ホスティング
+- Serverless/DB-less — GitHub Actions でクローリング、データは Git に YAML/JSON として保存、GitHub Pages または Cloudflare Pages でホスティング
 - 運用負荷なし/コスト最適 — 常時稼働リソースがないのでメンテナンスが楽で安価
 
 ## クイックスタート
@@ -65,6 +65,7 @@ pnpm dev
 | `harbor init [dir]`   | 新しいプロジェクトをスキャフォールド |
 | `harbor collect`      | GitHub Organization からスキルを収集 |
 | `harbor build`        | 静的サイトをビルド                   |
+| `harbor deploy <target>` | ビルド済みカタログをデプロイ       |
 | `harbor dev`          | 開発サーバーを起動                   |
 | `harbor preview`      | ビルド結果をプレビュー               |
 
@@ -79,9 +80,14 @@ harbor build --base=/my-repo-name
 
 1. `npx agent-skill-harbor init` で新しいプロジェクトを作成
 2. GitHub リポジトリのシークレットを設定 (`GH_TOKEN`)
-3. GitHub Pages を有効化 (Settings > Pages > Source: GitHub Actions)
-4. `CollectSkills` ワークフローを手動トリガーして初回収集を実行
-5. 収集が成功すると `DeployGitHubPages` が自動実行されます
+3. 利用するホスティング先を設定
+4. GitHub Pages: Settings > Pages > Source を GitHub Actions に設定
+5. Cloudflare Pages（任意）: GitHub 側に `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_PAGES_PROJECT_NAME` を設定
+6. Cloudflare Pages Basic 認証: Cloudflare Pages 側の環境変数に `CLOUDFLARE_PW_<USERNAME>` を1つ以上設定
+7. `DeployGitHubPages` または `DeployCloudflarePages` のどちらか一方で `workflow_run` を有効化
+8. `CollectSkills` ワークフローを手動トリガーして初回収集を実行
+9. 有効化した deploy workflow が収集成功後に自動実行されます
+10. `DeployCloudflarePages` は production のみをデプロイし、手動実行も `main` のみを許可します
 
 詳細は [組織セットアップガイド](docs/01-organization-setup_ja.md) を参照してください。
 

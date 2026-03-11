@@ -5,6 +5,7 @@ export default defineConfig({
 		'bin/cli': 'bin/cli.ts',
 		'src/cli/paths': 'src/cli/paths.ts',
 		'src/cli/commands/build': 'src/cli/commands/build.ts',
+		'src/cli/commands/deploy': 'src/cli/commands/deploy.ts',
 		'src/cli/commands/dev': 'src/cli/commands/dev.ts',
 		'src/cli/commands/preview': 'src/cli/commands/preview.ts',
 		'src/cli/commands/collect': 'src/cli/commands/collect.ts',
