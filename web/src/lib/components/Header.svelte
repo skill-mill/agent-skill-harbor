@@ -25,9 +25,6 @@
 			<a href="{base}/skills/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100"
 				>{$t('header.catalog')}</a
 			>
-			<a href="{base}/repos/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100"
-				>{$t('header.repos')}</a
-			>
 			<a href="{base}/docs/" class="transition-colors hover:text-gray-900 dark:hover:text-gray-100">{$t('docs.nav')}</a>
 			{#if orgName}
 				<span class="font-bold text-gray-900 dark:text-gray-100">

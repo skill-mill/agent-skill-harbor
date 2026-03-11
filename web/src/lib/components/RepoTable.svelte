@@ -2,6 +2,7 @@
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import type { FlatSkillEntry, RepoInfo, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
 
@@ -153,7 +154,7 @@
 									class="bg-gray-50/50 transition-colors hover:bg-gray-100/50 dark:bg-gray-800/30 dark:hover:bg-gray-800/50"
 								>
 									<td class="px-2 py-2"></td>
-									<td class="px-4 py-2" colspan="2">
+									<td class="px-4 py-2">
 										<div class="flex items-center gap-1.5 pl-4">
 											<a
 												href="{base}/skills/{skill.key}/"
@@ -170,15 +171,28 @@
 												</span>
 											{/if}
 											{#if skillDescription}
-												<span class="hidden truncate text-xs text-gray-400 dark:text-gray-500 md:inline">
-													— {skillDescription}
-												</span>
+												<Tooltip.Root>
+													<Tooltip.Trigger>
+														{#snippet child({ props })}
+															<span
+																{...props}
+																class="hidden max-w-xs truncate text-xs text-gray-400 dark:text-gray-500 md:inline"
+															>
+																— {skillDescription}
+															</span>
+														{/snippet}
+													</Tooltip.Trigger>
+													<Tooltip.Content class="max-w-sm text-sm">
+														{skillDescription}
+													</Tooltip.Content>
+												</Tooltip.Root>
 											{/if}
 										</div>
 									</td>
-									<td class="hidden whitespace-nowrap px-4 py-2 md:table-cell">
+									<td class="whitespace-nowrap px-4 py-2">
 										<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
 									</td>
+									<td class="hidden px-4 py-2 md:table-cell"></td>
 									<td class="hidden px-4 py-2 lg:table-cell"></td>
 								</tr>
 							{/each}

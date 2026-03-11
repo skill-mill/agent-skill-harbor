@@ -1,8 +1,7 @@
 {
 	"header": {
 		"title": "Agent Skill Harbor",
-		"catalog": "Skills",
-		"repos": "Repos"
+		"catalog": "Skills"
 	},
 	"footer": {
 		"tagline": "Agent Skill Harbor \u2014 Know what your agents know."
@@ -82,8 +81,11 @@
 		"repository": "Repository",
 		"version": "Version"
 	},
+	"grouping": {
+		"label": "Group:",
+		"byRepo": "By Repository"
+	},
 	"repos": {
-		"pageTitle": "Repositories — Agent Skill Harbor",
 		"empty": "No repositories found.",
 		"noSkills": "No skills"
 	},

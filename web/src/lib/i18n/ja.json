@@ -1,8 +1,7 @@
 {
 	"header": {
 		"title": "Agent Skill Harbor",
-		"catalog": "Skills",
-		"repos": "Repos"
+		"catalog": "Skills"
 	},
 	"footer": {
 		"tagline": "Agent Skill Harbor \u2014 Know what your agents know."
@@ -11,7 +10,7 @@
 		"placeholder": "\u30b9\u30ad\u30eb\u3092\u691c\u7d22..."
 	},
 	"filter": {
-		"label": "\u30d5\u30a3\u30eb\u30bf\u30fc:",
+		"label": "絞り込み:",
 		"clearAll": "\u3059\u3079\u3066\u89e3\u9664",
 		"allVisibility": "\u516c\u958b\u7bc4\u56f2",
 		"allOwner": "\u30aa\u30fc\u30ca\u30fc",
@@ -82,8 +81,11 @@
 		"repository": "リポジトリ",
 		"version": "バージョン"
 	},
+	"grouping": {
+		"label": "グルーピング:",
+		"byRepo": "リポジトリ別"
+	},
 	"repos": {
-		"pageTitle": "リポジトリ — Agent Skill Harbor",
 		"empty": "リポジトリが見つかりません。",
 		"noSkills": "スキルなし"
 	},

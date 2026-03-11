@@ -12,7 +12,7 @@
 
 	let { skills, freshPeriodDays = 0 }: Props = $props();
 
-	type SortKey = 'name' | 'status' | 'visibility' | 'owner' | 'repo' | 'version';
+	type SortKey = 'name' | 'status' | 'visibility' | 'owner' | 'repo';
 	let sortKey = $state<SortKey | null>(null);
 	let sortDir = $state<'asc' | 'desc'>('asc');
 
@@ -37,10 +37,6 @@
 				return skill.isOrgOwned ? '0' : '1';
 			case 'repo':
 				return `${skill.owner}/${skill.repo}`.toLowerCase();
-			case 'version': {
-				const meta = (skill.frontmatter.metadata ?? {}) as Record<string, unknown>;
-				return String(meta.version ?? '');
-			}
 		}
 	}
 
@@ -72,7 +68,6 @@
 			hideClass: 'hidden lg:table-cell',
 		},
 		{ key: 'owner' as SortKey, label: $t('skillTable.owner'), sortable: true, hideClass: 'hidden lg:table-cell' },
-		{ key: 'version' as SortKey, label: $t('skillTable.version'), sortable: true, hideClass: 'hidden md:table-cell' },
 	]);
 
 	function isNew(skill: FlatSkillEntry): boolean {
@@ -128,7 +123,6 @@
 				{#each sortedSkills as skill (skill.key)}
 					{@const skillName = String(skill.frontmatter.name ?? skill.repo)}
 					{@const skillDescription = String(skill.frontmatter.description ?? '')}
-					{@const metadata = (skill.frontmatter.metadata ?? {}) as Record<string, unknown>}
 					{@const visibilityStyle =
 						skill.visibility === 'public'
 							? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300'
@@ -193,9 +187,6 @@
 									{$t('skillCard.community')}
 								</span>
 							{/if}
-						</td>
-						<td class="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
-							{metadata.version ? `v${metadata.version}` : '—'}
 						</td>
 					</tr>
 				{/each}
