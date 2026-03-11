@@ -13,7 +13,7 @@
 		"label": "Filter:",
 		"clearAll": "Clear all",
 		"allVisibility": "Visibility",
-		"allOrigin": "Origin",
+		"allOwner": "Owner",
 		"all": "All"
 	},
 	"skillList": {
@@ -66,6 +66,20 @@
 		"title": "Page not found",
 		"message": "The page you're looking for doesn't exist or has been moved.",
 		"backToCatalog": "Back to Catalog"
+	},
+	"viewTabs": {
+		"card": "Card",
+		"list": "List",
+		"graph": "Graph"
+	},
+	"skillTable": {
+		"name": "Name",
+		"description": "Description",
+		"status": "Status",
+		"visibility": "Visibility",
+		"owner": "Owner",
+		"repository": "Repository",
+		"version": "Version"
 	},
 	"docs": {
 		"nav": "Docs"

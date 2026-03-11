@@ -91,11 +91,6 @@
 				{$t('skillCard.community')}
 			</span>
 		{/if}
-		<span
-			class="inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-		>
-			{skill.platform}
-		</span>
 		<span>{skill.owner}/{skill.repo}</span>
 		{#if metadata.author}
 			<span>by {metadata.author}</span>

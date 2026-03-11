@@ -138,7 +138,7 @@
 		>
 			{filters.orgOwnerships.length > 0
 				? $t(orgOwnershipOptions.find((o) => o.value === filters.orgOwnerships[0])?.labelKey ?? '')
-				: $t('filter.allOrigin')}
+				: $t('filter.allOwner')}
 		</Select.Trigger>
 		<Select.Content>
 			<Select.Item value="__all__" label={$t('filter.all')} />

@@ -13,7 +13,7 @@
 		"label": "\u30d5\u30a3\u30eb\u30bf\u30fc:",
 		"clearAll": "\u3059\u3079\u3066\u89e3\u9664",
 		"allVisibility": "\u516c\u958b\u7bc4\u56f2",
-		"allOrigin": "\u30aa\u30fc\u30ca\u30fc",
+		"allOwner": "\u30aa\u30fc\u30ca\u30fc",
 		"all": "\u3059\u3079\u3066"
 	},
 	"skillList": {
@@ -66,6 +66,20 @@
 		"title": "ページが見つかりません",
 		"message": "お探しのページは存在しないか、移動された可能性があります。",
 		"backToCatalog": "カタログに戻る"
+	},
+	"viewTabs": {
+		"card": "カード",
+		"list": "リスト",
+		"graph": "グラフ"
+	},
+	"skillTable": {
+		"name": "名前",
+		"description": "説明",
+		"status": "ステータス",
+		"visibility": "公開範囲",
+		"owner": "オーナー",
+		"repository": "リポジトリ",
+		"version": "バージョン"
 	},
 	"docs": {
 		"nav": "Docs"
