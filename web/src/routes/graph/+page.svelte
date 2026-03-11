@@ -129,17 +129,9 @@
 			{/await}
 		{/if}
 
-		<!-- Tab overlay (top-center) -->
-		<div class="pointer-events-none absolute left-1/2 top-3 z-10 -translate-x-1/2">
-			<div
-				class="pointer-events-auto rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80"
-			>
-				<ViewTabs activeView="graph" />
-			</div>
-		</div>
-
-		<!-- Search overlay (top-left) -->
-		<div class="pointer-events-none absolute left-3 top-3 z-10">
+		<!-- Top bar overlay -->
+		<div class="pointer-events-none absolute left-3 right-3 top-3 z-10 flex items-start justify-between">
+			<!-- Search (left) -->
 			<div class="pointer-events-auto relative">
 				<svg
 					class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
@@ -176,68 +168,79 @@
 					</button>
 				{/if}
 			</div>
-		</div>
 
-		<!-- Controls (bottom-right) -->
-		<div class="pointer-events-none absolute bottom-3 right-3 z-10 flex items-end gap-2">
-			<button
-				onclick={handlePrint}
-				class="pointer-events-auto rounded-lg border border-gray-200 bg-white/80 px-2.5 py-2 text-gray-600 shadow-sm backdrop-blur-sm transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-300 dark:hover:bg-gray-800"
-				aria-label="Print graph"
-				title="Print"
-			>
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			</button>
+			<!-- Tabs (center) -->
 			<div
-				class="pointer-events-auto flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80"
+				class="pointer-events-auto rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80"
 			>
+				<ViewTabs activeView="graph" />
+			</div>
+
+			<!-- Controls (right) -->
+			<div class="pointer-events-auto flex items-start gap-2">
 				<button
-					onclick={() => graphRef?.zoomIn()}
-					class="px-2.5 py-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-					aria-label="Zoom in"
-				>
-					<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-						<path
-							d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-						/>
-					</svg>
-				</button>
-				<div class="border-t border-gray-200 dark:border-gray-700"></div>
-				<button
-					onclick={() => graphRef?.zoomOut()}
-					class="px-2.5 py-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-					aria-label="Zoom out"
+					onclick={handlePrint}
+					class="rounded-lg border border-gray-200 bg-white/80 px-2.5 py-2 text-gray-600 shadow-sm backdrop-blur-sm transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-300 dark:hover:bg-gray-800"
+					aria-label="Print graph"
+					title="Print"
 				>
 					<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 						<path
 							fill-rule="evenodd"
-							d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z"
+							d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
 							clip-rule="evenodd"
 						/>
 					</svg>
 				</button>
-				<div class="border-t border-gray-200 dark:border-gray-700"></div>
-				<button
-					onclick={() => graphRef?.zoomReset()}
-					class="px-2.5 py-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-					aria-label="Reset zoom"
+				<div
+					class="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80"
 				>
-					<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-						<path
-							fill-rule="evenodd"
-							d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.451a.75.75 0 000-1.5H4.5a.75.75 0 00-.75.75v3.75a.75.75 0 001.5 0v-2.033l.364.363a7 7 0 0011.712-3.138.75.75 0 00-1.449-.391zm-10.624-3.85a5.5 5.5 0 019.201-2.465l.312.31H11.75a.75.75 0 000 1.5h3.75a.75.75 0 00.75-.75V2.419a.75.75 0 00-1.5 0v2.034l-.364-.364A7 7 0 002.674 7.228a.75.75 0 001.449.391z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-				</button>
+					<button
+						onclick={() => graphRef?.zoomIn()}
+						class="px-2.5 py-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+						aria-label="Zoom in"
+						title="Zoom in"
+					>
+						<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+							<path
+								d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
+							/>
+						</svg>
+					</button>
+					<div class="border-t border-gray-200 dark:border-gray-700"></div>
+					<button
+						onclick={() => graphRef?.zoomOut()}
+						class="px-2.5 py-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+						aria-label="Zoom out"
+						title="Zoom out"
+					>
+						<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+							<path
+								fill-rule="evenodd"
+								d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</button>
+					<div class="border-t border-gray-200 dark:border-gray-700"></div>
+					<button
+						onclick={() => graphRef?.zoomReset()}
+						class="px-2.5 py-2 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+						aria-label="Reset zoom"
+						title="Reset"
+					>
+						<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+							<path
+								fill-rule="evenodd"
+								d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.451a.75.75 0 000-1.5H4.5a.75.75 0 00-.75.75v3.75a.75.75 0 001.5 0v-2.033l.364.363a7 7 0 0011.712-3.138.75.75 0 00-1.449-.391zm-10.624-3.85a5.5 5.5 0 019.201-2.465l.312.31H11.75a.75.75 0 000 1.5h3.75a.75.75 0 00.75-.75V2.419a.75.75 0 00-1.5 0v2.034l-.364-.364A7 7 0 002.674 7.228a.75.75 0 001.449.391z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</button>
+				</div>
 			</div>
 		</div>
+
 	</div>
 
 	<!-- Side Panel -->
