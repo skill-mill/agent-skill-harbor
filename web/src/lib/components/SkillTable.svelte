@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
 
@@ -140,8 +141,19 @@
 								</span>
 							{/if}
 						</td>
-						<td class="hidden max-w-xs truncate px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
-							{skillDescription}
+						<td class="hidden max-w-xs px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
+							{#if skillDescription}
+								<Tooltip.Root>
+									<Tooltip.Trigger>
+										{#snippet child({ props })}
+											<span {...props} class="block truncate">{skillDescription}</span>
+										{/snippet}
+									</Tooltip.Trigger>
+									<Tooltip.Content class="max-w-sm text-sm">
+										{skillDescription}
+									</Tooltip.Content>
+								</Tooltip.Root>
+							{/if}
 						</td>
 						<td class="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
 							{skill.owner}/{skill.repo}
