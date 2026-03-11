@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.2] - 2026-03-12
+
+### Fixed
+- Restore trailing spaces in README taglines for Markdown line breaks
+
 ## [0.5.1] - 2026-03-12
 
 ### Changed

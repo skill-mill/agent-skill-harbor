@@ -2,8 +2,8 @@
 
 # Agent Skill Harbor
 
-> Skill Governance for companies.
-> Skill Discovery for teams.
+> Skill Governance for companies.  
+> Skill Discovery for teams.  
 
 組織とチームのための Skill 管理ツール。
 
