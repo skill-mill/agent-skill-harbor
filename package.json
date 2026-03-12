@@ -25,6 +25,7 @@
 	],
 	"scripts": {
 		"build:cli": "tsup",
+		"prepack": "pnpm build:cli",
 		"setup:dev": "tsx scripts/setup-dev.ts",
 		"collect": "tsx bin/cli.ts collect",
 		"dev": "tsx bin/cli.ts dev",
