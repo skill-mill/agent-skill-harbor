@@ -37,6 +37,7 @@ export interface RepoInfo {
 
 export interface CategoryStats {
 	repos: number;
+	repos_with_skills: number;
 	skills: number;
 	files: number;
 }

@@ -14,7 +14,6 @@
 >
 	<dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
 	<dd class="mt-1 flex items-baseline gap-2">
-		<span class="text-2xl font-semibold tabular-nums text-gray-900 dark:text-gray-100">{value}</span>
 		{#if change != null && change !== 0}
 			<span
 				class="text-sm font-medium {change > 0
@@ -24,6 +23,7 @@
 				{change > 0 ? '+' : ''}{change}
 			</span>
 		{/if}
+		<span class="text-2xl font-semibold tabular-nums text-gray-900 dark:text-gray-100">{value}</span>
 	</dd>
 	{#if sub}
 		<p class="mt-1 text-xs text-gray-400 dark:text-gray-500">{sub}</p>

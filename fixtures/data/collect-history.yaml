@@ -4,81 +4,83 @@
   statistics:
     org:
       repos: 16
+      repos_with_skills: 10
       skills: 38
       files: 296
     community:
       repos: 5
+      repos_with_skills: 5
       skills: 204
       files: 1144
 - collecting:
     collected_at: '2026-03-11T20:40:24.115Z'
     duration_sec: 634
   statistics:
-    org: { repos: 16, skills: 38, files: 296 }
-    community: { repos: 4, skills: 198, files: 1110 }
+    org: { repos: 16, repos_with_skills: 10, skills: 38, files: 296 }
+    community: { repos: 4, repos_with_skills: 4, skills: 198, files: 1110 }
 - collecting:
     collected_at: '2026-03-10T18:30:12.000Z'
     duration_sec: 580
   statistics:
-    org: { repos: 16, skills: 37, files: 290 }
-    community: { repos: 4, skills: 198, files: 1108 }
+    org: { repos: 16, repos_with_skills: 10, skills: 37, files: 290 }
+    community: { repos: 4, repos_with_skills: 4, skills: 198, files: 1108 }
 - collecting:
     collected_at: '2026-03-09T15:22:45.000Z'
     duration_sec: 612
   statistics:
-    org: { repos: 16, skills: 36, files: 282 }
-    community: { repos: 3, skills: 192, files: 1065 }
+    org: { repos: 16, repos_with_skills: 9, skills: 36, files: 282 }
+    community: { repos: 3, repos_with_skills: 3, skills: 192, files: 1065 }
 - collecting:
     collected_at: '2026-03-08T12:10:30.000Z'
     duration_sec: 545
   statistics:
-    org: { repos: 15, skills: 34, files: 268 }
-    community: { repos: 3, skills: 192, files: 1062 }
+    org: { repos: 15, repos_with_skills: 9, skills: 34, files: 268 }
+    community: { repos: 3, repos_with_skills: 3, skills: 192, files: 1062 }
 - collecting:
     collected_at: '2026-03-07T09:55:18.000Z'
     duration_sec: 598
   statistics:
-    org: { repos: 15, skills: 33, files: 260 }
-    community: { repos: 3, skills: 190, files: 1050 }
+    org: { repos: 15, repos_with_skills: 9, skills: 33, files: 260 }
+    community: { repos: 3, repos_with_skills: 3, skills: 190, files: 1050 }
 - collecting:
     collected_at: '2026-03-06T14:42:05.000Z'
     duration_sec: 520
   statistics:
-    org: { repos: 14, skills: 30, files: 240 }
-    community: { repos: 3, skills: 188, files: 1040 }
+    org: { repos: 14, repos_with_skills: 8, skills: 30, files: 240 }
+    community: { repos: 3, repos_with_skills: 3, skills: 188, files: 1040 }
 - collecting:
     collected_at: '2026-03-05T11:30:00.000Z'
     duration_sec: 610
   statistics:
-    org: { repos: 14, skills: 28, files: 225 }
-    community: { repos: 2, skills: 180, files: 990 }
+    org: { repos: 14, repos_with_skills: 8, skills: 28, files: 225 }
+    community: { repos: 2, repos_with_skills: 2, skills: 180, files: 990 }
 - collecting:
     collected_at: '2026-03-04T16:15:33.000Z'
     duration_sec: 490
   statistics:
-    org: { repos: 13, skills: 26, files: 210 }
-    community: { repos: 2, skills: 178, files: 982 }
+    org: { repos: 13, repos_with_skills: 7, skills: 26, files: 210 }
+    community: { repos: 2, repos_with_skills: 2, skills: 178, files: 982 }
 - collecting:
     collected_at: '2026-03-03T08:45:20.000Z'
     duration_sec: 575
   statistics:
-    org: { repos: 13, skills: 25, files: 202 }
-    community: { repos: 2, skills: 175, files: 965 }
+    org: { repos: 13, repos_with_skills: 7, skills: 25, files: 202 }
+    community: { repos: 2, repos_with_skills: 2, skills: 175, files: 965 }
 - collecting:
     collected_at: '2026-03-02T19:20:10.000Z'
     duration_sec: 540
   statistics:
-    org: { repos: 12, skills: 22, files: 185 }
-    community: { repos: 2, skills: 172, files: 950 }
+    org: { repos: 12, repos_with_skills: 6, skills: 22, files: 185 }
+    community: { repos: 2, repos_with_skills: 2, skills: 172, files: 950 }
 - collecting:
     collected_at: '2026-03-01T10:05:45.000Z'
     duration_sec: 630
   statistics:
-    org: { repos: 12, skills: 20, files: 170 }
-    community: { repos: 2, skills: 170, files: 940 }
+    org: { repos: 12, repos_with_skills: 6, skills: 20, files: 170 }
+    community: { repos: 2, repos_with_skills: 2, skills: 170, files: 940 }
 - collecting:
     collected_at: '2026-02-28T13:50:30.000Z'
     duration_sec: 510
   statistics:
-    org: { repos: 11, skills: 18, files: 155 }
-    community: { repos: 2, skills: 168, files: 930 }
+    org: { repos: 11, repos_with_skills: 5, skills: 18, files: 155 }
+    community: { repos: 2, repos_with_skills: 2, skills: 168, files: 930 }

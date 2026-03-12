@@ -52,6 +52,7 @@ interface RepositoryEntry {
 
 interface CategoryStats {
 	repos: number;
+	repos_with_skills: number;
 	skills: number;
 	files: number;
 }
@@ -137,14 +138,16 @@ function computeStatistics(
 	org: string,
 ): { org: CategoryStats; community: CategoryStats } {
 	const stats = {
-		org: { repos: 0, skills: 0, files: 0 },
-		community: { repos: 0, skills: 0, files: 0 },
+		org: { repos: 0, repos_with_skills: 0, skills: 0, files: 0 },
+		community: { repos: 0, repos_with_skills: 0, skills: 0, files: 0 },
 	};
 	for (const [repoKey, repoEntry] of Object.entries(catalog.repositories)) {
 		const owner = repoKey.split('/')[1];
 		const category = owner === org ? 'org' : 'community';
 		stats[category].repos++;
-		stats[category].skills += Object.keys(repoEntry.skills).length;
+		const skillCount = Object.keys(repoEntry.skills).length;
+		if (skillCount > 0) stats[category].repos_with_skills++;
+		stats[category].skills += skillCount;
 		const repoDir = join(SKILLS_DIR, repoKey);
 		if (existsSync(repoDir)) {
 			stats[category].files += countFilesRecursive(repoDir);
@@ -730,10 +733,10 @@ export async function runCollectOrgSkills(): Promise<void> {
 
 	console.log(`\n--- Statistics ---`);
 	console.log(
-		`  Org:       ${statistics.org.repos} repos, ${statistics.org.skills} skills, ${statistics.org.files} files`,
+		`  Org:       ${statistics.org.repos} repos (${statistics.org.repos_with_skills} with skills), ${statistics.org.skills} skills, ${statistics.org.files} files`,
 	);
 	console.log(
-		`  Community: ${statistics.community.repos} repos, ${statistics.community.skills} skills, ${statistics.community.files} files`,
+		`  Community: ${statistics.community.repos} repos (${statistics.community.repos_with_skills} with skills), ${statistics.community.skills} skills, ${statistics.community.files} files`,
 	);
 }
 

@@ -64,14 +64,25 @@
 
 	// KPI values
 	let totalSkills = $derived(filteredSkills.length);
-	let totalRepos = $derived(filteredRepos.length);
+	let totalRepos = $derived.by(() => {
+		if (!latest) return filteredRepos.length;
+		if (ownerFilter === 'org') return latest.statistics.org.repos;
+		if (ownerFilter === 'community') return latest.statistics.community.repos;
+		return latest.statistics.org.repos + latest.statistics.community.repos;
+	});
+	let reposWithSkills = $derived.by(() => {
+		if (!latest) return filteredRepos.filter((r) => r.skillCount > 0).length;
+		if (ownerFilter === 'org') return latest.statistics.org.repos_with_skills;
+		if (ownerFilter === 'community') return latest.statistics.community.repos_with_skills;
+		return latest.statistics.org.repos_with_skills + latest.statistics.community.repos_with_skills;
+	});
+	let repoAdoptionPct = $derived(totalRepos > 0 ? Math.round((reposWithSkills / totalRepos) * 100) : 0);
 	let totalFiles = $derived.by(() => {
 		if (!latest) return 0;
 		if (ownerFilter === 'org') return latest.statistics.org.files;
 		if (ownerFilter === 'community') return latest.statistics.community.files;
 		return latest.statistics.org.files + latest.statistics.community.files;
 	});
-	let reposWithSkills = $derived(filteredRepos.filter((r) => r.skillCount > 0).length);
 	let skillChange = $derived.by(() => {
 		if (!previous) return undefined;
 		const prevSkills =
@@ -84,13 +95,13 @@
 	});
 	let repoChange = $derived.by(() => {
 		if (!previous) return undefined;
-		const prevRepos =
+		const prevReposWithSkills =
 			ownerFilter === 'org'
-				? previous.statistics.org.repos
+				? previous.statistics.org.repos_with_skills
 				: ownerFilter === 'community'
-					? previous.statistics.community.repos
-					: previous.statistics.org.repos + previous.statistics.community.repos;
-		return totalRepos - prevRepos;
+					? previous.statistics.community.repos_with_skills
+					: previous.statistics.org.repos_with_skills + previous.statistics.community.repos_with_skills;
+		return reposWithSkills - prevReposWithSkills;
 	});
 
 	let lastCollectedFormatted = $derived.by(() => {
@@ -111,6 +122,26 @@
 						? c.statistics.community.skills
 						: c.statistics.org.skills + c.statistics.community.skills;
 			return { label: `${d.getMonth() + 1}/${d.getDate()}`, value };
+		});
+	});
+
+	// Adoption rate trend data (oldest first)
+	let adoptionTrendData = $derived.by(() => {
+		const reversed = [...data.collections].reverse();
+		return reversed.map((c) => {
+			const repos =
+				ownerFilter === 'org'
+					? c.statistics.org.repos
+					: ownerFilter === 'community'
+						? c.statistics.community.repos
+						: c.statistics.org.repos + c.statistics.community.repos;
+			const withSkills =
+				ownerFilter === 'org'
+					? c.statistics.org.repos_with_skills
+					: ownerFilter === 'community'
+						? c.statistics.community.repos_with_skills
+						: c.statistics.org.repos_with_skills + c.statistics.community.repos_with_skills;
+			return { label: '', value: repos > 0 ? Math.round((withSkills / repos) * 100) : 0 };
 		});
 	});
 
@@ -143,6 +174,15 @@
 
 	let historyExpanded = $state(false);
 	let displayedHistory = $derived(historyExpanded ? data.collections : data.collections.slice(0, 10));
+
+	function formatDuration(sec: number): string {
+		if (sec >= 60) {
+			const m = Math.floor(sec / 60);
+			const s = sec % 60;
+			return s > 0 ? `${m}m ${s}s` : `${m}m`;
+		}
+		return `${sec}s`;
+	}
 
 	function formatDate(iso: string): string {
 		const d = new Date(iso);
@@ -194,9 +234,8 @@
 		<StatCard label={$t('stats.totalSkills')} value={totalSkills} change={skillChange} />
 		<StatCard
 			label={$t('stats.totalRepos')}
-			value={totalRepos}
+			value="{reposWithSkills} / {totalRepos} ({repoAdoptionPct}%)"
 			change={repoChange}
-			sub={$t('stats.reposWithSkills', { count: reposWithSkills })}
 		/>
 		<StatCard label={$t('stats.totalFiles')} value={totalFiles.toLocaleString()} />
 		<StatCard label={$t('stats.lastCollected')} value={lastCollectedFormatted} />
@@ -206,7 +245,7 @@
 	{#if trendData.length > 0}
 		<div class="mb-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
 			<h2 class="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">{$t('stats.skillTrend')}</h2>
-			<TrendChart data={trendData} />
+			<TrendChart data={trendData} secondaryData={adoptionTrendData} secondaryLabel="%" />
 		</div>
 	{/if}
 
@@ -296,17 +335,17 @@
 							<th
 								class="px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
 							>
-								{$t('stats.skills')}
+								{$t('stats.totalSkills')}
 							</th>
 							<th
 								class="hidden px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 sm:table-cell"
 							>
-								{$t('stats.repos')}
+								{$t('stats.totalRepos')}
 							</th>
 							<th
 								class="hidden px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 md:table-cell"
 							>
-								{$t('stats.files')}
+								{$t('stats.totalFiles')}
 							</th>
 							<th
 								class="hidden px-5 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 md:table-cell"
@@ -318,31 +357,43 @@
 					<tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
 						{#each displayedHistory as entry, i (entry.collecting.collected_at)}
 							{@const prev = data.collections[i + 1]}
-							{@const s = ownerFilter === 'org' ? entry.statistics.org : ownerFilter === 'community' ? entry.statistics.community : { repos: entry.statistics.org.repos + entry.statistics.community.repos, skills: entry.statistics.org.skills + entry.statistics.community.skills, files: entry.statistics.org.files + entry.statistics.community.files }}
-							{@const ps = prev ? (ownerFilter === 'org' ? prev.statistics.org : ownerFilter === 'community' ? prev.statistics.community : { skills: prev.statistics.org.skills + prev.statistics.community.skills }) : null}
+							{@const s = ownerFilter === 'org' ? entry.statistics.org : ownerFilter === 'community' ? entry.statistics.community : { repos: entry.statistics.org.repos + entry.statistics.community.repos, repos_with_skills: entry.statistics.org.repos_with_skills + entry.statistics.community.repos_with_skills, skills: entry.statistics.org.skills + entry.statistics.community.skills, files: entry.statistics.org.files + entry.statistics.community.files }}
+							{@const ps = prev ? (ownerFilter === 'org' ? prev.statistics.org : ownerFilter === 'community' ? prev.statistics.community : { repos_with_skills: prev.statistics.org.repos_with_skills + prev.statistics.community.repos_with_skills, skills: prev.statistics.org.skills + prev.statistics.community.skills }) : null}
 							{@const skillDiff = ps ? s.skills - ps.skills : 0}
+							{@const repoDiff = ps ? s.repos_with_skills - ps.repos_with_skills : 0}
 							<tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50">
 								<td class="whitespace-nowrap px-5 py-3 text-sm text-gray-900 dark:text-gray-100">
 									{formatDate(entry.collecting.collected_at)}
 								</td>
 								<td class="whitespace-nowrap px-5 py-3 text-right text-sm">
-									<span class="tabular-nums font-medium text-gray-900 dark:text-gray-100">
-										{s.skills}
-									</span>
 									{#if skillDiff !== 0}
 										<span
-											class="ml-1 text-xs {skillDiff > 0
+											class="mr-1 text-xs {skillDiff > 0
 												? 'text-emerald-600 dark:text-emerald-400'
 												: 'text-red-600 dark:text-red-400'}"
 										>
 											{skillDiff > 0 ? '+' : ''}{skillDiff}
 										</span>
 									{/if}
+									<span class="tabular-nums font-medium text-gray-900 dark:text-gray-100">
+										{s.skills}
+									</span>
 								</td>
 								<td
-									class="hidden whitespace-nowrap px-5 py-3 text-right tabular-nums text-sm text-gray-500 dark:text-gray-400 sm:table-cell"
+									class="hidden whitespace-nowrap px-5 py-3 text-right text-sm sm:table-cell"
 								>
-									{s.repos}
+									{#if repoDiff !== 0}
+										<span
+											class="mr-1 text-xs {repoDiff > 0
+												? 'text-emerald-600 dark:text-emerald-400'
+												: 'text-red-600 dark:text-red-400'}"
+										>
+											{repoDiff > 0 ? '+' : ''}{repoDiff}
+										</span>
+									{/if}
+									<span class="tabular-nums text-gray-500 dark:text-gray-400">
+										{s.repos_with_skills} / {s.repos} ({s.repos > 0 ? Math.round((s.repos_with_skills / s.repos) * 100) : 0}%)
+									</span>
 								</td>
 								<td
 									class="hidden whitespace-nowrap px-5 py-3 text-right tabular-nums text-sm text-gray-500 dark:text-gray-400 md:table-cell"
@@ -352,7 +403,7 @@
 								<td
 									class="hidden whitespace-nowrap px-5 py-3 text-right tabular-nums text-sm text-gray-500 dark:text-gray-400 md:table-cell"
 								>
-									{entry.collecting.duration_sec}s
+									{formatDuration(entry.collecting.duration_sec)}
 								</td>
 							</tr>
 						{/each}
