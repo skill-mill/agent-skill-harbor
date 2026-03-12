@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.7.1] - 2026-03-12
+
+### Fixed
+
+- Stats page date formatting now respects the selected locale (EN/JA)
+
+### Changed
+
+- README screenshots updated to `docs/img/`, added Stats view, Stats and Graph displayed vertically
+
 ## [0.7.0] - 2026-03-12
 
 ### Added
