@@ -38,7 +38,7 @@ export interface RepoInfo {
 export interface CollectionEntry {
 	collected_at: string;
 	duration_sec: number;
-	repos: { total: number; collected: number; unchanged: number; from: number };
+	repos: { total: number; collected: number; unchanged: number; from: number; extra?: number };
 	skills: { total: number; collected: number; unchanged: number };
 	files: { collected: number };
 }

@@ -53,7 +53,7 @@ console.log('    - Cloudflare Pages uses CLOUDFLARE_PW_<USERNAME> secrets');
 
 // config/
 cpSync(join(templatesDir, 'config'), join(targetDir, 'config'), { recursive: true });
-console.log('  Created config/admin.yaml');
+console.log('  Created config/settings.yaml');
 console.log('  Created config/governance.yaml');
 
 // data/

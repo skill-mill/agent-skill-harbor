@@ -98,7 +98,7 @@ harbor build --base=/my-repo-name
 my-skill-harbor/
 ├── .env                    # GitHub トークンと Org 設定
 ├── config/
-│   ├── admin.yaml          # 収集・カタログ設定
+│   ├── settings.yaml       # 収集・カタログ設定
 │   └── governance.yaml     # スキル使用ポリシー
 ├── data/                   # collect で生成（Git 管理）
 │   ├── skills.yaml         # スキルメタデータ

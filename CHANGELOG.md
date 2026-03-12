@@ -72,7 +72,7 @@
 - Dynamic docs routing
 - 404 error page
 - Graph print/export feature
-- `exclude_repos` setting in admin.yaml
+- `excluded_repos` setting in settings.yaml
 - ESLint flat config
 
 ### Changed

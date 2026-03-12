@@ -3,6 +3,7 @@ import { load as yamlLoad } from 'js-yaml';
 import { execSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import type { CollectionEntry, FlatSkillEntry, RepoInfo, Visibility } from '$lib/types';
 
@@ -60,7 +61,7 @@ const SKILLS_YAML_PATH = join(DATA_DIR, 'skills.yaml');
 const HISTORY_YAML_PATH = join(DATA_DIR, 'collect-history.yaml');
 const CONFIG_DIR = join(PROJECT_ROOT, 'config');
 const GOVERNANCE_PATH = join(CONFIG_DIR, 'governance.yaml');
-const ADMIN_PATH = join(CONFIG_DIR, 'admin.yaml');
+const SETTINGS_PATH = join(CONFIG_DIR, 'settings.yaml');
 
 function detectOrgRepo(): { org: string | null; repo: string | null } {
 	let org: string | null = env.GH_ORG || null;
@@ -99,9 +100,9 @@ function loadGovernance(): Record<string, GovernanceEntry> {
 }
 
 function loadAdmin(): AdminConfig {
-	if (!existsSync(ADMIN_PATH)) return {};
+	if (!existsSync(SETTINGS_PATH)) return {};
 	try {
-		const raw = yamlLoad(readFileSync(ADMIN_PATH, 'utf-8'));
+		const raw = yamlLoad(readFileSync(SETTINGS_PATH, 'utf-8'));
 		if (!raw || typeof raw !== 'object') return {};
 		return raw as AdminConfig;
 	} catch {
@@ -272,7 +273,7 @@ function buildCatalogData(): CatalogResult {
 }
 
 export function loadCatalog(): CatalogResult {
-	if (!cached) {
+	if (dev || !cached) {
 		cached = buildCatalogData();
 	}
 	return cached;
@@ -286,7 +287,7 @@ export function getSkillBody(key: string): string {
 let cachedHistory: CollectionEntry[] | null = null;
 
 export function loadCollectHistory(): CollectionEntry[] {
-	if (cachedHistory) return cachedHistory;
+	if (!dev && cachedHistory) return cachedHistory;
 	if (!existsSync(HISTORY_YAML_PATH)) {
 		cachedHistory = [];
 		return cachedHistory;

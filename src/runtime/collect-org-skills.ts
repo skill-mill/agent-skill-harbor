@@ -11,25 +11,26 @@ const SKILLS_DIR = join(DATA_DIR, 'skills');
 const SKILLS_YAML_PATH = join(DATA_DIR, 'skills.yaml');
 const HISTORY_YAML_PATH = join(DATA_DIR, 'collect-history.yaml');
 const CONFIG_DIR = join(PROJECT_ROOT, 'config');
-const ADMIN_PATH = join(CONFIG_DIR, 'admin.yaml');
+const SETTINGS_PATH = join(CONFIG_DIR, 'settings.yaml');
 
-interface AdminConfig {
+interface SettingsConfig {
 	collector?: {
 		exclude_forks?: boolean;
-		exclude_repos?: string[];
-		collect_public_origin_repos?: boolean;
+		excluded_repos?: string[];
+		include_origin_repos?: boolean;
+		included_extra_repos?: string[];
 		history_limit?: number;
 	};
 }
 
-function loadAdmin(): AdminConfig {
-	if (!existsSync(ADMIN_PATH)) {
+function loadSettings(): SettingsConfig {
+	if (!existsSync(SETTINGS_PATH)) {
 		return {};
 	}
 	try {
-		const raw = yamlLoad(readFileSync(ADMIN_PATH, 'utf-8'));
+		const raw = yamlLoad(readFileSync(SETTINGS_PATH, 'utf-8'));
 		if (!raw || typeof raw !== 'object') return {};
-		return raw as AdminConfig;
+		return raw as SettingsConfig;
 	} catch {
 		return {};
 	}
@@ -52,7 +53,7 @@ interface RepositoryEntry {
 interface CollectMeta {
 	collected_at: string;
 	duration_sec: number;
-	repos: { total: number; collected: number; unchanged: number; from: number };
+	repos: { total: number; collected: number; unchanged: number; from: number; extra: number };
 	skills: { total: number; collected: number; unchanged: number };
 	files: { collected: number };
 }
@@ -83,7 +84,7 @@ interface RepoTarget {
 	html_url: string;
 	visibility: string;
 	fork: boolean;
-	source: 'org' | 'from';
+	source: 'org' | 'from' | 'extra';
 }
 
 interface ParsedFromRef {
@@ -290,6 +291,12 @@ function parseFromRepoRef(platform: string, from: unknown): ParsedFromRef | null
 	};
 }
 
+function parseGitHubRepoUrl(url: string): { owner: string; repo: string } | null {
+	const match = url.trim().match(/^https?:\/\/github\.com\/([^/]+)\/([^/.]+)\/?$/);
+	if (!match) return null;
+	return { owner: match[1], repo: match[2] };
+}
+
 function collectFromRefsFromFrontmatter(
 	platform: string,
 	frontmatter: Record<string, unknown>,
@@ -308,12 +315,14 @@ async function fetchRepoTarget(
 	platform: string,
 	owner: string,
 	repo: string,
+	source: 'from' | 'extra' = 'from',
 ): Promise<RepoTarget | null> {
+	const label = source === 'extra' ? 'included_extra_repos' : '_from';
 	try {
 		await checkRateLimit(octokit);
 		const { data } = await octokit.repos.get({ owner, repo });
 		if (data.private) {
-			console.log(`  [skip] ${owner}/${repo} (referenced via _from, not public)`);
+			console.log(`  [skip] ${owner}/${repo} (via ${label}, not public)`);
 			return null;
 		}
 		return {
@@ -323,11 +332,11 @@ async function fetchRepoTarget(
 			html_url: data.html_url,
 			visibility: 'public',
 			fork: data.fork,
-			source: 'from',
+			source,
 		};
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		console.log(`  [skip] ${owner}/${repo} (referenced via _from, unavailable: ${message})`);
+		console.log(`  [skip] ${owner}/${repo} (via ${label}, unavailable: ${message})`);
 		return null;
 	}
 }
@@ -508,10 +517,11 @@ export async function runCollectOrgSkills(): Promise<void> {
 		console.log(`Excluding self repository: ${org}/${selfRepo}`);
 	}
 
-	const admin = loadAdmin();
-	const excludeForks = admin.collector?.exclude_forks ?? false;
-	const excludeRepos = new Set(admin.collector?.exclude_repos ?? []);
-	const collectPublicOriginRepos = admin.collector?.collect_public_origin_repos ?? true;
+	const settings = loadSettings();
+	const excludeForks = settings.collector?.exclude_forks ?? false;
+	const excludeRepos = new Set(settings.collector?.excluded_repos ?? []);
+	const includeOriginRepos = settings.collector?.include_origin_repos ?? true;
+	const includedExtraRepos = settings.collector?.included_extra_repos ?? [];
 
 	const repos: RepoTarget[] = [];
 	let page = 1;
@@ -551,7 +561,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 	].filter(Boolean);
 	join(', ');
 	console.log(`Found ${repos.length} repositories${filters ? ` (${filters})` : ''}`);
-	if (collectPublicOriginRepos) {
+	if (includeOriginRepos) {
 		console.log(`Following public _from repositories: enabled`);
 	}
 
@@ -579,7 +589,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 				seenRepoKeys,
 				queuedExternalRepoKeys,
 				counts,
-				collectPublicOriginRepos,
+				includeOriginRepos,
 			);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
@@ -587,8 +597,42 @@ export async function runCollectOrgSkills(): Promise<void> {
 		}
 	}
 
+	let extraRepoCount = 0;
+	for (const url of includedExtraRepos) {
+		const parsed = parseGitHubRepoUrl(url);
+		if (!parsed) {
+			console.log(`  [skip] ${url} (invalid GitHub URL)`);
+			continue;
+		}
+		const repoKey = normalizeRepoKey(platform, parsed.owner, parsed.repo);
+		if (seenRepoKeys.has(repoKey)) {
+			console.log(`  [skip] ${parsed.owner}/${parsed.repo} (already collected)`);
+			continue;
+		}
+		seenRepoKeys.add(repoKey);
+		extraRepoCount++;
+		const target = await fetchRepoTarget(octokit, platform, parsed.owner, parsed.repo, 'extra');
+		if (!target) continue;
+		try {
+			await collectRepoSkills(
+				octokit,
+				platform,
+				target,
+				catalog,
+				fromRefs,
+				seenRepoKeys,
+				queuedExternalRepoKeys,
+				counts,
+				includeOriginRepos,
+			);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			console.error(`  [error] ${target.owner}/${target.repo}: ${message}`);
+		}
+	}
+
 	let fromRepoCount = 0;
-	if (collectPublicOriginRepos) {
+	if (includeOriginRepos) {
 		for (const fromRef of fromRefs) {
 			if (seenRepoKeys.has(fromRef.repoKey)) continue;
 			seenRepoKeys.add(fromRef.repoKey);
@@ -615,7 +659,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 	}
 
 	const durationSec = Math.round((Date.now() - startTime) / 1000);
-	const totalRepos = repos.length + fromRepoCount;
+	const totalRepos = repos.length + extraRepoCount + fromRepoCount;
 	const totalSkills = counts.collectedCount + counts.skippedSkillCount;
 
 	const historyEntry: CollectMeta = {
@@ -626,18 +670,20 @@ export async function runCollectOrgSkills(): Promise<void> {
 			collected: counts.collectedRepoCount,
 			unchanged: counts.skippedRepoCount,
 			from: fromRepoCount,
+			extra: extraRepoCount,
 		},
 		skills: { total: totalSkills, collected: counts.collectedCount, unchanged: counts.skippedSkillCount },
 		files: { collected: counts.collectedFileCount },
 	};
 	saveCatalog(catalog);
-	const historyLimit = admin.collector?.history_limit ?? 50;
+	const historyLimit = settings.collector?.history_limit ?? 50;
 	saveCollectHistory(historyEntry, historyLimit);
 
 	console.log(`\n--- Summary ---`);
 	console.log(
 		`  Repos:  ${totalRepos} total, ${counts.collectedRepoCount} collected, ${counts.skippedRepoCount} unchanged` +
-			(fromRepoCount > 0 ? ` (incl. ${fromRepoCount} via _from)` : ''),
+			(extraRepoCount > 0 ? `, ${extraRepoCount} via included_extra_repos` : '') +
+			(fromRepoCount > 0 ? `, ${fromRepoCount} via _from` : ''),
 	);
 	console.log(
 		`  Skills: ${totalSkills} total, ${counts.collectedCount} collected, ${counts.skippedSkillCount} unchanged`,

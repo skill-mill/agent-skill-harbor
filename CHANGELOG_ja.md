@@ -72,7 +72,7 @@
 - 動的ドキュメントルーティング
 - 404 エラーページ
 - グラフ印刷/エクスポート機能
-- admin.yaml の `exclude_repos` 設定
+- settings.yaml の `excluded_repos` 設定
 - ESLint flat config
 
 ### 変更
