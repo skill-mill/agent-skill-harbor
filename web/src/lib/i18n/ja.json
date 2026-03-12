@@ -3,9 +3,6 @@
 		"title": "Agent Skill Harbor",
 		"catalog": "Skills"
 	},
-	"footer": {
-		"tagline": "Agent Skill Harbor — Know what your agents know."
-	},
 	"search": {
 		"placeholder": "スキルを検索..."
 	},
