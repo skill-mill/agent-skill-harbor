@@ -103,7 +103,7 @@ my-skill-harbor/
 
 ## Skill Provenance Tracking
 
-Using [agent-command-sync](https://github.com/hatappo/agent-command-sync) (`acs`) to install and manage skills automatically records the `_from` history in SKILL.md frontmatter, enabling your organization to trace the origin of every skill.
+Using [agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) to install and manage skills automatically records the `_from` history in SKILL.md frontmatter, enabling your organization to trace the origin of every skill.
 
 ## Documentation
 

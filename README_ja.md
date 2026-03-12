@@ -102,7 +102,7 @@ my-skill-harbor/
 
 ## スキルの来歴追跡
 
-[agent-command-sync](https://github.com/hatappo/agent-command-sync) (`acs`) を使ってスキルのインストール・管理を行うと、SKILL.md frontmatter の `_from` 履歴が自動記録され、すべてのスキルの出所を追跡できます。
+[agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) を使ってスキルのインストール・管理を行うと、SKILL.md frontmatter の `_from` 履歴が自動記録され、すべてのスキルの出所を追跡できます。
 
 ## ドキュメント
 
