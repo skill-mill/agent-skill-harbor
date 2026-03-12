@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.6.0] - 2026-03-12
+
+### Added
+
+- **Stats view** with KPI cards, skill trend chart, and collection history table
+- Dual-axis trend chart overlaying skill count and repo skill adoption rate
+- `repos_with_skills` metric for tracking skill adoption across repositories
+- Hover tooltips on trend chart data points with vertical guide line
+- Owner filter on Graph view with URL parameter sync
+- Retry with exponential backoff (up to 3 attempts) for GitHub API calls (500/502/503)
+- Randomized footer taglines (5 candidates)
+- Repository grouping in skills list page
+- Separate `collect-history.yaml` for collection history tracking
+
+### Changed
+
+- Restructured `collect-history.yaml` to `collecting` + `statistics` (org/community breakdown) format
+- Renamed `admin.yaml` to `settings.yaml`, added `included_extra_repos` config
+- Stats tab moved to leftmost position in tab bar
+- Repo KPI shows adoption rate format (`repos_with_skills / total (pct%)`)
+- Graph force layout tuned: link distance scales with node degree, stronger charge repulsion
+- Improved error messages in collector: shows HTTP status instead of raw HTML
+- `checkRateLimit` wrapped in try-catch to avoid blocking on 503
+
+### Fixed
+
+- Owner filter now preserved when navigating to Graph view via tabs
+- List view defaults to group-by-repo; tab toggle no longer requires double click
+
 ## [0.5.2] - 2026-03-12
 
 ### Fixed
