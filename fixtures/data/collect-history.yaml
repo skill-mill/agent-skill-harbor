@@ -1,0 +1,60 @@
+- collected_at: '2026-03-11T20:40:24.115Z'
+  duration_sec: 634
+  repos: { total: 20, collected: 20, unchanged: 0, from: 4 }
+  skills: { total: 240, collected: 240, unchanged: 0 }
+  files: { collected: 1473 }
+- collected_at: '2026-03-10T18:30:12.000Z'
+  duration_sec: 580
+  repos: { total: 20, collected: 18, unchanged: 2, from: 4 }
+  skills: { total: 238, collected: 210, unchanged: 28 }
+  files: { collected: 1450 }
+- collected_at: '2026-03-09T15:22:45.000Z'
+  duration_sec: 612
+  repos: { total: 19, collected: 19, unchanged: 0, from: 3 }
+  skills: { total: 235, collected: 235, unchanged: 0 }
+  files: { collected: 1420 }
+- collected_at: '2026-03-08T12:10:30.000Z'
+  duration_sec: 545
+  repos: { total: 19, collected: 15, unchanged: 4, from: 3 }
+  skills: { total: 232, collected: 180, unchanged: 52 }
+  files: { collected: 1395 }
+- collected_at: '2026-03-07T09:55:18.000Z'
+  duration_sec: 598
+  repos: { total: 18, collected: 18, unchanged: 0, from: 3 }
+  skills: { total: 228, collected: 228, unchanged: 0 }
+  files: { collected: 1370 }
+- collected_at: '2026-03-06T14:42:05.000Z'
+  duration_sec: 520
+  repos: { total: 18, collected: 12, unchanged: 6, from: 3 }
+  skills: { total: 225, collected: 150, unchanged: 75 }
+  files: { collected: 1340 }
+- collected_at: '2026-03-05T11:30:00.000Z'
+  duration_sec: 610
+  repos: { total: 17, collected: 17, unchanged: 0, from: 2 }
+  skills: { total: 220, collected: 220, unchanged: 0 }
+  files: { collected: 1300 }
+- collected_at: '2026-03-04T16:15:33.000Z'
+  duration_sec: 490
+  repos: { total: 17, collected: 10, unchanged: 7, from: 2 }
+  skills: { total: 218, collected: 120, unchanged: 98 }
+  files: { collected: 1280 }
+- collected_at: '2026-03-03T08:45:20.000Z'
+  duration_sec: 575
+  repos: { total: 16, collected: 16, unchanged: 0, from: 2 }
+  skills: { total: 212, collected: 212, unchanged: 0 }
+  files: { collected: 1240 }
+- collected_at: '2026-03-02T19:20:10.000Z'
+  duration_sec: 540
+  repos: { total: 16, collected: 14, unchanged: 2, from: 2 }
+  skills: { total: 210, collected: 190, unchanged: 20 }
+  files: { collected: 1220 }
+- collected_at: '2026-03-01T10:05:45.000Z'
+  duration_sec: 630
+  repos: { total: 15, collected: 15, unchanged: 0, from: 2 }
+  skills: { total: 205, collected: 205, unchanged: 0 }
+  files: { collected: 1180 }
+- collected_at: '2026-02-28T13:50:30.000Z'
+  duration_sec: 510
+  repos: { total: 15, collected: 11, unchanged: 4, from: 2 }
+  skills: { total: 200, collected: 140, unchanged: 60 }
+  files: { collected: 1150 }

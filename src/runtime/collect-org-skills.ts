@@ -9,6 +9,7 @@ const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, 
 const DATA_DIR = join(PROJECT_ROOT, 'data');
 const SKILLS_DIR = join(DATA_DIR, 'skills');
 const SKILLS_YAML_PATH = join(DATA_DIR, 'skills.yaml');
+const HISTORY_YAML_PATH = join(DATA_DIR, 'collect-history.yaml');
 const CONFIG_DIR = join(PROJECT_ROOT, 'config');
 const ADMIN_PATH = join(CONFIG_DIR, 'admin.yaml');
 
@@ -17,6 +18,7 @@ interface AdminConfig {
 		exclude_forks?: boolean;
 		exclude_repos?: string[];
 		collect_public_origin_repos?: boolean;
+		history_limit?: number;
 	};
 }
 
@@ -56,7 +58,6 @@ interface CollectMeta {
 }
 
 interface CatalogYaml {
-	meta?: CollectMeta;
 	repositories: Record<string, RepositoryEntry>;
 }
 
@@ -104,8 +105,27 @@ function loadCatalog(): CatalogYaml {
 	}
 }
 
-function saveCatalog(catalog: CatalogYaml): void {
-	writeFileSync(SKILLS_YAML_PATH, yamlDump(catalog, { lineWidth: 120, noRefs: true }));
+function saveCatalog(catalog: CatalogYaml & { meta?: unknown }): void {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { meta: _meta, ...rest } = catalog;
+	writeFileSync(SKILLS_YAML_PATH, yamlDump(rest, { lineWidth: 120, noRefs: true }));
+}
+
+function loadCollectHistory(): CollectMeta[] {
+	if (!existsSync(HISTORY_YAML_PATH)) return [];
+	try {
+		const raw = yamlLoad(readFileSync(HISTORY_YAML_PATH, 'utf-8'));
+		return Array.isArray(raw) ? raw : [];
+	} catch {
+		return [];
+	}
+}
+
+function saveCollectHistory(entry: CollectMeta, limit: number): void {
+	const history = loadCollectHistory();
+	history.unshift(entry);
+	const trimmed = limit > 0 ? history.slice(0, limit) : history;
+	writeFileSync(HISTORY_YAML_PATH, yamlDump(trimmed, { lineWidth: 120, noRefs: true }));
 }
 
 function saveFile(repoDir: string, filePath: string, content: string): void {
@@ -598,7 +618,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 	const totalRepos = repos.length + fromRepoCount;
 	const totalSkills = counts.collectedCount + counts.skippedSkillCount;
 
-	catalog.meta = {
+	const historyEntry: CollectMeta = {
 		collected_at: new Date().toISOString(),
 		duration_sec: durationSec,
 		repos: {
@@ -611,6 +631,8 @@ export async function runCollectOrgSkills(): Promise<void> {
 		files: { collected: counts.collectedFileCount },
 	};
 	saveCatalog(catalog);
+	const historyLimit = admin.collector?.history_limit ?? 50;
+	saveCollectHistory(historyEntry, historyLimit);
 
 	console.log(`\n--- Summary ---`);
 	console.log(

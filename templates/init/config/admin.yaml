@@ -3,6 +3,7 @@ collector:
   # exclude_repos:    # repository names to skip when collecting
   #   - some-repo-name
   collect_public_origin_repos: true # collect public repositories referenced by _from (1 level, deduped by owner/repo)
+  history_limit: 50 # max entries kept in collect-history.yaml (0 = unlimited)
 
 catalog:
   skill:
