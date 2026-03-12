@@ -9,13 +9,13 @@ Agent skill catalog and governance tool for organizations.
 
 ## Screenshots
 
-|                                                          Skill Catalog                                                           |                                                          Skill Detail                                                           |
-| :------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
-| ![Skill Catalog](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/agent-skill-harbor-screenshot02.jpeg) | ![Skill Detail](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/agent-skill-harbor-screenshot01.jpeg) |
+|                                                             Card View                                                              |                                                             List View                                                              |
+| :--------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------: |
+| ![Card View](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-card.png) | ![List View](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-list.png) |
 
-### Graph View
-
-![Graph View](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/agent-skill-harbor-screenshot-graph.gif)
+|                                                              Stats View                                                              |                                                              Graph View                                                              |
+| :----------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------: |
+| ![Stats View](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-stats.png) | ![Graph View](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-graph.gif) |
 
 ## Overview
 

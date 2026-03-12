@@ -9,7 +9,7 @@
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
 	import * as Select from '$lib/components/ui/select';
 	import type { CollectionEntry, FlatSkillEntry, RepoInfo, UsagePolicy } from '$lib/types';
-	import { t } from '$lib/i18n';
+	import { t, locale } from '$lib/i18n';
 
 	interface Props {
 		data: {
@@ -107,7 +107,7 @@
 	let lastCollectedFormatted = $derived.by(() => {
 		if (!latest) return '—';
 		const d = new Date(latest.collecting.collected_at);
-		return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+		return d.toLocaleDateString($locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 	});
 
 	// Trend chart data (oldest first)
@@ -186,7 +186,7 @@
 
 	function formatDate(iso: string): string {
 		const d = new Date(iso);
-		return d.toLocaleDateString(undefined, {
+		return d.toLocaleDateString($locale, {
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
