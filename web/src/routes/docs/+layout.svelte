@@ -12,7 +12,7 @@
 			<h2 class="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100">{$t('docs.nav')}</h2>
 			<ul class="space-y-1">
 				{#each data.docs as item}
-					{@const href = `${base}/docs/${item.slug}/`}
+					{@const href = item.slug ? `${base}/docs/${item.slug}/` : `${base}/docs/`}
 					{@const active = $page.url.pathname === href || $page.url.pathname === href.replace(/\/$/, '')}
 					<li>
 						<a

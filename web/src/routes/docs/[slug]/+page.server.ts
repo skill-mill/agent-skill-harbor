@@ -2,7 +2,9 @@ import { error } from '@sveltejs/kit';
 import { listDocs, loadDocContent } from '$lib/server/docs';
 
 export const entries = () => {
-	return listDocs().map((d) => ({ slug: d.slug }));
+	return listDocs()
+		.filter((d) => d.slug !== '')
+		.map((d) => ({ slug: d.slug }));
 };
 
 export const load = ({ params }) => {

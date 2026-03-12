@@ -108,8 +108,8 @@ Using [agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) to 
 ## Documentation
 
 - [Organization Setup](docs/01-organization-setup.md)
-- [Local Development](docs/02-local-development.md)
-- [Governance Guide](docs/03-governance-guide.md)
+- [Governance Guide](docs/02-governance-guide.md)
+- [Local Development](docs/03-local-development.md)
 
 ## License
 
