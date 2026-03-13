@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.5] - 2026-03-14
+
+### Fixed
+
+- Docs dynamic routes now use `prerender = 'auto'` so `/docs/[slug]` no longer fails builds as an unseen prerenderable route
+
 ## [0.8.4] - 2026-03-14
 
 ### Changed

@@ -1,6 +1,8 @@
 import { error } from '@sveltejs/kit';
 import { listDocs, loadDocContent } from '$lib/server/docs';
 
+export const prerender = 'auto';
+
 export const entries = () => {
 	return listDocs()
 		.filter((d) => d.slug !== '')

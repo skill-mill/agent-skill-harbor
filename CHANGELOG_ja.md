@@ -1,5 +1,11 @@
 # 変更履歴
 
+## [0.8.5] - 2026-03-14
+
+### 修正
+
+- docs の dynamic route を `prerender = 'auto'` に変更し、`/docs/[slug]` が unseen prerenderable route としてビルド失敗しないよう修正
+
 ## [0.8.4] - 2026-03-14
 
 ### 変更
