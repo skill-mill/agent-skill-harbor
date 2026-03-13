@@ -24,7 +24,7 @@ pnpm preview      # ビルド結果をプレビュー
 ### はじめに
 
 ```bash
-git clone https://github.com/anthropics/agent-skill-harbor.git
+git clone https://github.com/skill-mill/agent-skill-harbor.git
 cd agent-skill-harbor
 pnpm install
 pnpm setup:dev    # テンプレートとフィクスチャをコピー
@@ -53,7 +53,6 @@ pnpm format       # Prettier でフォーマット
 tsx cli/bin/cli.ts collect    # スキル収集（GH_TOKEN が必要）
 cd cli && pnpm build          # CLI パッケージをビルド（bin/ や src/ を変更した後に実行）
 pnpm setup:dev                # テンプレートとフィクスチャを再コピー
-pnpm versions:check           # cli/web/template の version 整合を検証
 ```
 
 ### プロジェクト構成
@@ -92,5 +91,6 @@ pnpm versions:check           # cli/web/template の version 整合を検証
 
 ### リリース補足
 
-- publish 順序は `agent-skill-harbor-web` が先、その後に `agent-skill-harbor` です。
+- 変更が入った package だけを release します。
+- 両 package を同時に release する場合は `agent-skill-harbor-web` を先、その後に `agent-skill-harbor` を publish します。
 - 詳細なリリース手順は [04-release_ja.md](docs/04-release_ja.md) を参照してください。

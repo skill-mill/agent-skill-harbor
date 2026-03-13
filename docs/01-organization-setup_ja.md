@@ -19,7 +19,7 @@ cd my-skill-harbor
 
 このプロジェクトを組織内の**プライベート**リポジトリにプッシュします。
 
-> **別の方法:** [agent-skill-harbor リポジトリ](https://github.com/anthropics/agent-skill-harbor) を直接クローンすることもできます。詳しくはローカル開発ガイドを参照。
+> **別の方法:** [agent-skill-harbor リポジトリ](https://github.com/skill-mill/agent-skill-harbor) を直接クローンすることもできます。詳しくはローカル開発ガイドを参照。
 
 ## ステップ 2: 環境設定
 

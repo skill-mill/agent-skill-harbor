@@ -1,5 +1,23 @@
 # 変更履歴
 
+## [cli 0.10.1] / [web 0.9.1] - 2026-03-14
+
+### 変更
+
+- `cli/` と `web/` の両 package に、package ローカルで使える `format` / `format:check` / `lint` / `lint:check` / `verify` を追加し、workspace root に依存せず検査と自動修正ができるよう整理
+- release ドキュメントを、package ごとの `verify` 手順、任意の `pack` 指針、package 専用 git tag (`cli-vX.Y.Z`, `web-vX.Y.Z`) に合わせて更新
+- package ローカルの format 対象を調整し、新しい静的検査で見つかった CLI / web の小さな問題を修正
+- コントリビューター向けドキュメントと README 補足を、独立 package の release フローに合わせて更新
+
+## [0.10.0] - 2026-03-14
+
+### 変更
+
+- `agent-skill-harbor` と `agent-skill-harbor-web` を常に同時 bump する運用をやめ、独立した version 管理に変更して release を簡素化
+- package 間の version 整合に依存していた repository-wide の同期 script と lifecycle hook を削除
+- CLI の `agent-skill-harbor-web` 依存を広めの `<1` range に緩め、minor / patch の web release だけでは CLI release が不要な構成に変更
+- コントリビューター向け・リリース向けドキュメントを、同期 release ではなく package 単位 release の説明に更新
+
 ## [0.9.0] - 2026-03-14
 
 ### 追加

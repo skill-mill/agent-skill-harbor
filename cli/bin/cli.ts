@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+export {};
+
 const USAGE = `agent-skill-harbor CLI
 
 Usage: harbor <command>

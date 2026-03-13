@@ -117,7 +117,6 @@ function loadCatalog(): CatalogYaml {
 }
 
 function saveCatalog(catalog: CatalogYaml & { meta?: unknown }): void {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { meta: _meta, ...rest } = catalog;
 	writeFileSync(SKILLS_YAML_PATH, yamlDump(rest, { lineWidth: 120, noRefs: true }));
 }

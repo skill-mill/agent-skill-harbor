@@ -1,5 +1,23 @@
 # Changelog
 
+## [cli 0.10.1] / [web 0.9.1] - 2026-03-14
+
+### Changed
+
+- Added package-local `format`, `format:check`, `lint`, `lint:check`, and `verify` workflows so `cli/` and `web/` can be checked and fixed independently from the workspace root
+- Updated release docs to use package-specific `verify` steps, optional `pack` guidance, and package-specific git tags (`cli-vX.Y.Z`, `web-vX.Y.Z`)
+- Refined package-local formatting targets and fixed small CLI/web source issues uncovered by the new static checks
+- Updated contributor docs and README notes to match the independent-package release workflow
+
+## [0.10.0] - 2026-03-14
+
+### Changed
+
+- Simplified releases by versioning `agent-skill-harbor` and `agent-skill-harbor-web` independently instead of forcing lockstep bumps
+- Removed repository-wide version sync scripts and package lifecycle hooks tied to cross-package version alignment
+- Relaxed the CLI dependency on `agent-skill-harbor-web` to a broad `<1` range so minor and patch web releases do not require a CLI release
+- Updated contributor and release docs to describe package-specific releases instead of synchronized dual-package releases
+
 ## [0.9.0] - 2026-03-14
 
 ### Added

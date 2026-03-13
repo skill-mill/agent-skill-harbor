@@ -24,7 +24,7 @@ These scripts call the `harbor` CLI under the hood.
 ### Getting Started
 
 ```bash
-git clone https://github.com/anthropics/agent-skill-harbor.git
+git clone https://github.com/skill-mill/agent-skill-harbor.git
 cd agent-skill-harbor
 pnpm install
 pnpm setup:dev    # Copy templates and fixtures
@@ -53,7 +53,6 @@ pnpm format       # Format all files with Prettier
 tsx cli/bin/cli.ts collect    # Collect skills (requires GH_TOKEN)
 cd cli && pnpm build          # Build CLI package (after modifying bin/ or src/)
 pnpm setup:dev                # Re-copy templates and fixtures
-pnpm versions:check           # Validate cli/web/template version sync
 ```
 
 ### Project Structure
@@ -92,5 +91,6 @@ pnpm versions:check           # Validate cli/web/template version sync
 
 ### Release Notes
 
-- Publish order matters: release `agent-skill-harbor-web` first, then `agent-skill-harbor`.
+- Release only the package that changed.
+- If both packages are released together, publish `agent-skill-harbor-web` first and `agent-skill-harbor` second.
 - For the detailed release workflow, see [04-release.md](docs/04-release.md).

@@ -36,7 +36,8 @@ function resolveIndexPath(locale: string): string | null {
 		}
 	}
 
-	const projectReadme = locale === 'en' ? join(__PROJECT_ROOT__, 'README.md') : join(__PROJECT_ROOT__, `README_${locale}.md`);
+	const projectReadme =
+		locale === 'en' ? join(__PROJECT_ROOT__, 'README.md') : join(__PROJECT_ROOT__, `README_${locale}.md`);
 	if (fileExists(projectReadme)) return projectReadme;
 	if (locale !== 'en' && fileExists(join(__PROJECT_ROOT__, 'README.md'))) return join(__PROJECT_ROOT__, 'README.md');
 	return null;
@@ -70,7 +71,7 @@ function buildEntry(slug: string): DocEntry | null {
 	const enPath = resolveGuidePath(slug, 'en');
 	if (!enPath) return null;
 
-	const enTitle = extractTitle(readFileSync(enPath, 'utf-8')) || (slug || 'Guide');
+	const enTitle = extractTitle(readFileSync(enPath, 'utf-8')) || slug || 'Guide';
 
 	const jaPath = resolveGuidePath(slug, 'ja');
 	const jaTitle = jaPath ? extractTitle(readFileSync(jaPath, 'utf-8')) || enTitle : enTitle;

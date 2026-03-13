@@ -19,7 +19,7 @@ This scaffolds the project with configuration files, GitHub Actions workflows, a
 
 Then push this project to a **private** repository within your organization.
 
-> **Alternative:** You can also clone the [agent-skill-harbor repository](https://github.com/anthropics/agent-skill-harbor) directly. See the Local Development guide for details.
+> **Alternative:** You can also clone the [agent-skill-harbor repository](https://github.com/skill-mill/agent-skill-harbor) directly. See the Local Development guide for details.
 
 ## Step 2: Configure Environment
 

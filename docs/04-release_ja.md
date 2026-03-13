@@ -7,47 +7,64 @@
 - `agent-skill-harbor-web`: SvelteKit アプリ本体と Web ビルド依存を含む公開 Web パッケージ
 - `agent-skill-harbor`: `harbor` 実行ファイル、テンプレート、collect ランタイムを含む公開 CLI パッケージ
 
-## リリース順序
+## リリース方針
 
-必ず次の順序で publish してください。
+- 変更が入った package だけを release します。
+- 両方の package を release する場合、または CLI が未公開の新しい web 機能を最低要件として要求する場合だけ、`agent-skill-harbor-web` を先、`agent-skill-harbor` を後に publish します。
 
-1. `agent-skill-harbor-web`
-2. `agent-skill-harbor`
-
-CLI パッケージは公開済みの `agent-skill-harbor-web` に依存するため、CLI を先に publish すると一時的に壊れたインストール状態が発生します。
+CLI パッケージは `agent-skill-harbor-web` に依存しますが、現在は広めの semver range を使っています。そのため、CLI がまだ公開されていない新しい web 機能に依存しない限り、毎回の二重 release は不要です。
 
 ## リリースチェックリスト
 
-1. `cli/package.json` と `web/package.json` のバージョンを整合させる。
-2. 必要に応じて changelog を更新する。
-3. 次を実行する。
+### 共通
+
+1. 今回 release する package を決める。
+2. その package の `package.json` だけを bump する。
+3. 必要に応じて changelog を更新する。
+
+### `agent-skill-harbor-web` を release するとき
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir cli build
-pnpm --dir web lint
-pnpm --dir web check
-node cli/dist/bin/cli.js build
-pnpm --filter agent-skill-harbor pack
-pnpm --filter agent-skill-harbor-web pack
+pnpm --dir web verify
+pnpm --dir web build
+# pnpm --filter agent-skill-harbor-web pack  # `files` / README / package 構成を変更したときのみ
+pnpm --filter agent-skill-harbor-web publish --access public
+git tag web-v<version>
 ```
 
-4. `agent-skill-harbor-web` を publish する。
-5. `agent-skill-harbor` を publish する。
-6. 両パッケージが利用可能になったことを確認してから git tag を作成する。
+### `agent-skill-harbor` を release するとき
 
-## バージョンスクリプトとフック
+```bash
+pnpm install --no-frozen-lockfile
+pnpm --dir cli verify
+pnpm --dir cli build
+node cli/dist/bin/cli.js build
+# pnpm --filter agent-skill-harbor pack  # `files` / bin / templates / README を変更したときのみ
+pnpm --filter agent-skill-harbor publish --access public
+git tag cli-v<version>
+```
 
-- `pnpm versions:sync`: `cli/package.json` の version を `web/package.json` に同期し、CLI workspace 依存の `agent-skill-harbor-web` を更新します。
-- `pnpm versions:check`: `cli/web/template` のバージョン参照が揃っていることを検証します。
-- `preversion`: `pnpm --dir .. versions:check` を実行してから `pnpm --filter agent-skill-harbor version ...` が package version を更新します。
-- `version`: `pnpm --dir .. versions:sync` と `pnpm --dir .. versions:check` を実行し、`cli/package.json`、`web/package.json`、`pnpm-lock.yaml` を `git add` して、生成された変更が version commit に入るようにします。
-- `prepack`: pack/publish 前に `pnpm --dir .. versions:check` を実行します。
+### 両方を release するとき
 
-つまり `pnpm --filter agent-skill-harbor version patch|minor|major` 自体は pnpm のビルトインコマンドのままで、`preversion` と `version` はその前後に追加で動くライフサイクルフックです。
+1. 先に `agent-skill-harbor-web` を release する。
+2. 次に `agent-skill-harbor` を release する。
+3. 公開対象の package が利用可能になったことを確認してから両方の git tag を作成する。
+
+## タグ方針
+
+- repository 全体で 1 つの version tag を使うのではなく、package ごとの git tag を使います。
+- CLI release の tag は `cli-vX.Y.Z` を使います。
+- Web release の tag は `web-vX.Y.Z` を使います。
+- 両 package を同時に release した場合は、両方の tag を作成します。
+
+## バージョニング方針
+
+- `cli/package.json` と `web/package.json` は独立して version を管理します。
+- `cli/templates/init/package.template.json` は引き続き `^{{PACKAGE_VERSION}}` を使うため、`init` で生成されたプロジェクトは常にその時点の CLI リリース系列を参照します。
+- CLI は `agent-skill-harbor-web` に対して広めの `<1` range で依存します。minor / patch の web release だけなら CLI release は必須ではありません。
 
 ## 補足
 
-- CLI tarball は同じリリース系列の `agent-skill-harbor-web` に依存している必要があります。
 - Web の実行時依存は `web/package.json` に置きます。
 - CLI 専用の実行時依存は `cli/package.json` に置きます。

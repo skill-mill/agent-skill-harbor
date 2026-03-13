@@ -40,7 +40,8 @@
 					class="transition-colors {isActive($page.url.pathname, item.matches)
 						? 'font-semibold text-gray-900 dark:text-gray-100'
 						: 'hover:text-gray-900 dark:hover:text-gray-100'}"
-				>{item.label.startsWith('header.') ? $t(item.label) : item.label}</a>
+					>{item.label.startsWith('header.') ? $t(item.label) : item.label}</a
+				>
 			{/each}
 			{#if orgName}
 				<span class="text-gray-500 dark:text-gray-400">

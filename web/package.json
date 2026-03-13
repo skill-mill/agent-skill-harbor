@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor-web",
-	"version": "0.9.0",
+	"version": "0.9.1",
 	"type": "module",
 	"description": "Web runtime package for Agent Skill Harbor.",
 	"keywords": [
@@ -28,11 +28,15 @@
 		"components.json"
 	],
 	"scripts": {
+		"format": "prettier --write \"src/**/*.{js,ts,mjs,cjs,mts,cts,svelte}\" \"guide/**/*.md\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
+		"format:check": "prettier --check \"src/**/*.{js,ts,mjs,cjs,mts,cts,svelte}\" \"guide/**/*.md\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
+		"lint": "eslint --fix .",
+		"lint:check": "eslint .",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"verify": "pnpm format:check && pnpm lint:check && pnpm check",
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"lint": "eslint ."
+		"preview": "vite preview"
 	},
 	"dependencies": {
 		"3d-force-graph": "1.79.1",

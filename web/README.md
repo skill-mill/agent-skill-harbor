@@ -15,5 +15,5 @@ This package contains the SvelteKit frontend source, configuration, and runtime 
 ## Notes
 
 - This package is primarily an internal runtime package for `agent-skill-harbor`
-- Release `agent-skill-harbor-web` before releasing `agent-skill-harbor`
+- Release `agent-skill-harbor-web` first only when the CLI depends on a newer unpublished web version, or when both packages are released together
 - For repository-level release steps, see [`../docs/04-release.md`](../docs/04-release.md)

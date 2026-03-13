@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor",
-	"version": "0.9.0",
+	"version": "0.10.1",
 	"type": "module",
 	"description": "Skill governance for companies. Skill discovery for teams.",
 	"keywords": [
@@ -28,21 +28,26 @@
 		"templates/"
 	],
 	"scripts": {
-		"build": "tsup",
-		"prepack": "pnpm --dir .. versions:check && pnpm build",
-		"preversion": "pnpm --dir .. versions:check",
-		"version": "pnpm --dir .. versions:sync && pnpm --dir .. versions:check && git add cli/package.json web/package.json pnpm-lock.yaml"
+		"format": "prettier --write \"bin/**/*.{js,ts,mjs,cjs,mts,cts}\" \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
+		"format:check": "prettier --check \"bin/**/*.{js,ts,mjs,cjs,mts,cts}\" \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
+		"lint": "eslint --fix bin src",
+		"lint:check": "eslint bin src",
+		"check": "tsc --noEmit -p tsconfig.json",
+		"verify": "pnpm format:check && pnpm lint:check && pnpm check",
+		"build": "tsup"
 	},
 	"dependencies": {
 		"@octokit/rest": "^21.1.1",
-		"agent-skill-harbor-web": "workspace:^0.9.0",
+		"agent-skill-harbor-web": ">=0.8.7 <1",
 		"js-yaml": "^4.1.0"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^22.15.0",
+		"eslint": "^9.18.0",
 		"tsup": "8.5.1",
 		"tsx": "^4.19.0",
-		"typescript": "^5.7.0"
+		"typescript": "^5.7.0",
+		"typescript-eslint": "^8.20.0"
 	}
 }

@@ -69,16 +69,12 @@
 						<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 							<!-- exclude_forks -->
 							<tr>
-								<td
-									class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
+								<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 									{$t('settings.collector.exclude_forks')}
 								</td>
 								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 									{#if data.settings.collector.exclude_forks}
-										<span
-											class="inline-flex items-center gap-1 text-green-600 dark:text-green-400"
-										>
+										<span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
 											<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 												<path
 													fill-rule="evenodd"
@@ -89,9 +85,7 @@
 											{$t('settings.enabled')}
 										</span>
 									{:else}
-										<span
-											class="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500"
-										>
+										<span class="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500">
 											<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 												<path
 													d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
@@ -104,16 +98,12 @@
 							</tr>
 							<!-- include_origin_repos -->
 							<tr>
-								<td
-									class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
+								<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 									{$t('settings.collector.include_origin_repos')}
 								</td>
 								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 									{#if data.settings.collector.include_origin_repos}
-										<span
-											class="inline-flex items-center gap-1 text-green-600 dark:text-green-400"
-										>
+										<span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
 											<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 												<path
 													fill-rule="evenodd"
@@ -124,9 +114,7 @@
 											{$t('settings.enabled')}
 										</span>
 									{:else}
-										<span
-											class="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500"
-										>
+										<span class="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500">
 											<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 												<path
 													d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
@@ -139,9 +127,7 @@
 							</tr>
 							<!-- excluded_repos -->
 							<tr>
-								<td
-									class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
+								<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 									{$t('settings.collector.excluded_repos')}
 								</td>
 								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
@@ -154,8 +140,8 @@
 															href="https://github.com/{data.orgName}/{repo}"
 															target="_blank"
 															rel="noopener noreferrer"
-															class="text-blue-600 hover:underline dark:text-blue-400"
-														>{repo}</a>
+															class="text-blue-600 hover:underline dark:text-blue-400">{repo}</a
+														>
 													{:else}
 														{repo}
 													{/if}
@@ -163,17 +149,13 @@
 											{/each}
 										</ul>
 									{:else}
-										<span class="text-gray-400 dark:text-gray-500"
-											>{$t('settings.empty_list')}</span
-										>
+										<span class="text-gray-400 dark:text-gray-500">{$t('settings.empty_list')}</span>
 									{/if}
 								</td>
 							</tr>
 							<!-- included_extra_repos -->
 							<tr>
-								<td
-									class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
+								<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 									{$t('settings.collector.included_extra_repos')}
 								</td>
 								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
@@ -186,8 +168,7 @@
 															href={url}
 															target="_blank"
 															rel="noopener noreferrer"
-															class="text-blue-600 hover:underline dark:text-blue-400"
-															>{url}</a
+															class="text-blue-600 hover:underline dark:text-blue-400">{url}</a
 														>
 													{:else}
 														{url}
@@ -196,17 +177,13 @@
 											{/each}
 										</ul>
 									{:else}
-										<span class="text-gray-400 dark:text-gray-500"
-											>{$t('settings.empty_list')}</span
-										>
+										<span class="text-gray-400 dark:text-gray-500">{$t('settings.empty_list')}</span>
 									{/if}
 								</td>
 							</tr>
 							<!-- history_limit -->
 							<tr>
-								<td
-									class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
+								<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 									{$t('settings.collector.history_limit')}
 								</td>
 								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
@@ -227,9 +204,7 @@
 					<table class="w-full">
 						<tbody>
 							<tr>
-								<td
-									class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300"
-								>
+								<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 									{$t('settings.catalog.fresh_period_days')}
 								</td>
 								<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
@@ -253,9 +228,7 @@
 				<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
 					<table class="w-full">
 						<thead>
-							<tr
-								class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800"
-							>
+							<tr class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
 								<th
 									class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
 									>{$t('settings.governance.skill_path')}</th
