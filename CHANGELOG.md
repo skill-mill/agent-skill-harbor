@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.3] - 2026-03-13
+
+### Changed
+
+- Init workflow templates now keep explicit `pnpm` major-version pinning without the temporary Node 24 migration env flag
+- Published `agent-skill-harbor-web` metadata now includes npm description, keywords, and license fields
+
+### Fixed
+
+- Skill detail heading IDs now match GitHub-style anchor links for headings containing symbols such as `&`
+
 ## [0.8.2] - 2026-03-13
 
 ### Added

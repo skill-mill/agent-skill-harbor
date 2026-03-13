@@ -39,6 +39,8 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         if: ${{ steps.preflight.outputs.enabled == 'true' }}
+        with:
+          version: 10
 
       - uses: actions/setup-node@v6
         if: ${{ steps.preflight.outputs.enabled == 'true' }}

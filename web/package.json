@@ -1,7 +1,18 @@
 {
 	"name": "agent-skill-harbor-web",
-	"version": "0.8.2",
+	"version": "0.8.3",
 	"type": "module",
+	"description": "Web runtime package for Agent Skill Harbor.",
+	"keywords": [
+		"agent",
+		"skill",
+		"agent-skills",
+		"skill-management",
+		"governance",
+		"skill-md",
+		"sveltekit"
+	],
+	"license": "MIT",
 	"files": [
 		"src/",
 		"static/",

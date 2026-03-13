@@ -12,7 +12,7 @@ importers:
         specifier: ^21.1.1
         version: 21.1.1
       agent-skill-harbor-web:
-        specifier: workspace:^0.8.2
+        specifier: workspace:^0.8.3
         version: link:web
       js-yaml:
         specifier: ^4.1.0

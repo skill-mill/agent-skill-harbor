@@ -36,9 +36,8 @@
 			.toLowerCase()
 			.trim()
 			.replace(/<[^>]+>/g, '')
-			.replace(/[^\w\s-]/g, '')
 			.replace(/\s+/g, '-')
-			.replace(/-+/g, '-');
+			.replace(/[^\w-]/g, '');
 	}
 
 	function resolveRepoPath(baseSkillPath: string, href: string): string {
