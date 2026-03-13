@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor",
-	"version": "0.8.3",
+	"version": "0.8.4",
 	"type": "module",
 	"description": "Skill governance for companies. Skill discovery for teams.",
 	"keywords": [
@@ -25,7 +25,7 @@
 	},
 	"dependencies": {
 		"@octokit/rest": "^21.1.1",
-		"agent-skill-harbor-web": "workspace:^0.8.3",
+		"agent-skill-harbor-web": "workspace:^0.8.4",
 		"js-yaml": "^4.1.0"
 	},
 	"files": [

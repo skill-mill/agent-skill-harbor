@@ -6,6 +6,7 @@
 	import { t, locale } from '$lib/i18n';
 	import { dev } from '$app/environment';
 	import { base } from '$app/paths';
+	import GithubSlugger from 'github-slugger';
 	import { marked } from 'marked';
 	import DOMPurify from 'isomorphic-dompurify';
 
@@ -31,13 +32,25 @@
 		return !/^(?:[a-z]+:)?\/\//i.test(href) && !href.startsWith('#') && !href.startsWith('mailto:');
 	}
 
-	function slugifyHeading(text: string): string {
-		return text
-			.toLowerCase()
-			.trim()
-			.replace(/<[^>]+>/g, '')
-			.replace(/\s+/g, '-')
-			.replace(/[^\w-]/g, '');
+	function extractPlainText(tokens: import('marked').Tokens.Generic[] | undefined): string {
+		if (!tokens) return '';
+		let result = '';
+		for (const token of tokens) {
+			if ('text' in token && typeof token.text === 'string') {
+				result += token.text;
+			}
+			if ('tokens' in token && Array.isArray(token.tokens)) {
+				result += extractPlainText(token.tokens);
+			}
+			if ('items' in token && Array.isArray(token.items)) {
+				for (const item of token.items) {
+					if (item && typeof item === 'object' && 'tokens' in item && Array.isArray(item.tokens)) {
+						result += extractPlainText(item.tokens);
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	function resolveRepoPath(baseSkillPath: string, href: string): string {
@@ -62,11 +75,12 @@
 
 	function renderSkillMarkdown(markdown: string, skill: FlatSkillEntry): string {
 		const renderer = new marked.Renderer();
+		const slugger = new GithubSlugger();
 
 		renderer.html = ({ text }) => escapeHtml(text);
 		renderer.heading = ({ tokens, depth }) => {
 			const text = renderer.parser.parseInline(tokens);
-			const id = slugifyHeading(text);
+			const id = slugger.slug(extractPlainText(tokens));
 			return `<h${depth} id="${escapeHtml(id)}">${text}</h${depth}>`;
 		};
 		renderer.link = function ({ href, title, tokens }) {

@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.4] - 2026-03-14
+
+### Changed
+
+- Skill detail heading IDs now use `github-slugger` with plain-text heading extraction to better match GitHub anchor generation
+- Prerender missing-id handling is now downgraded to warnings instead of build-stopping errors
+
+### Fixed
+
+- External `SKILL.md` files with GitHub-style self-fragment links no longer fail static builds when their anchors differ slightly from local rendering
+
 ## [0.8.3] - 2026-03-13
 
 ### Changed

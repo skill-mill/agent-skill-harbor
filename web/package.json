@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor-web",
-	"version": "0.8.3",
+	"version": "0.8.4",
 	"type": "module",
 	"description": "Web runtime package for Agent Skill Harbor.",
 	"keywords": [
@@ -42,6 +42,7 @@
 		"clsx": "2.1.1",
 		"dompurify": "3.3.1",
 		"fuse.js": "^7.1.0",
+		"github-slugger": "^2.0.0",
 		"gray-matter": "^4.0.3",
 		"isomorphic-dompurify": "3.0.0",
 		"js-yaml": "^4.1.0",
