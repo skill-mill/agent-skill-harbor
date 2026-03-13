@@ -34,6 +34,11 @@ writeFileSync(
 );
 console.log('  Created package.json');
 
+// README
+const readmeTemplate = readFileSync(join(templatesDir, 'README.md'), 'utf-8');
+writeFileSync(join(targetDir, 'README.md'), readmeTemplate.replaceAll('{{PROJECT_NAME}}', projectName));
+console.log('  Created README.md');
+
 // env files
 copyFileSync(join(templatesDir, '.env.example'), join(targetDir, '.env.example'));
 copyFileSync(join(templatesDir, '.env.example'), join(targetDir, '.env'));
@@ -63,6 +68,10 @@ console.log('  Created config/governance.yaml');
 // data/
 cpSync(join(templatesDir, 'data'), join(targetDir, 'data'), { recursive: true });
 console.log('  Created data/');
+
+// guide/
+cpSync(join(templatesDir, 'guide'), join(targetDir, 'guide'), { recursive: true });
+console.log('  Created guide/');
 
 console.log(`
 Done! Next steps:

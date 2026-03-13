@@ -146,9 +146,6 @@
 		"enabled": "有効",
 		"disabled": "無効"
 	},
-	"docs": {
-		"nav": "Docs"
-	},
 	"detail": {
 		"viewRepository": "リポジトリを見る",
 		"viewSkillMd": "SKILL.md を見る",

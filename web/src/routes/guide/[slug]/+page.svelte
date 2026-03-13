@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-	<title>{dev ? '(Dev) ' : ''}{title} - Docs</title>
+	<title>{dev ? '(Dev) ' : ''}{title} - Guide</title>
 </svelte:head>
 
 <h1 class="mb-6 text-3xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>

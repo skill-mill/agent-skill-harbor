@@ -146,9 +146,6 @@
 		"enabled": "Enabled",
 		"disabled": "Disabled"
 	},
-	"docs": {
-		"nav": "Docs"
-	},
 	"detail": {
 		"viewRepository": "View Repository",
 		"viewSkillMd": "View SKILL.md",

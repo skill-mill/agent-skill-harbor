@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.6] - 2026-03-14
+
+### Added
+
+- Bundled default Guide pages in `agent-skill-harbor-web`, with project-level `guide/` overrides and `guide/.gitkeep` scaffolding
+
+### Changed
+
+- Renamed the in-app Docs section to Guide and moved its routes from `/docs` to `/guide`
+- Simplified the init template README to a minimal Quick Start link so copied docs stay lightweight
+
 ## [0.8.5] - 2026-03-14
 
 ### Fixed

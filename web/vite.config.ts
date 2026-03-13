@@ -8,6 +8,7 @@ export default defineConfig({
 	envDir: process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..'),
 	define: {
 		__PROJECT_ROOT__: JSON.stringify(process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..')),
+		__WEB_PACKAGE_ROOT__: JSON.stringify(resolve(import.meta.dirname)),
 	},
 	ssr: { external: ['gray-matter'] },
 });

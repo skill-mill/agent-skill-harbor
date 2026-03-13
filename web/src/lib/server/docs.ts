@@ -2,8 +2,12 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 declare const __PROJECT_ROOT__: string;
+declare const __WEB_PACKAGE_ROOT__: string;
 
-const DOCS_DIR = join(__PROJECT_ROOT__, 'docs');
+const PROJECT_GUIDE_DIR = join(__PROJECT_ROOT__, 'guide');
+const DEFAULT_GUIDE_DIR = join(__WEB_PACKAGE_ROOT__, 'guide');
+
+const SOURCE_DIRS = [PROJECT_GUIDE_DIR, DEFAULT_GUIDE_DIR];
 
 export interface DocEntry {
 	slug: string;
@@ -15,90 +19,103 @@ function extractTitle(content: string): string {
 	return match ? match[1].trim() : '';
 }
 
-/** Special docs mapped from files outside docs/ directory. */
-const EXTRA_DOCS: { slug: string; en: string; ja: string }[] = [
-	{ slug: '', en: join(__PROJECT_ROOT__, 'README.md'), ja: join(__PROJECT_ROOT__, 'README_ja.md') },
-];
+function fileExists(path: string): boolean {
+	return existsSync(path);
+}
 
-/**
- * Scan docs/ directory and return a sorted list of doc entries.
- * Excludes *_ja.md, dev/ subdirectory files, etc.
- */
-export function listDocs(): DocEntry[] {
-	const entries: DocEntry[] = [];
+function resolveIndexPath(locale: string): string | null {
+	const localizedNames =
+		locale === 'en'
+			? ['index.md', 'README.md']
+			: [`index_${locale}.md`, `${locale === 'ja' ? 'README_ja.md' : `README_${locale}.md`}`, 'index.md', 'README.md'];
 
-	// README as top-level entry
-	for (const extra of EXTRA_DOCS) {
-		if (existsSync(extra.en)) {
-			entries.push({ slug: extra.slug, title: { en: 'Agent Skill Harbor', ja: 'Agent Skill Harbor' } });
+	for (const dir of SOURCE_DIRS) {
+		for (const name of localizedNames) {
+			const candidate = join(dir, name);
+			if (fileExists(candidate)) return candidate;
 		}
 	}
 
-	if (!existsSync(DOCS_DIR)) return entries;
-	const files = readdirSync(DOCS_DIR)
-		.filter((f) => f.endsWith('.md') && !f.includes('_') && !f.startsWith('.'))
-		.sort();
+	const projectReadme = locale === 'en' ? join(__PROJECT_ROOT__, 'README.md') : join(__PROJECT_ROOT__, `README_${locale}.md`);
+	if (fileExists(projectReadme)) return projectReadme;
+	if (locale !== 'en' && fileExists(join(__PROJECT_ROOT__, 'README.md'))) return join(__PROJECT_ROOT__, 'README.md');
+	return null;
+}
 
-	for (const file of files) {
-		const slug = file.replace(/\.md$/, '');
-		const enPath = join(DOCS_DIR, file);
-		const jaPath = join(DOCS_DIR, `${slug}_ja.md`);
+function resolveGuidePath(slug: string, locale: string): string | null {
+	if (slug === '') return resolveIndexPath(locale);
 
-		const enContent = readFileSync(enPath, 'utf-8');
-		const enTitle = extractTitle(enContent) || slug;
+	for (const dir of SOURCE_DIRS) {
+		const localized = join(dir, `${slug}_${locale}.md`);
+		const fallback = join(dir, `${slug}.md`);
+		if (locale !== 'en' && fileExists(localized)) return localized;
+		if (fileExists(fallback)) return fallback;
+	}
 
-		let jaTitle = enTitle;
-		if (existsSync(jaPath)) {
-			const jaContent = readFileSync(jaPath, 'utf-8');
-			jaTitle = extractTitle(jaContent) || enTitle;
+	return null;
+}
+
+function stripPreamble(content: string): string {
+	content = content.replace(/^<p[^>]*>.*?<\/p>\s*\n*/s, '');
+	return content.replace(/^#\s+.+\n+/, '');
+}
+
+function rewriteGuideLinks(content: string): string {
+	return content
+		.replace(/\(guide\/([^)]+?)(?:_[a-z]{2})?\.md\)/g, '(/guide/$1)')
+		.replace(/\((?:\.\/)?README(?:_[a-z]{2})?\.md\)/g, '(/guide)');
+}
+
+function buildEntry(slug: string): DocEntry | null {
+	const enPath = resolveGuidePath(slug, 'en');
+	if (!enPath) return null;
+
+	const enTitle = extractTitle(readFileSync(enPath, 'utf-8')) || (slug || 'Guide');
+
+	const jaPath = resolveGuidePath(slug, 'ja');
+	const jaTitle = jaPath ? extractTitle(readFileSync(jaPath, 'utf-8')) || enTitle : enTitle;
+
+	return { slug, title: { en: enTitle, ja: jaTitle } };
+}
+
+function listGuideSlugs(): string[] {
+	const slugs = new Set<string>();
+
+	for (const dir of SOURCE_DIRS) {
+		if (!fileExists(dir)) continue;
+
+		for (const file of readdirSync(dir)) {
+			if (!file.endsWith('.md') || file.startsWith('.')) continue;
+			if (file === 'index.md' || /^index_[a-z]{2}\.md$/.test(file)) continue;
+			if (file === 'README.md' || /^README_[a-z]{2}\.md$/.test(file)) continue;
+
+			const slug = file.replace(/(?:_[a-z]{2})?\.md$/, '');
+			slugs.add(slug);
 		}
+	}
 
-		entries.push({ slug, title: { en: enTitle, ja: jaTitle } });
+	return [...slugs].sort();
+}
+
+export function listDocs(): DocEntry[] {
+	const entries: DocEntry[] = [];
+	const rootEntry = buildEntry('');
+	if (rootEntry) entries.push(rootEntry);
+
+	for (const slug of listGuideSlugs()) {
+		const entry = buildEntry(slug);
+		if (entry) entries.push(entry);
 	}
 
 	return entries;
 }
 
-/**
- * Resolve the file path for a given slug and locale.
- * Checks EXTRA_DOCS first, then falls back to docs/ directory.
- */
-function resolveDocPath(slug: string, locale: string): string | null {
-	const extra = EXTRA_DOCS.find((e) => e.slug === slug);
-	if (extra) {
-		if (locale !== 'en' && existsSync(extra.ja)) return extra.ja;
-		return existsSync(extra.en) ? extra.en : null;
-	}
-
-	const localized = join(DOCS_DIR, `${slug}_${locale}.md`);
-	const fallback = join(DOCS_DIR, `${slug}.md`);
-	if (locale !== 'en' && existsSync(localized)) return localized;
-	return existsSync(fallback) ? fallback : null;
-}
-
-function stripPreamble(content: string): string {
-	// Strip language switcher line (e.g. `<p align="center"><a ...>en</a> | ...</p>`)
-	content = content.replace(/^<p[^>]*>.*?<\/p>\s*\n*/s, '');
-	// Strip the first `# heading` line — title is rendered separately
-	return content.replace(/^#\s+.+\n+/, '');
-}
-
-/** Rewrite relative doc links (e.g. `docs/01-foo.md`) to app routes (`/docs/01-foo`). */
-function rewriteDocLinks(content: string): string {
-	// Matches: (docs/slug.md) or (docs/slug_ja.md)
-	return content.replace(/\(docs\/([^)]+?)(?:_[a-z]{2})?\.md\)/g, '(/docs/$1)');
-}
-
-/**
- * Load markdown content for a given slug and locale.
- * Returns the content with the `# heading` line stripped (title is provided separately).
- */
 export function loadDocContent(slug: string, locale: string): string | null {
-	const filePath = resolveDocPath(slug, locale);
+	const filePath = resolveGuidePath(slug, locale);
 	if (!filePath) return null;
 
 	let content = readFileSync(filePath, 'utf-8');
 	content = stripPreamble(content);
-	content = rewriteDocLinks(content);
+	content = rewriteGuideLinks(content);
 	return content;
 }

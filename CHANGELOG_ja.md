@@ -1,5 +1,16 @@
 # 変更履歴
 
+## [0.8.6] - 2026-03-14
+
+### 追加
+
+- `agent-skill-harbor-web` に既定の Guide ページを同梱し、プロジェクト側 `guide/` による override と `guide/.gitkeep` の scaffold を追加
+
+### 変更
+
+- アプリ内の Docs セクションを Guide に改名し、route を `/docs` から `/guide` へ変更
+- init テンプレートの README は、コピー後の保守負荷を抑えるため Quick Start リンクだけの最小構成に変更
+
 ## [0.8.5] - 2026-03-14
 
 ### 修正

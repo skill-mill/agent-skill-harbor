@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor-web",
-	"version": "0.8.5",
+	"version": "0.8.6",
 	"type": "module",
 	"description": "Web runtime package for Agent Skill Harbor.",
 	"keywords": [
@@ -14,6 +14,7 @@
 	],
 	"license": "MIT",
 	"files": [
+		"guide/",
 		"src/",
 		"static/",
 		"package.json",
