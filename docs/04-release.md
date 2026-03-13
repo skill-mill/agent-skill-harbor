@@ -68,3 +68,4 @@ git tag cli-v<version>
 
 - Web runtime dependencies belong in `web/package.json`.
 - CLI-only runtime dependencies belong in `cli/package.json`.
+- The Vite chunk-size warning is currently expected. A manual chunking experiment showed that most of the remaining weight comes from `three`, so we are not keeping extra chunk-splitting config unless we decide to optimize the graph implementation more deeply.

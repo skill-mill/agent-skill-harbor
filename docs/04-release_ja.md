@@ -68,3 +68,4 @@ git tag cli-v<version>
 
 - Web の実行時依存は `web/package.json` に置きます。
 - CLI 専用の実行時依存は `cli/package.json` に置きます。
+- Vite の chunk size warning は現状では既知のものとして扱います。手動で chunk を分ける検証により、残っている重さの主因は `three` だと分かったため、graph 実装をさらに深く最適化しない限り、追加の chunk 分割設定は常用しません。
