@@ -7,13 +7,28 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      prettier:
+        specifier: 3.8.1
+        version: 3.8.1
+      prettier-plugin-svelte:
+        specifier: 3.5.1
+        version: 3.5.1(prettier@3.8.1)(svelte@5.53.3)
+      tsx:
+        specifier: ^4.19.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+
+  cli:
     dependencies:
       '@octokit/rest':
         specifier: ^21.1.1
         version: 21.1.1
       agent-skill-harbor-web:
-        specifier: workspace:^0.8.4
-        version: link:web
+        specifier: workspace:^0.9.0
+        version: link:../web
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.1
@@ -24,12 +39,6 @@ importers:
       '@types/node':
         specifier: ^22.15.0
         version: 22.19.11
-      prettier:
-        specifier: 3.8.1
-        version: 3.8.1
-      prettier-plugin-svelte:
-        specifier: 3.5.1
-        version: 3.5.1(prettier@3.8.1)(svelte@5.53.3)
       tsup:
         specifier: 8.5.1
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)

@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor-web",
-	"version": "0.8.7",
+	"version": "0.9.0",
 	"type": "module",
 	"description": "Web runtime package for Agent Skill Harbor.",
 	"keywords": [
@@ -13,6 +13,10 @@
 		"sveltekit"
 	],
 	"license": "MIT",
+	"packageManager": "pnpm@10.32.1",
+	"engines": {
+		"node": ">=24"
+	},
 	"files": [
 		"guide/",
 		"src/",

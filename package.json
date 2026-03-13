@@ -1,51 +1,12 @@
 {
-	"name": "agent-skill-harbor",
-	"version": "0.8.7",
+	"name": "agent-skill-harbor-workspace",
+	"private": true,
 	"type": "module",
-	"description": "Skill governance for companies. Skill discovery for teams.",
-	"keywords": [
-		"agent",
-		"skill",
-		"agent-skills",
-		"skill-management",
-		"governance",
-		"claude",
-		"skill-md",
-		"github",
-		"cli"
-	],
-	"license": "MIT",
 	"packageManager": "pnpm@10.32.1",
-	"engines": {
-		"node": ">=24"
-	},
-	"bin": {
-		"harbor": "./dist/bin/cli.js",
-		"agent-skill-harbor": "./dist/bin/cli.js"
-	},
-	"dependencies": {
-		"@octokit/rest": "^21.1.1",
-		"agent-skill-harbor-web": "workspace:^0.8.7",
-		"js-yaml": "^4.1.0"
-	},
-	"files": [
-		"dist/",
-		"templates/"
-	],
 	"scripts": {
-		"build:cli": "tsup",
-		"prepack": "pnpm versions:check && pnpm build:cli",
-		"preversion": "pnpm versions:check",
-		"version": "pnpm versions:sync && pnpm versions:check && git add package.json web/package.json templates/init/package.template.json pnpm-lock.yaml",
 		"setup:dev": "tsx scripts/setup-dev.ts",
 		"versions:sync": "tsx scripts/sync-versions.ts",
 		"versions:check": "tsx scripts/check-versions.ts",
-		"collect": "tsx bin/cli.ts collect",
-		"dev": "tsx bin/cli.ts dev",
-		"build": "tsx bin/cli.ts build",
-		"preview": "tsx bin/cli.ts preview",
-		"lint": "pnpm --filter agent-skill-harbor-web lint",
-		"check": "pnpm --filter agent-skill-harbor-web check",
 		"format": "prettier --write .",
 		"format:check": "prettier --check ."
 	},
@@ -55,11 +16,8 @@
 		]
 	},
 	"devDependencies": {
-		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^22.15.0",
 		"prettier": "3.8.1",
 		"prettier-plugin-svelte": "3.5.1",
-		"tsup": "8.5.1",
 		"tsx": "^4.19.0",
 		"typescript": "^5.7.0"
 	}

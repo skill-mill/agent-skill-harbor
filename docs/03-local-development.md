@@ -29,46 +29,45 @@ cd agent-skill-harbor
 pnpm install
 pnpm setup:dev    # Copy templates and fixtures
 # Edit .env: uncomment and set GH_TOKEN, GH_ORG
-pnpm dev
+tsx cli/bin/cli.ts dev
 ```
 
 The development server will start at `http://localhost:5173`.
 
 `pnpm setup:dev` copies the following into the project root (all gitignored):
 
-1. `templates/.env.example` → `.env`
-2. `templates/config/*` → `config/`
+1. `cli/templates/init/.env.example` → `.env`
+2. `cli/templates/init/config/*` → `config/`
 3. `fixtures/config/*` → `config/` (overwrites with sample governance policies)
 4. `fixtures/data/*` → `data/` (sample catalog and skill data)
 
 ### Commands
 
 ```bash
-pnpm dev          # Start development server
-pnpm build        # Build web app
-pnpm preview      # Preview built site
-pnpm check        # Type check
-pnpm lint         # Lint
+tsx cli/bin/cli.ts dev        # Start development server
+tsx cli/bin/cli.ts build      # Build the catalog site via CLI
+tsx cli/bin/cli.ts preview    # Preview built site
+cd web && pnpm check          # Type check web package
+cd web && pnpm lint           # Lint web package
 pnpm format       # Format all files with Prettier
-pnpm collect      # Collect skills (requires GH_TOKEN)
-pnpm build:cli    # Build CLI (after modifying bin/ or src/)
-pnpm setup:dev    # Re-copy templates and fixtures
+tsx cli/bin/cli.ts collect    # Collect skills (requires GH_TOKEN)
+cd cli && pnpm build          # Build CLI package (after modifying bin/ or src/)
+pnpm setup:dev                # Re-copy templates and fixtures
+pnpm versions:check           # Validate cli/web/template version sync
 ```
 
 ### Project Structure
 
 ```
-├── bin/                  # CLI entry point
-├── src/cli/              # CLI commands (init, collect, build, dev, preview)
+├── cli/
+│   ├── bin/              # CLI entry point
+│   ├── src/cli/          # CLI commands (init, collect, build, dev, preview)
+│   └── templates/        # Project scaffold templates bundled into the CLI package
 ├── scripts/              # Development scripts (setup-dev, collect)
 ├── web/                  # SvelteKit frontend application
 │   ├── src/lib/server/   # Server-side data loading (catalog, docs)
 │   ├── src/routes/       # Pages (catalog, skill detail, graph, docs)
 │   └── src/lib/i18n/     # Internationalization (en, ja)
-├── templates/            # Project scaffold templates (for init command)
-│   ├── .env.example      # Environment variable template
-│   ├── config/           # Default settings files
-│   └── .github/workflows/# GitHub Actions workflows
 ├── fixtures/             # Sample data for local development
 │   ├── config/           # Sample governance policies
 │   └── data/             # Sample catalog and skill data
@@ -86,10 +85,10 @@ pnpm setup:dev    # Re-copy templates and fixtures
 
 ### Package Layout
 
-- **`agent-skill-harbor`**: The published CLI package. It contains the `harbor` executable, project templates, and collector runtime.
+- **`agent-skill-harbor`**: The published CLI package rooted at `cli/`. It contains the `harbor` executable, project templates, and collector runtime.
 - **`agent-skill-harbor-web`**: The published SvelteKit web package. It contains the frontend source, SvelteKit config, and web build dependencies.
 - **Runtime dependency direction**: The CLI package depends on `agent-skill-harbor-web` and resolves the web build toolchain from the installed web package instead of bundling `web/` into the CLI tarball.
-- **Dependency ownership**: Web UI and SvelteKit dependencies should be managed in `web/package.json`. The root `package.json` should keep only CLI/runtime dependencies.
+- **Dependency ownership**: Web UI and SvelteKit dependencies should be managed in `web/package.json`. CLI/runtime dependencies belong in `cli/package.json`, while the root `package.json` is workspace-only.
 
 ### Release Notes
 

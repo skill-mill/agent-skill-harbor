@@ -1,0 +1,48 @@
+{
+	"name": "agent-skill-harbor",
+	"version": "0.9.0",
+	"type": "module",
+	"description": "Skill governance for companies. Skill discovery for teams.",
+	"keywords": [
+		"agent",
+		"skill",
+		"agent-skills",
+		"skill-management",
+		"governance",
+		"claude",
+		"skill-md",
+		"github",
+		"cli"
+	],
+	"license": "MIT",
+	"packageManager": "pnpm@10.32.1",
+	"engines": {
+		"node": ">=24"
+	},
+	"bin": {
+		"harbor": "./dist/bin/cli.js",
+		"agent-skill-harbor": "./dist/bin/cli.js"
+	},
+	"files": [
+		"dist/",
+		"templates/"
+	],
+	"scripts": {
+		"build": "tsup",
+		"prepack": "pnpm --dir .. versions:check && pnpm build",
+		"preversion": "pnpm --dir .. versions:check",
+		"version": "pnpm --dir .. versions:sync && pnpm --dir .. versions:check && git add cli/package.json web/package.json pnpm-lock.yaml"
+	},
+	"dependencies": {
+		"@octokit/rest": "^21.1.1",
+		"agent-skill-harbor-web": "workspace:^0.9.0",
+		"js-yaml": "^4.1.0"
+	},
+	"devDependencies": {
+		"@types/js-yaml": "^4.0.9",
+		"@types/node": "^22.15.0",
+		"tsup": "8.5.1",
+		"tsx": "^4.19.0",
+		"typescript": "^5.7.0"
+	}
+}

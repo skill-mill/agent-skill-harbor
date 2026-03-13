@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0] - 2026-03-14
+
+### Added
+
+- Added Japanese README support for the published `agent-skill-harbor` CLI package
+
+### Changed
+
+- Moved the published CLI package into `cli/` so the repository now has symmetric `cli/` and `web/` package roots
+- Reduced the root workspace scripts to repository-level maintenance tasks and updated contributor docs to run package-local commands from `cli/` and `web/`
+- Renamed the CLI package build script to `build` and simplified version hooks so the init template stays a checked placeholder instead of a synced output
+
 ## [0.8.7] - 2026-03-14
 
 ### Fixed

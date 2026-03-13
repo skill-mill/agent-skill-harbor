@@ -29,46 +29,45 @@ cd agent-skill-harbor
 pnpm install
 pnpm setup:dev    # テンプレートとフィクスチャをコピー
 # .env を編集: GH_TOKEN, GH_ORG のコメントを外して設定
-pnpm dev
+tsx cli/bin/cli.ts dev
 ```
 
 開発サーバーは `http://localhost:5173` で起動します。
 
 `pnpm setup:dev` は以下をプロジェクトルートにコピーします（すべて gitignore 対象）:
 
-1. `templates/.env.example` → `.env`
-2. `templates/config/*` → `config/`
+1. `cli/templates/init/.env.example` → `.env`
+2. `cli/templates/init/config/*` → `config/`
 3. `fixtures/config/*` → `config/`（サンプルのガバナンスポリシーで上書き）
 4. `fixtures/data/*` → `data/`（サンプルのカタログ・スキルデータ）
 
 ### コマンド
 
 ```bash
-pnpm dev          # 開発サーバーの起動
-pnpm build        # Web アプリのビルド
-pnpm preview      # ビルド結果のプレビュー
-pnpm check        # 型チェック
-pnpm lint         # リント
+tsx cli/bin/cli.ts dev        # 開発サーバーの起動
+tsx cli/bin/cli.ts build      # CLI 経由でカタログサイトをビルド
+tsx cli/bin/cli.ts preview    # ビルド結果のプレビュー
+cd web && pnpm check          # web package の型チェック
+cd web && pnpm lint           # web package のリント
 pnpm format       # Prettier でフォーマット
-pnpm collect      # スキル収集（GH_TOKEN が必要）
-pnpm build:cli    # CLI をビルド（bin/ や src/ を変更した後に実行）
-pnpm setup:dev    # テンプレートとフィクスチャを再コピー
+tsx cli/bin/cli.ts collect    # スキル収集（GH_TOKEN が必要）
+cd cli && pnpm build          # CLI パッケージをビルド（bin/ や src/ を変更した後に実行）
+pnpm setup:dev                # テンプレートとフィクスチャを再コピー
+pnpm versions:check           # cli/web/template の version 整合を検証
 ```
 
 ### プロジェクト構成
 
 ```
-├── bin/                  # CLI エントリポイント
-├── src/cli/              # CLI コマンド (init, collect, build, dev, preview)
+├── cli/
+│   ├── bin/              # CLI エントリポイント
+│   ├── src/cli/          # CLI コマンド (init, collect, build, dev, preview)
+│   └── templates/        # CLI パッケージに同梱されるプロジェクトテンプレート
 ├── scripts/              # 開発用スクリプト (setup-dev, collect)
 ├── web/                  # SvelteKit フロントエンドアプリケーション
 │   ├── src/lib/server/   # サーバーサイドデータ読み込み (catalog, docs)
 │   ├── src/routes/       # ページ (カタログ, スキル詳細, グラフ, ドキュメント)
 │   └── src/lib/i18n/     # 国際化 (en, ja)
-├── templates/            # プロジェクト雛形テンプレート（init コマンド用）
-│   ├── .env.example      # 環境変数テンプレート
-│   ├── config/           # デフォルト設定ファイル
-│   └── .github/workflows/# GitHub Actions ワークフロー
 ├── fixtures/             # ローカル開発用サンプルデータ
 │   ├── config/           # サンプルのガバナンスポリシー
 │   └── data/             # サンプルのカタログ・スキルデータ
@@ -86,10 +85,10 @@ pnpm setup:dev    # テンプレートとフィクスチャを再コピー
 
 ### パッケージ構成
 
-- **`agent-skill-harbor`**: 公開される CLI パッケージ。`harbor` 実行ファイル、プロジェクトテンプレート、collect ランタイムを含みます。
+- **`agent-skill-harbor`**: `cli/` を root に持つ公開 CLI パッケージ。`harbor` 実行ファイル、プロジェクトテンプレート、collect ランタイムを含みます。
 - **`agent-skill-harbor-web`**: 公開される SvelteKit Web パッケージ。フロントエンドのソース、SvelteKit 設定、Web ビルド依存を含みます。
 - **実行時依存の向き**: CLI パッケージは `agent-skill-harbor-web` に依存し、`web/` を CLI tarball に同梱するのではなく、インストール済みの Web パッケージからビルドツール群を解決します。
-- **依存の管理責務**: Web UI と SvelteKit の依存は `web/package.json` を正とし、ルート `package.json` には CLI/ランタイム依存のみを置きます。
+- **依存の管理責務**: Web UI と SvelteKit の依存は `web/package.json` を正とし、CLI/ランタイム依存は `cli/package.json` に置きます。ルート `package.json` は workspace 管理専用です。
 
 ### リリース補足
 

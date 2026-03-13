@@ -3,8 +3,8 @@
  * This is for source repo contributors only, not for end users.
  *
  * Steps:
- *   1. templates/init/.env.example  → .env
- *   2. templates/init/config/*      → config/
+ *   1. cli/templates/init/.env.example → .env
+ *   2. cli/templates/init/config/*     → config/
  *   3. fixtures/config/*            → config/  (overwrites with sample governance)
  *   4. fixtures/data/*              → data/
  */
@@ -12,7 +12,7 @@ import { join, resolve } from 'node:path';
 import { existsSync, cpSync, copyFileSync } from 'node:fs';
 
 const projectRoot = resolve(import.meta.dirname, '..');
-const templatesDir = join(projectRoot, 'templates/init');
+const templatesDir = join(projectRoot, 'cli', 'templates/init');
 const fixturesDir = join(projectRoot, 'fixtures');
 
 console.log('\nSetting up local development environment...\n');
@@ -20,7 +20,7 @@ console.log('\nSetting up local development environment...\n');
 // 1. .env
 if (!existsSync(join(projectRoot, '.env'))) {
 	copyFileSync(join(templatesDir, '.env.example'), join(projectRoot, '.env'));
-	console.log('  Created .env from templates/.env.example');
+	console.log('  Created .env from cli/templates/init/.env.example');
 } else {
 	console.log('  Skipped .env (already exists)');
 }

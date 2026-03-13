@@ -1,5 +1,17 @@
 # 変更履歴
 
+## [0.9.0] - 2026-03-14
+
+### 追加
+
+- 公開される `agent-skill-harbor` CLI パッケージに日本語 README を追加
+
+### 変更
+
+- 公開 CLI パッケージを `cli/` に移し、リポジトリ構成を `cli/` / `web/` の対称な package root に整理
+- ルート workspace の script をリポジトリ管理用に絞り、コントリビューター向けドキュメントを `cli/` / `web/` 単位の実行方法へ更新
+- CLI パッケージの build script を `build` に整理し、init template は同期対象ではなくプレースホルダ検証対象として扱うよう version フックを簡素化
+
 ## [0.8.7] - 2026-03-14
 
 ### 修正
