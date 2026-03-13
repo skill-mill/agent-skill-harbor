@@ -49,7 +49,7 @@
 		view = v === 'list' ? 'list' : 'card';
 		if (view === 'list') {
 			const g = params.get('group');
-			groupMode = g === 'origin' ? 'origin' : g === 'flat' ? 'none' : 'repo';
+			groupMode = g === 'repo' ? 'repo' : g === 'flat' ? 'none' : 'origin';
 		}
 	});
 
@@ -82,7 +82,7 @@
 		if (newFilters.orgOwnerships.length) params.set('origin', newFilters.orgOwnerships.join(','));
 		if (newView === 'list') params.set('view', 'list');
 		if (newView === 'list' && newGroupMode === 'none') params.set('group', 'flat');
-		if (newView === 'list' && newGroupMode === 'origin') params.set('group', 'origin');
+		if (newView === 'list' && newGroupMode === 'repo') params.set('group', 'repo');
 		const search = params.toString();
 		const pathname = window.location.pathname;
 		goto(`${pathname}${search ? '?' + search : ''}`, { replaceState: true, keepFocus: true, noScroll: true });
@@ -101,7 +101,7 @@
 	function handleViewChange(newView: ViewMode) {
 		if (newView === 'graph' || newView === 'stats') return;
 		view = newView;
-		const newGroupMode: GroupMode = newView === 'card' ? 'none' : 'repo';
+		const newGroupMode: GroupMode = newView === 'card' ? 'none' : 'origin';
 		groupMode = newGroupMode;
 		updateUrl(query, filters, newView, newGroupMode);
 	}
