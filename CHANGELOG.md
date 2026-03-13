@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- GitHub Pages deploy workflow template now sets `include-hidden-files: true` on `upload-pages-artifact` so dot-prefixed paths (`.nojekyll`, `.claude/`) are no longer silently excluded from the upload
+- GitHub Pages deploy workflow template now uses `upload-pages-artifact@v3` instead of `@v4`, which excludes dot-prefixed paths (`.nojekyll`, `.claude/`) by design with no opt-out
 
 ### Changed
 

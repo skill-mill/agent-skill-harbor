@@ -4,7 +4,7 @@
 
 ### 修正
 
-- GitHub Pages デプロイ用ワークフローテンプレートの `upload-pages-artifact` に `include-hidden-files: true` を追加し、ドット始まりのパス（`.nojekyll`、`.claude/`）がアップロードから除外される問題を修正
+- GitHub Pages デプロイ用ワークフローテンプレートの `upload-pages-artifact` を `@v4` から `@v3` に変更し、ドット始まりのパス（`.nojekyll`、`.claude/`）が除外される問題を修正（v4 は隠しファイル除外がハードコードされておりオプトアウト不可）
 
 ### 変更
 
