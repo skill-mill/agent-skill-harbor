@@ -1,5 +1,13 @@
 # 変更履歴
 
+## [0.8.1] - 2026-03-13
+
+### 修正
+
+- GitHub Pages の init ワークフローで、古い厳密版ではなく `pnpm` のメジャーバージョン固定（`version: 10`）を使うよう修正
+- GitHub Pages の init ワークフローで、JavaScript Actions を Node.js 24 で実行するようにして Node.js 20 廃止経路に対応
+- init テンプレートが古い `^0.1.0` ではなく、現行の `agent-skill-harbor` リリース系列を導入するよう修正
+
 ## [0.8.0] - 2026-03-12
 
 ### 追加

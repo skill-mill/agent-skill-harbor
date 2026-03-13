@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1] - 2026-03-13
+
+### Fixed
+
+- GitHub Pages init workflow now installs `pnpm` via major-version pinning (`version: 10`) instead of requiring a stale exact version
+- GitHub Pages init workflow now opts JavaScript actions into Node.js 24 to avoid the Node.js 20 deprecation path
+- Init template now installs the current `agent-skill-harbor` release line instead of the stale `^0.1.0`
+
 ## [0.8.0] - 2026-03-12
 
 ### Added
