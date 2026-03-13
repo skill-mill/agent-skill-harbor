@@ -1,10 +1,10 @@
 # Changelog
 
-## [cli 0.10.3] / [web 0.9.3] - 2026-03-14
+## [cli 0.10.4] / [web 0.9.3] - 2026-03-14
 
 ### Fixed
 
-- GitHub Pages deploy workflow template now uses `upload-pages-artifact@v3` instead of `@v4`, which excludes dot-prefixed paths (`.nojekyll`, `.claude/`) by design with no opt-out
+- GitHub Pages deploy workflow template now creates the Pages artifact manually instead of using `upload-pages-artifact`, which excludes `.github` (all versions) and other dotfiles (`v4`) from the tar archive
 
 ### Changed
 

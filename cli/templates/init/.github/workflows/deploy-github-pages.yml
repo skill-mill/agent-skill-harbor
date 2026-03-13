@@ -41,10 +41,22 @@ jobs:
         # For local development (source repo), use instead:
         # run: pnpm build
 
+      - name: Create Pages artifact
+        run: |
+          tar \
+            --dereference --hard-dereference \
+            --directory build \
+            -cvf "$RUNNER_TEMP/artifact.tar" \
+            --exclude=.git \
+            .
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          path: build
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
 
   deploy:
     environment:
