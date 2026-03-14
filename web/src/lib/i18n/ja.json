@@ -127,6 +127,10 @@
 		"reposWithSkills": "{count} リポにスキルあり"
 	},
 	"settings": {
+		"columns": {
+			"label": "項目",
+			"value": "値"
+		},
 		"collector": {
 			"title": "コレクター",
 			"exclude_forks": "フォークリポジトリを除外",

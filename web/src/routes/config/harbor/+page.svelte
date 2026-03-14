@@ -1,22 +1,67 @@
 <script lang="ts">
 	import { t } from '$lib/i18n';
+	import * as Popover from '$lib/components/ui/popover';
 
 	let { data } = $props();
 </script>
 
+{#snippet yamlKeyHint(key: string)}
+	<Popover.Root>
+		<Popover.Trigger>
+			{#snippet child({ props })}
+				<button
+					{...props}
+					type="button"
+					class="inline-flex items-center rounded p-0.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+					aria-label={`Open YAML key ${key}`}
+				>
+					<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+						<path
+							fill-rule="evenodd"
+							d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-8.75-3a.75.75 0 011.5 0v.25a.75.75 0 01-1.5 0V7zm0 2.5a.75.75 0 011.5 0v3.5a.75.75 0 01-1.5 0V9.5z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</button>
+			{/snippet}
+		</Popover.Trigger>
+		<Popover.Content class="w-72">
+			<div class="space-y-1">
+				<div class="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">YAML key</div>
+				<code class="block break-all text-xs">{key}</code>
+			</div>
+		</Popover.Content>
+	</Popover.Root>
+{/snippet}
+
 <div class="space-y-8">
-	<!-- Collector Section -->
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
 			{$t('settings.collector.title')}
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
+				<thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
+					<tr>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.label')}
+						</th>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.value')}
+						</th>
+					</tr>
+				</thead>
 				<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-					<!-- exclude_forks -->
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.collector.exclude_forks')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.collector.exclude_forks')}</span>
+								{@render yamlKeyHint('collector.exclude_forks')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.collector.exclude_forks}
@@ -42,10 +87,12 @@
 							{/if}
 						</td>
 					</tr>
-					<!-- include_origin_repos -->
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.collector.include_origin_repos')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.collector.include_origin_repos')}</span>
+								{@render yamlKeyHint('collector.include_origin_repos')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.collector.include_origin_repos}
@@ -71,10 +118,12 @@
 							{/if}
 						</td>
 					</tr>
-					<!-- excluded_repos -->
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.collector.excluded_repos')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.collector.excluded_repos')}</span>
+								{@render yamlKeyHint('collector.excluded_repos')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.collector.excluded_repos.length > 0}
@@ -99,10 +148,12 @@
 							{/if}
 						</td>
 					</tr>
-					<!-- included_extra_repos -->
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.collector.included_extra_repos')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.collector.included_extra_repos')}</span>
+								{@render yamlKeyHint('collector.included_extra_repos')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.collector.included_extra_repos.length > 0}
@@ -127,10 +178,12 @@
 							{/if}
 						</td>
 					</tr>
-					<!-- history_limit -->
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.collector.history_limit')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.collector.history_limit')}</span>
+								{@render yamlKeyHint('collector.history_limit')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{data.settings.collector.history_limit}
@@ -141,17 +194,33 @@
 		</div>
 	</section>
 
-	<!-- Audit Section -->
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
 			{$t('settings.audit.title')}
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
+				<thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
+					<tr>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.label')}
+						</th>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.value')}
+						</th>
+					</tr>
+				</thead>
 				<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.audit.exclude_community_repos')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.audit.exclude_community_repos')}</span>
+								{@render yamlKeyHint('audit.exclude_community_repos')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.audit.exclude_community_repos}
@@ -179,7 +248,10 @@
 					</tr>
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.audit.engines')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.audit.engines')}</span>
+								{@render yamlKeyHint('audit.engines')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.audit.engines.length > 0}
@@ -189,9 +261,9 @@
 											<div class="flex flex-wrap items-center gap-2">
 												<code class="rounded bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">{engine.id}</code>
 												{#if engine.timeout_sec}
-													<span class="text-xs text-gray-500 dark:text-gray-400"
-														>{$t('settings.audit.timeout_sec')}: {engine.timeout_sec}s</span
-													>
+													<span class="text-xs text-gray-500 dark:text-gray-400">
+														{$t('settings.audit.timeout_sec')}: {engine.timeout_sec}s
+													</span>
 												{/if}
 											</div>
 											{#if engine.command}
@@ -199,9 +271,9 @@
 													<div class="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
 														{$t('settings.audit.command')}
 													</div>
-													<code class="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs dark:bg-gray-800"
-														>{engine.command.join(' ')}</code
-													>
+													<code class="block break-all rounded bg-gray-100 px-2 py-1.5 text-xs dark:bg-gray-800">
+														{engine.command.join(' ')}
+													</code>
 												</div>
 											{/if}
 										</div>
@@ -217,17 +289,33 @@
 		</div>
 	</section>
 
-	<!-- Catalog Section -->
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
 			{$t('settings.catalog.title')}
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
+				<thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
+					<tr>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.label')}
+						</th>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.value')}
+						</th>
+					</tr>
+				</thead>
 				<tbody>
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.catalog.fresh_period_days')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.catalog.fresh_period_days')}</span>
+								{@render yamlKeyHint('catalog.skill.fresh_period_days')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{data.settings.catalog.skill.fresh_period_days}
@@ -238,17 +326,33 @@
 		</div>
 	</section>
 
-	<!-- UI Section -->
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
 			{$t('settings.ui.title')}
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
+				<thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
+					<tr>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.label')}
+						</th>
+						<th
+							class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
+						>
+							{$t('settings.columns.value')}
+						</th>
+					</tr>
+				</thead>
 				<tbody>
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-							{$t('settings.ui.title_value')}
+							<div class="flex items-center gap-1.5">
+								<span>{$t('settings.ui.title_value')}</span>
+								{@render yamlKeyHint('ui.title')}
+							</div>
 						</td>
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{data.settings.ui.title}

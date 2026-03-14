@@ -127,6 +127,10 @@
 		"reposWithSkills": "{count} with skills"
 	},
 	"settings": {
+		"columns": {
+			"label": "Setting",
+			"value": "Value"
+		},
 		"collector": {
 			"title": "Collector",
 			"exclude_forks": "Exclude forked repositories",
