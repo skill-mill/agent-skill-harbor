@@ -193,3 +193,24 @@ The built-in `static` engine scans cached Markdown files for risky patterns and 
 - `references` values such as `2026-ASI03`
 
 These fields are optional in the public engine contract, but the built-in engine uses them to make findings easier to understand.
+
+### Static Audit Categories
+
+The built-in `static` engine currently groups findings into the following categories.
+
+| Category                 | What it checks                                                  | Typical matches                                                                  | Default level | References                 |
+| ------------------------ | --------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------- | -------------------------- |
+| `instruction_safety`     | Attempts to override system/developer instructions              | `ignore previous`, `override system`, `<system>`, `you are now`                  | `warn`        | `2026-ASI01`, `2026-ASI02` |
+| `capability_risk`        | Destructive commands or arbitrary code execution patterns       | `rm -rf`, `eval(`, `exec(`, `child_process`, `os.system`, `subprocess`           | `fail`        | `2026-ASI03`, `2026-ASI05` |
+| `permission_scope`       | Privilege escalation or unsafe permission assumptions           | `sudo`, `chmod 777`, `--privileged`, `as root`                                   | `warn`        | `2026-ASI04`, `2026-ASI05` |
+| `data_handling`          | Access to secrets, credentials, or sensitive local files        | `process.env`, `api_key`, `secret`, `token`, `password`, `.env`, `~/.ssh`        | `warn`        | `2026-ASI06`               |
+| `external_communication` | Outbound communication or data transfer patterns                | `curl`, `wget`, `fetch(`, `https://`, `webhook`                                  | `warn`        | `2026-ASI03`, `2026-ASI09` |
+| `provenance_trust`       | Provenance and supply-chain related references                  | `_from:`, `forked from`, `upstream`, `mirror`                                    | `warn`        | `2026-ASI07`, `2026-ASI09` |
+| `transparency`           | Instructions that hide actions or skip user confirmation        | `do not tell`, `hide this`, `silently`, `without asking`, `without confirmation` | `warn`        | `2026-ASI10`               |
+| `resource_abuse`         | Patterns likely to cause runaway retries or resource exhaustion | `while true`, `infinite loop`, `fork bomb`, `retry forever`, `until it works`    | `warn`        | `2026-ASI08`               |
+
+Notes:
+
+- These are simple pattern-based checks against cached Markdown files, not full semantic analysis.
+- A finding is emitted per matching line, so one file can produce multiple findings in the same category.
+- The built-in result becomes `fail` if any finding is `fail`; otherwise it becomes `warn` when at least one finding exists.
