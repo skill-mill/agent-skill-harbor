@@ -63,6 +63,7 @@ When installed as a dependency, the CLI is available as `harbor` or `agent-skill
 | ------------------------ | --------------------------------------- |
 | `harbor init [dir]`      | Scaffold a new project                  |
 | `harbor collect`         | Collect skills from GitHub organization |
+| `harbor audit`           | Audit collected skills                  |
 | `harbor build`           | Build the static site                   |
 | `harbor deploy <target>` | Deploy the built catalog                |
 | `harbor dev`             | Start development server                |
@@ -82,7 +83,8 @@ harbor build --base=/my-repo-name
 3. Enable GitHub Pages (Settings > Pages > Source: GitHub Actions)
 4. **Important:** Set Pages visibility to **Private** to restrict access to organization members only (requires GitHub Enterprise Cloud)
 5. Trigger the `CollectSkills` workflow for initial collection
-6. The `DeployGitHubPages` workflow will run automatically after collection
+6. The `AuditSkills` workflow will run automatically after collection
+7. The deploy workflow will run automatically after audit
 
 See [Organization Setup Guide](docs/01-organization-setup.md) for detailed instructions.
 
@@ -108,9 +110,10 @@ Using [agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) to 
 ## Documentation
 
 - [Organization Setup](docs/01-organization-setup.md)
-- [Governance Guide](docs/02-governance-guide.md)
-- [Local Development](docs/03-local-development.md)
-- [Release](docs/04-release.md)
+- [Audit Guide](docs/02-audit.md)
+- [Governance Guide](docs/03-governance-guide.md)
+- [Local Development](docs/91-local-development.md)
+- [Release](docs/92-release.md)
 
 ## License
 

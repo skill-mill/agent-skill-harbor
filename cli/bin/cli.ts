@@ -9,6 +9,7 @@ Usage: harbor <command>
 Commands:
   init      Scaffold a new project
   collect   Collect skills from GitHub organization
+  audit     Audit collected skills
   build     Build the web catalog (static site)
   deploy    Deploy the built catalog
   dev       Start development server
@@ -25,6 +26,9 @@ switch (command) {
 		break;
 	case 'collect':
 		await import('../src/cli/commands/collect.js');
+		break;
+	case 'audit':
+		await import('../src/cli/commands/audit.js');
 		break;
 	case 'build':
 		await import('../src/cli/commands/build.js');

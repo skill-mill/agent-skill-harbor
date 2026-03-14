@@ -52,9 +52,11 @@ console.log('  Created .gitignore');
 // .github/workflows/
 cpSync(join(templatesDir, '.github'), join(targetDir, '.github'), { recursive: true });
 console.log('  Created .github/workflows/collect-skills.yml');
+console.log('  Created .github/workflows/audit-skills.yml');
 console.log('  Created .github/workflows/deploy-cloudflare-pages.yml');
 console.log('  Created .github/workflows/deploy-github-pages.yml');
 console.log('    - workflow name: CollectSkills');
+console.log('    - workflow name: AuditSkills');
 console.log('    - workflow name: DeployCloudflarePages');
 console.log('    - workflow name: DeployGitHubPages');
 console.log('    - enable workflow_run in exactly one deploy workflow');

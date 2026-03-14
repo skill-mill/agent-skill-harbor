@@ -93,4 +93,4 @@ pnpm setup:dev                # Re-copy templates and fixtures
 
 - Release only the package that changed.
 - If both packages are released together, publish `agent-skill-harbor-web` first and `agent-skill-harbor` second.
-- For the detailed release workflow, see [04-release.md](docs/04-release.md).
+- For the detailed release workflow, see [92-release.md](92-release.md).

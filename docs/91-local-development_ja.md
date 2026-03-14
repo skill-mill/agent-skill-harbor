@@ -93,4 +93,4 @@ pnpm setup:dev                # テンプレートとフィクスチャを再コ
 
 - 変更が入った package だけを release します。
 - 両 package を同時に release する場合は `agent-skill-harbor-web` を先、その後に `agent-skill-harbor` を publish します。
-- 詳細なリリース手順は [04-release_ja.md](docs/04-release_ja.md) を参照してください。
+- 詳細なリリース手順は [92-release_ja.md](92-release_ja.md) を参照してください。

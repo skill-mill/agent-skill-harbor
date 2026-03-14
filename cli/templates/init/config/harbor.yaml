@@ -10,3 +10,12 @@ collector:
 catalog:
   skill:
     fresh_period_days: 30 # 0 = disable "New" badge
+
+audit:
+  fail_on: fail # pass | warn | fail
+  exclude_community_repos: true # audit only your org-owned repos by default
+  engines:
+    - id: static
+    # - id: company-policy
+    #   command: ["python3", "scripts/company-policy-audit.py"]
+    #   timeout_sec: 30 # default 30, max 300

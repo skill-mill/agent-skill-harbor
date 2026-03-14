@@ -1,0 +1,56 @@
+name: AuditSkills
+
+on:
+  workflow_run:
+    workflows: ['CollectSkills']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Example for Python-based user-defined audit engines:
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      #
+      # - name: Install Python audit dependencies
+      #   run: pip install -r scripts/audit-requirements.txt
+      - name: Audit collected skills
+        env:
+          GH_ORG: ${{ vars.GH_ORG }}
+        run: npx harbor audit
+        # For local development (source repo), use instead:
+        # run: pnpm audit
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update audit results"
+            git push
+          fi
