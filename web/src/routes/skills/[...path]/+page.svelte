@@ -135,7 +135,7 @@
 	let skillsmpUrl = $derived.by(() => {
 		const dir = skill.skillPath.replace(/\/SKILL\.md$/, '').replace(/^SKILL\.md$/, '');
 		const parts = [skill.owner, skill.repo];
-		if (dir) parts.push(dir.replace(/[/_.]/g, '-'));
+		if (dir) parts.push(dir.replace(/^\./, '').replace(/[/_.]/g, '-'));
 		parts.push('skill-md');
 		return `https://skillsmp.com/skills/${parts.join('-').toLowerCase()}`;
 	});
