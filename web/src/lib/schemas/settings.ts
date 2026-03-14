@@ -16,9 +16,21 @@ const catalogSchema = z.object({
 	skill: skillSchema.default(() => skillSchema.parse({})),
 });
 
+const auditEngineSchema = z.object({
+	id: z.string(),
+	command: z.array(z.string()).optional(),
+	timeout_sec: z.number().int().min(1).max(300).optional(),
+});
+
+const auditSchema = z.object({
+	exclude_community_repos: z.boolean().default(true),
+	engines: z.array(auditEngineSchema).default([{ id: 'static' }]),
+});
+
 export const settingsSchema = z.object({
 	collector: collectorSchema.default(() => collectorSchema.parse({})),
 	catalog: catalogSchema.default(() => catalogSchema.parse({})),
+	audit: auditSchema.default(() => auditSchema.parse({})),
 });
 
 export type SettingsConfig = z.infer<typeof settingsSchema>;

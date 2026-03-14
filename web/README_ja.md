@@ -16,4 +16,4 @@ Agent Skill Harbor 向けの Web パッケージです。
 
 - このパッケージは主に `agent-skill-harbor` の内部ランタイム用途です
 - `agent-skill-harbor-web` を先に release するのは、CLI が未公開の新しい web version に依存するとき、または両 package を同時 release するときだけです
-- リポジトリ全体のリリース手順は [`../docs/04-release_ja.md`](../docs/04-release_ja.md) を参照してください
+- リポジトリ全体のリリース手順は [`../docs/92-release_ja.md`](../docs/92-release_ja.md) を参照してください

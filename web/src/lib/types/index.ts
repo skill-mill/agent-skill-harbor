@@ -43,6 +43,7 @@ export interface CategoryStats {
 }
 
 export interface CollectionEntry {
+	id?: string;
 	collecting: {
 		collected_at: string;
 		duration_sec: number;
@@ -50,6 +51,23 @@ export interface CollectionEntry {
 	statistics: {
 		org: CategoryStats;
 		community: CategoryStats;
+	};
+	auditing?: {
+		audited_at: string;
+		duration_sec: number;
+		engines: string[];
+		skipped: boolean;
+		skip_reason?: string;
+	};
+	report?: {
+		org: {
+			processed: { pass: number; info: number; warn: number; fail: number };
+			skipped: { pass: number; info: number; warn: number; fail: number };
+		};
+		community: {
+			processed: { pass: number; info: number; warn: number; fail: number };
+			skipped: { pass: number; info: number; warn: number; fail: number };
+		};
 	};
 }
 

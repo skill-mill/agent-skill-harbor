@@ -62,6 +62,7 @@ pnpm dev
 | ------------------------ | ------------------------------------ |
 | `harbor init [dir]`      | 新しいプロジェクトをスキャフォールド |
 | `harbor collect`         | GitHub Organization からスキルを収集 |
+| `harbor audit`           | 収集済みスキルを監査                 |
 | `harbor build`           | 静的サイトをビルド                   |
 | `harbor deploy <target>` | ビルド済みカタログをデプロイ         |
 | `harbor dev`             | 開発サーバーを起動                   |
@@ -80,8 +81,9 @@ harbor build --base=/my-repo-name
 2. GitHub リポジトリのシークレットを設定 (`GH_TOKEN`)
 3. GitHub Pages を有効化（Settings > Pages > Source: GitHub Actions）
 4. **重要:** Pages の Visibility を **Private** に設定し、Organization メンバーのみにアクセスを制限（GitHub Enterprise Cloud が必要）
-5. `CollectSkills` ワークフローを手動トリガーして初回収集を実行
-6. 収集完了後、`DeployGitHubPages` ワークフローが自動実行されます
+5. `CollectAndAuditSkills` ワークフローを手動トリガーして初回収集を実行
+6. `CollectAndAuditSkills` で `collect` と `audit` が別 step として順に実行されます
+7. `CollectAndAuditSkills` 成功後、デプロイワークフローが自動実行されます
 
 詳細は [組織セットアップガイド](docs/01-organization-setup_ja.md) を参照してください。
 
@@ -95,6 +97,7 @@ my-skill-harbor/
 │   └── governance.yaml     # スキル使用ポリシー
 ├── data/                   # collect で生成（Git 管理）
 │   ├── skills.yaml         # スキルメタデータ
+│   ├── report.yaml         # 最新の監査スナップショット
 │   └── skills/             # キャッシュされた SKILL.md ファイル
 ├── .github/workflows/      # GitHub Actions (収集 + デプロイ)
 └── package.json            # agent-skill-harbor に依存
@@ -107,9 +110,10 @@ my-skill-harbor/
 ## ドキュメント
 
 - [組織セットアップ](docs/01-organization-setup_ja.md)
-- [ガバナンスガイド](docs/02-governance-guide_ja.md)
-- [ローカル開発](docs/03-local-development_ja.md)
-- [リリース](docs/04-release_ja.md)
+- [Audit ガイド](docs/02-audit_ja.md)
+- [ガバナンスガイド](docs/03-governance-guide_ja.md)
+- [ローカル開発](docs/91-local-development_ja.md)
+- [リリース](docs/92-release_ja.md)
 
 ## ライセンス
 

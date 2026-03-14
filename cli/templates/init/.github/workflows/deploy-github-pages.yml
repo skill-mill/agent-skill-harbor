@@ -3,7 +3,7 @@ name: DeployGitHubPages
 on:
   # Enable workflow_run in only one of deploy-github-pages.yml or deploy-cloudflare-pages.yml.
   # workflow_run:
-  #   workflows: ['CollectSkills']
+  #   workflows: ['CollectAndAuditSkills']
   #   types: [completed]
   #   branches: [main]
   workflow_dispatch:

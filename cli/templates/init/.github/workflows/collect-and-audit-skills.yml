@@ -1,4 +1,4 @@
-name: CollectSkills
+name: CollectAndAuditSkills
 
 on:
   # schedule:
@@ -26,13 +26,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Example for Python-based user-defined audit engines:
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      #
+      # - name: Install Python audit dependencies
+      #   run: pip install -r scripts/audit-requirements.txt
+      #
       - name: Collect skills from org repositories
+        id: collect
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_ORG: ${{ vars.GH_ORG }}
         run: npx harbor collect
         # For local development (source repo), use instead:
         # run: pnpm collect
+
+      - name: Audit collected skills
+        id: audit
+        if: ${{ steps.collect.outcome == 'success' }}
+        continue-on-error: true
+        env:
+          GH_ORG: ${{ vars.GH_ORG }}
+        run: npx harbor audit --history-id "${{ steps.collect.outputs.history_id }}"
 
       - name: Commit and push changes
         run: |
@@ -42,6 +60,14 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update skill catalog"
+            git commit -m "chore: update skill catalog and audit report"
             git push
           fi
+
+      - name: Fail when collect reports blocking issues
+        if: ${{ steps.collect.outcome != 'success' }}
+        run: exit 1
+
+      - name: Fail when audit reports blocking issues
+        if: ${{ steps.collect.outcome == 'success' && steps.audit.outcome != 'success' }}
+        run: exit 1

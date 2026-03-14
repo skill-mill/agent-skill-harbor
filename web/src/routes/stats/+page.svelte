@@ -201,6 +201,35 @@
 			minute: '2-digit',
 		});
 	}
+
+	function getAuditBucket(entry: CollectionEntry) {
+		if (!entry.report) return null;
+		if (ownerFilter === 'org') return entry.report.org;
+		if (ownerFilter === 'community') return entry.report.community;
+		return {
+			processed: {
+				pass: entry.report.org.processed.pass + entry.report.community.processed.pass,
+				info: entry.report.org.processed.info + entry.report.community.processed.info,
+				warn: entry.report.org.processed.warn + entry.report.community.processed.warn,
+				fail: entry.report.org.processed.fail + entry.report.community.processed.fail,
+			},
+			skipped: {
+				pass: entry.report.org.skipped.pass + entry.report.community.skipped.pass,
+				info: entry.report.org.skipped.info + entry.report.community.skipped.info,
+				warn: entry.report.org.skipped.warn + entry.report.community.skipped.warn,
+				fail: entry.report.org.skipped.fail + entry.report.community.skipped.fail,
+			},
+		};
+	}
+
+	function formatAuditCounts(
+		label: string,
+		counts: { pass: number; info: number; warn: number; fail: number },
+	): string {
+		const total = counts.pass + counts.info + counts.warn + counts.fail;
+		if (total === 0) return `${label}: 0`;
+		return `${label}: P${counts.pass} I${counts.info} W${counts.warn} F${counts.fail}`;
+	}
 </script>
 
 <svelte:head>
@@ -358,11 +387,17 @@
 							>
 								{$t('stats.duration')}
 							</th>
+							<th
+								class="hidden px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 lg:table-cell"
+							>
+								{$t('stats.audit')}
+							</th>
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
-						{#each displayedHistory as entry, i (entry.collecting.collected_at)}
+						{#each displayedHistory as entry, i (entry.id ?? entry.collecting.collected_at)}
 							{@const prev = data.collections[i + 1]}
+							{@const auditBucket = getAuditBucket(entry)}
 							{@const s =
 								ownerFilter === 'org'
 									? entry.statistics.org
@@ -435,6 +470,20 @@
 									class="hidden whitespace-nowrap px-5 py-3 text-right tabular-nums text-sm text-gray-500 dark:text-gray-400 md:table-cell"
 								>
 									{formatDuration(entry.collecting.duration_sec)}
+								</td>
+								<td
+									class="hidden whitespace-nowrap px-5 py-3 text-left text-sm text-gray-500 dark:text-gray-400 lg:table-cell"
+								>
+									{#if entry.auditing?.skipped}
+										{$t('stats.auditSkipped')}
+									{:else if auditBucket}
+										<div>{formatAuditCounts($t('stats.auditProcessed'), auditBucket.processed)}</div>
+										<div class="text-xs text-gray-400 dark:text-gray-500">
+											{formatAuditCounts($t('stats.auditReused'), auditBucket.skipped)}
+										</div>
+									{:else}
+										—
+									{/if}
 								</td>
 							</tr>
 						{/each}

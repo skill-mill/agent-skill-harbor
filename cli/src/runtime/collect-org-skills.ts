@@ -4,12 +4,17 @@ import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import {
+	createCollectHistoryEntry,
+	prependCollectHistoryEntry,
+	type CategoryStats,
+	type CollectHistoryEntry,
+} from './collect-history.js';
 
 const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..', '..');
 const DATA_DIR = join(PROJECT_ROOT, 'data');
 const SKILLS_DIR = join(DATA_DIR, 'skills');
 const SKILLS_YAML_PATH = join(DATA_DIR, 'skills.yaml');
-const HISTORY_YAML_PATH = join(DATA_DIR, 'collect-history.yaml');
 const CONFIG_DIR = join(PROJECT_ROOT, 'config');
 const SETTINGS_PATH = join(CONFIG_DIR, 'harbor.yaml');
 
@@ -48,24 +53,6 @@ interface RepositoryEntry {
 	repo_sha?: string;
 	fork?: boolean;
 	skills: Record<string, SkillEntry>;
-}
-
-interface CategoryStats {
-	repos: number;
-	repos_with_skills: number;
-	skills: number;
-	files: number;
-}
-
-interface CollectMeta {
-	collecting: {
-		collected_at: string;
-		duration_sec: number;
-	};
-	statistics: {
-		org: CategoryStats;
-		community: CategoryStats;
-	};
 }
 
 interface CatalogYaml {
@@ -150,23 +137,6 @@ function computeStatistics(catalog: CatalogYaml, org: string): { org: CategorySt
 		}
 	}
 	return stats;
-}
-
-function loadCollectHistory(): CollectMeta[] {
-	if (!existsSync(HISTORY_YAML_PATH)) return [];
-	try {
-		const raw = yamlLoad(readFileSync(HISTORY_YAML_PATH, 'utf-8'));
-		return Array.isArray(raw) ? raw : [];
-	} catch {
-		return [];
-	}
-}
-
-function saveCollectHistory(entry: CollectMeta, limit: number): void {
-	const history = loadCollectHistory();
-	history.unshift(entry);
-	const trimmed = limit > 0 ? history.slice(0, limit) : history;
-	writeFileSync(HISTORY_YAML_PATH, yamlDump(trimmed, { lineWidth: 120, noRefs: true }));
 }
 
 function saveFile(repoDir: string, filePath: string, content: string): void {
@@ -760,15 +730,19 @@ export async function runCollectOrgSkills(): Promise<void> {
 	saveCatalog(catalog);
 
 	const statistics = computeStatistics(catalog, org);
-	const historyEntry: CollectMeta = {
+	const historyEntry: CollectHistoryEntry = createCollectHistoryEntry({
 		collecting: {
 			collected_at: new Date().toISOString(),
 			duration_sec: durationSec,
 		},
 		statistics,
-	};
+	});
 	const historyLimit = settings.collector?.history_limit ?? 50;
-	saveCollectHistory(historyEntry, historyLimit);
+	prependCollectHistoryEntry(PROJECT_ROOT, historyEntry, historyLimit);
+	console.log(`  history_id: ${historyEntry.id}`);
+	if (process.env.GITHUB_OUTPUT && historyEntry.id) {
+		writeFileSync(process.env.GITHUB_OUTPUT, `history_id=${historyEntry.id}\n`, { flag: 'a' });
+	}
 
 	console.log(`\n--- Summary ---`);
 	console.log(

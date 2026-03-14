@@ -7,23 +7,23 @@ import { loadOptionalEnvFile } from '../env.js';
 const envFile = resolve(userRoot, '.env');
 
 if (!existsSync(envFile)) {
-	console.warn('Warning: No .env file found. Make sure GH_TOKEN and GH_ORG are set.');
+	console.warn('Warning: No .env file found. Make sure GH_TOKEN and GH_ORG are set if needed.');
 } else {
 	loadOptionalEnvFile(envFile);
 }
 
-console.log(`Collecting skills...`);
+console.log(`Auditing skills...`);
 console.log(`  Project root: ${userRoot}`);
 
 process.env.SKILL_HARBOR_ROOT = userRoot;
-const runtimeScript = resolve(packageRoot, 'dist/src/runtime/collect-org-skills.js');
+const runtimeScript = resolve(packageRoot, 'dist/src/runtime/audit-skills.js');
 
 try {
-	execFileSync(process.execPath, [runtimeScript], {
+	execFileSync(process.execPath, [runtimeScript, ...process.argv.slice(3)], {
 		cwd: userRoot,
 		stdio: 'inherit',
 		env: process.env,
 	});
-} catch (e: any) {
-	process.exit(e.status ?? 1);
+} catch (error: any) {
+	process.exit(error.status ?? 1);
 }
