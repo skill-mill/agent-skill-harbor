@@ -3,9 +3,27 @@
 	import * as Popover from '$lib/components/ui/popover';
 
 	let { data } = $props();
+
+	// Config labels/help are resolved mechanically from YAML keys:
+	// settings.label.<yamlKey> and settings.help.<yamlKey>
+	// so adding a new item usually only needs i18n entries.
+	function getHelpKey(yamlKey: string): string {
+		return `settings.help.${yamlKey}`;
+	}
+
+	function getHelpText(yamlKey: string, translate: (key: string) => string): string | null {
+		const helpKey = getHelpKey(yamlKey);
+		const text = translate(helpKey);
+		return text === helpKey ? null : text;
+	}
+
+	function getLabelKey(yamlKey: string): string {
+		return `settings.label.${yamlKey}`;
+	}
 </script>
 
 {#snippet yamlKeyHint(key: string)}
+	{@const helpText = getHelpText(key, $t)}
 	<Popover.Root>
 		<Popover.Trigger>
 			{#snippet child({ props })}
@@ -28,7 +46,16 @@
 		<Popover.Content class="w-72">
 			<div class="space-y-1">
 				<div class="text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">YAML key</div>
-				<code class="block break-all text-xs">{key}</code>
+				<code
+					class="block break-all rounded bg-gray-100 px-1.5 py-1 text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-100"
+				>
+					{key}
+				</code>
+				{#if helpText}
+					<div class="pt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
+						{helpText}
+					</div>
+				{/if}
 			</div>
 		</Popover.Content>
 	</Popover.Root>
@@ -59,7 +86,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.collector.exclude_forks')}</span>
+								<span>{$t(getLabelKey('collector.exclude_forks'))}</span>
 								{@render yamlKeyHint('collector.exclude_forks')}
 							</div>
 						</td>
@@ -90,7 +117,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.collector.include_origin_repos')}</span>
+								<span>{$t(getLabelKey('collector.include_origin_repos'))}</span>
 								{@render yamlKeyHint('collector.include_origin_repos')}
 							</div>
 						</td>
@@ -121,7 +148,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.collector.excluded_repos')}</span>
+								<span>{$t(getLabelKey('collector.excluded_repos'))}</span>
 								{@render yamlKeyHint('collector.excluded_repos')}
 							</div>
 						</td>
@@ -151,7 +178,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.collector.included_extra_repos')}</span>
+								<span>{$t(getLabelKey('collector.included_extra_repos'))}</span>
 								{@render yamlKeyHint('collector.included_extra_repos')}
 							</div>
 						</td>
@@ -181,7 +208,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.collector.history_limit')}</span>
+								<span>{$t(getLabelKey('collector.history_limit'))}</span>
 								{@render yamlKeyHint('collector.history_limit')}
 							</div>
 						</td>
@@ -218,7 +245,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.audit.exclude_community_repos')}</span>
+								<span>{$t(getLabelKey('audit.exclude_community_repos'))}</span>
 								{@render yamlKeyHint('audit.exclude_community_repos')}
 							</div>
 						</td>
@@ -249,7 +276,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.audit.engines')}</span>
+								<span>{$t(getLabelKey('audit.engines'))}</span>
 								{@render yamlKeyHint('audit.engines')}
 							</div>
 						</td>
@@ -313,7 +340,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.catalog.fresh_period_days')}</span>
+								<span>{$t(getLabelKey('catalog.skill.fresh_period_days'))}</span>
 								{@render yamlKeyHint('catalog.skill.fresh_period_days')}
 							</div>
 						</td>
@@ -350,7 +377,7 @@
 					<tr>
 						<td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">
 							<div class="flex items-center gap-1.5">
-								<span>{$t('settings.ui.title_value')}</span>
+								<span>{$t(getLabelKey('ui.title'))}</span>
 								{@render yamlKeyHint('ui.title')}
 							</div>
 						</td>

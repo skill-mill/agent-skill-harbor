@@ -131,26 +131,59 @@
 			"label": "Setting",
 			"value": "Value"
 		},
+		"label": {
+			"collector": {
+				"exclude_forks": "Exclude forked repositories",
+				"excluded_repos": "Excluded repositories",
+				"include_origin_repos": "Also collect repositories where skills were copied from",
+				"included_extra_repos": "Additional repositories",
+				"history_limit": "Collection history limit"
+			},
+			"audit": {
+				"exclude_community_repos": "Audit only org-owned repositories",
+				"engines": "Engines"
+			},
+			"catalog": {
+				"skill": {
+					"fresh_period_days": "\"New\" badge duration (days)"
+				}
+			},
+			"ui": {
+				"title": "Header title"
+			}
+		},
+		"help": {
+			"collector": {
+				"exclude_forks": "Skip forked repositories when collecting skills from your organization.",
+				"include_origin_repos": "Also collect repositories referenced as the original source of copied skills.",
+				"excluded_repos": "Repository names to exclude from collection even if they belong to your organization.",
+				"included_extra_repos": "Additional repository URLs to collect outside the default organization scan.",
+				"history_limit": "Maximum number of collection history entries to keep."
+			},
+			"audit": {
+				"exclude_community_repos": "Audit only repositories owned by your organization and skip community-owned skills.",
+				"engines": "Ordered list of audit engines to run for each collected skill."
+			},
+			"catalog": {
+				"skill": {
+					"fresh_period_days": "Controls how long newly updated skills keep the \"New\" badge."
+				}
+			},
+			"ui": {
+				"title": "Brand title shown in the header and other top-level UI surfaces."
+			}
+		},
 		"collector": {
-			"title": "Collector",
-			"exclude_forks": "Exclude forked repositories",
-			"excluded_repos": "Excluded repositories",
-			"include_origin_repos": "Also collect repositories where skills were copied from",
-			"included_extra_repos": "Additional repositories",
-			"history_limit": "Collection history limit"
+			"title": "Collector"
 		},
 		"catalog": {
-			"title": "Catalog",
-			"fresh_period_days": "\"New\" badge duration (days)"
+			"title": "Catalog"
 		},
 		"ui": {
-			"title": "UI",
-			"title_value": "Header title"
+			"title": "UI"
 		},
 		"audit": {
 			"title": "Audit",
-			"exclude_community_repos": "Audit only org-owned repositories",
-			"engines": "Engines",
 			"command": "Command",
 			"timeout_sec": "Timeout"
 		},

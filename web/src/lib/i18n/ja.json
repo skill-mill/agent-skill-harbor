@@ -131,26 +131,59 @@
 			"label": "項目",
 			"value": "値"
 		},
+		"label": {
+			"collector": {
+				"exclude_forks": "フォークリポジトリを除外",
+				"excluded_repos": "除外リポジトリ",
+				"include_origin_repos": "スキルのコピー元リポジトリも収集",
+				"included_extra_repos": "追加リポジトリ",
+				"history_limit": "収集履歴の保持数"
+			},
+			"audit": {
+				"exclude_community_repos": "自組織所有のリポジトリのみ監査",
+				"engines": "エンジン"
+			},
+			"catalog": {
+				"skill": {
+					"fresh_period_days": "「New」バッジの表示期間（日数）"
+				}
+			},
+			"ui": {
+				"title": "ヘッダタイトル"
+			}
+		},
+		"help": {
+			"collector": {
+				"exclude_forks": "組織のスキル収集時に fork リポジトリを対象外にします。",
+				"include_origin_repos": "コピー元として参照された元リポジトリも追加で収集します。",
+				"excluded_repos": "組織配下でも収集対象から除外するリポジトリ名です。",
+				"included_extra_repos": "通常の組織スキャンに加えて追加で収集するリポジトリ URL です。",
+				"history_limit": "保持する収集履歴エントリ数の上限です。"
+			},
+			"audit": {
+				"exclude_community_repos": "組織所有のリポジトリだけを監査し、コミュニティ由来のスキルは対象外にします。",
+				"engines": "各スキルに対して順に実行する監査エンジンの一覧です。"
+			},
+			"catalog": {
+				"skill": {
+					"fresh_period_days": "\"New\" バッジを表示し続ける日数を制御します。"
+				}
+			},
+			"ui": {
+				"title": "ヘッダなど画面上部に表示するブランド名です。"
+			}
+		},
 		"collector": {
-			"title": "コレクター",
-			"exclude_forks": "フォークリポジトリを除外",
-			"excluded_repos": "除外リポジトリ",
-			"include_origin_repos": "スキルのコピー元リポジトリも収集",
-			"included_extra_repos": "追加リポジトリ",
-			"history_limit": "収集履歴の保持数"
+			"title": "コレクター"
 		},
 		"catalog": {
-			"title": "カタログ",
-			"fresh_period_days": "「New」バッジの表示期間（日数）"
+			"title": "カタログ"
 		},
 		"ui": {
-			"title": "UI",
-			"title_value": "ヘッダタイトル"
+			"title": "UI"
 		},
 		"audit": {
 			"title": "監査",
-			"exclude_community_repos": "自組織所有のリポジトリのみ監査",
-			"engines": "エンジン",
 			"command": "コマンド",
 			"timeout_sec": "タイムアウト"
 		},
