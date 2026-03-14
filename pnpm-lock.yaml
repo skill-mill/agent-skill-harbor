@@ -60,9 +60,6 @@ importers:
       3d-force-graph:
         specifier: 1.79.1
         version: 1.79.1
-      '@internationalized/date':
-        specifier: ^3.11.0
-        version: 3.11.0
       '@lucide/svelte':
         specifier: ^0.561.0
         version: 0.561.0(svelte@5.53.3)
@@ -87,9 +84,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      dompurify:
-        specifier: 3.3.1
-        version: 3.3.1
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -114,9 +108,6 @@ importers:
       tailwind-merge:
         specifier: 3.5.0
         version: 3.5.0
-      tailwind-variants:
-        specifier: 3.2.2
-        version: 3.2.2(tailwind-merge@3.5.0)(tailwindcss@4.2.1)
       tailwindcss:
         specifier: ^4.0.0
         version: 4.2.1
