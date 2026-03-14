@@ -10,6 +10,6 @@
 		"preview": "harbor preview"
 	},
 	"dependencies": {
-		"agent-skill-harbor": "^{{PACKAGE_VERSION}}"
+		"agent-skill-harbor": ">={{PACKAGE_VERSION}} <1"
 	}
 }
