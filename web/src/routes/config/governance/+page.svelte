@@ -43,11 +43,7 @@
 				<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
 					{#each Object.entries(data.governance.policies) as [skillPath, policy]}
 						{@const exists = skillKeys.has(skillPath)}
-						<tr
-							class={exists
-								? 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
-								: 'opacity-50'}
-						>
+						<tr class={exists ? 'hover:bg-gray-50 dark:hover:bg-gray-800/50' : 'opacity-50'}>
 							<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 								{#if exists}
 									<a

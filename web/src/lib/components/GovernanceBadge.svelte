@@ -26,7 +26,11 @@
 </script>
 
 {#if status !== 'none'}
-<span class="inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium {styles[status]}">
-	{$t(labelKeys[status])}
-</span>
+	<span
+		class="inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium {styles[
+			status
+		]}"
+	>
+		{$t(labelKeys[status])}
+	</span>
 {/if}
