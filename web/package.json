@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor-web",
-	"version": "0.9.4",
+	"version": "0.10.0",
 	"type": "module",
 	"description": "Web runtime package for Agent Skill Harbor.",
 	"keywords": [

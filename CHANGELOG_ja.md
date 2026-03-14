@@ -1,5 +1,19 @@
 # 変更履歴
 
+## [cli 0.11.0] / [web 0.10.0] - 2026-03-15
+
+### 追加
+
+- CLI に新しい audit パイプラインを追加し、static / user-defined engine、監査レポート、history 連携、workflow テンプレートまで一通り扱えるようにした
+- Stats に監査サマリを追加し、Config > Harbor タブでも audit 設定を確認できるようにして、監査結果を Web UI から追いやすくした
+- Config 各タブに RAW 設定ファイルの開閉パネルを追加し、`harbor.yaml` と `governance.yaml` を画面内で確認できるようにした
+
+### 変更
+
+- built-in の static audit engine を `pass / info / warn / fail` に整理し、過検知時の severity を弱めつつ、engine id を `builtin.static` に変更した
+- Harbor 設定タブを改善し、YAML キーと説明を popover で参照できるようにしつつ、`ui.title` でヘッダタイトルも設定可能にした
+- ヘッダ、タブバー、カード一覧、グラフ詳細パネルのモバイル表示を改善した
+
 ## [cli 0.10.4] / [web 0.9.3] - 2026-03-14
 
 ### 修正

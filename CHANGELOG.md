@@ -1,5 +1,19 @@
 # Changelog
 
+## [cli 0.11.0] / [web 0.10.0] - 2026-03-15
+
+### Added
+
+- Added a new `audit` pipeline to the CLI, including static and user-defined engines, audit reports, history linking, and workflow templates
+- Added audit reporting to the web UI, including audit summaries in Stats and audit settings in the Config > Harbor tab
+- Added optional raw config file panels to the Config tabs so `harbor.yaml` and `governance.yaml` can be inspected in-place
+
+### Changed
+
+- Refined the built-in static audit engine to use `pass / info / warn / fail`, reduced false-positive severity, and renamed the built-in engine id to `builtin.static`
+- Improved the Harbor config tab with YAML-key help popovers, derived label/help key conventions, and a configurable UI title
+- Improved mobile responsiveness for the header, tab bar, card list, and graph detail panel
+
 ## [cli 0.10.4] / [web 0.9.3] - 2026-03-14
 
 ### Fixed
