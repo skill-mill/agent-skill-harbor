@@ -65,14 +65,14 @@
 	}
 </script>
 
-<div class="flex gap-1 border-b border-gray-200 dark:border-gray-700" role="tablist">
+<div class="flex flex-wrap gap-x-1 gap-y-2 border-b border-gray-200 dark:border-gray-700" role="tablist">
 	{#each tabs as tab (tab.key)}
 		{@const isActive = activeView === tab.key}
 		<button
 			role="tab"
 			aria-selected={isActive}
 			onclick={() => handleTabClick(tab.key)}
-			class="inline-flex items-center gap-1.5 border-b-2 px-4 py-2 text-sm font-medium transition-colors {isActive
+			class="inline-flex min-w-fit items-center gap-1.5 whitespace-nowrap border-b-2 px-2.5 py-2 text-sm font-medium transition-colors sm:px-4 {isActive
 				? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
 				: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300'}"
 		>

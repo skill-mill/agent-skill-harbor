@@ -127,9 +127,9 @@
 </svelte:head>
 
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-	<div class="mb-6 flex items-center justify-between">
+	<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 		<ViewTabs activeView={view} onchange={handleViewChange} />
-		<div class="flex items-center gap-2">
+		<div class="flex flex-wrap items-center gap-2">
 			<span
 				class="text-sm font-medium {view === 'card'
 					? 'text-gray-400 dark:text-gray-600'
@@ -154,9 +154,9 @@
 
 	<div class="mb-6 space-y-4">
 		<SearchBar value={query} onchange={handleSearch} />
-		<div class="flex items-center gap-3">
+		<div class="flex flex-wrap items-center gap-3">
 			<FilterPanel {filters} onchange={handleFilterChange} />
-			<span class="ml-auto shrink-0 tabular-nums text-sm text-gray-500 dark:text-gray-400">
+			<span class="tabular-nums text-sm text-gray-500 dark:text-gray-400 sm:ml-auto">
 				{#if hasFilters}
 					<span class="font-semibold text-gray-900 dark:text-gray-100">{displayedSkills.length}</span> / {allSkills.length}
 					skills

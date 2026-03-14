@@ -140,7 +140,7 @@
 	<title>{dev ? '(Dev) ' : ''}Knowledge Graph - Agent Skill Harbor</title>
 </svelte:head>
 
-<div class="flex h-[calc(100vh-65px)]">
+<div class="relative flex h-[calc(100vh-65px)]">
 	<!-- Graph canvas -->
 	<div class="relative min-h-0 flex-1 bg-gray-50 dark:bg-gray-950">
 		{#if browser}
@@ -150,9 +150,11 @@
 		{/if}
 
 		<!-- Top bar overlay -->
-		<div class="pointer-events-none absolute left-3 right-3 top-3 z-10 flex items-start justify-between">
+		<div
+			class="pointer-events-none absolute left-3 right-3 top-3 z-10 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+		>
 			<!-- Search + Filter (left) -->
-			<div class="pointer-events-auto flex items-center gap-2">
+			<div class="pointer-events-auto flex flex-wrap items-center gap-2">
 				<div class="relative">
 					<svg
 						class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500"
@@ -170,7 +172,7 @@
 						bind:value={searchQuery}
 						oninput={() => updateUrl(searchQuery)}
 						placeholder="Search nodes..."
-						class="w-56 rounded-lg border border-gray-200 bg-white/80 py-1.5 pl-8 pr-8 text-sm text-gray-900 shadow-sm backdrop-blur-sm placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+						class="w-[min(14rem,calc(100vw-7rem))] rounded-lg border border-gray-200 bg-white/80 py-1.5 pl-8 pr-8 text-sm text-gray-900 shadow-sm backdrop-blur-sm placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400 sm:w-56 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
 					/>
 					{#if searchQuery}
 						<button
@@ -208,13 +210,13 @@
 
 			<!-- Tabs (center) -->
 			<div
-				class="pointer-events-auto rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80"
+				class="pointer-events-auto self-start rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm sm:self-auto dark:border-gray-700 dark:bg-gray-900/80"
 			>
 				<ViewTabs activeView="graph" />
 			</div>
 
 			<!-- Controls (right) -->
-			<div class="pointer-events-auto flex items-start gap-2">
+			<div class="pointer-events-auto flex items-start gap-2 self-end sm:self-auto">
 				<button
 					onclick={handlePrint}
 					class="rounded-lg border border-gray-200 bg-white/80 px-2.5 py-2 text-gray-600 shadow-sm backdrop-blur-sm transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -279,10 +281,20 @@
 		</div>
 	</div>
 
+	<!-- Mobile backdrop -->
+	{#if panelOpen && selectedAttrs}
+		<button
+			type="button"
+			class="absolute inset-0 z-20 bg-gray-950/35 md:hidden"
+			aria-label="Close details panel"
+			onclick={closePanel}
+		></button>
+	{/if}
+
 	<!-- Side Panel -->
 	{#if panelOpen && selectedAttrs}
 		<div
-			class="w-80 shrink-0 overflow-y-auto border-l border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900"
+			class="absolute inset-x-0 bottom-0 z-30 max-h-[72vh] overflow-y-auto rounded-t-2xl border border-gray-200 bg-white p-5 shadow-2xl md:relative md:inset-auto md:z-auto md:w-80 md:shrink-0 md:rounded-none md:border-y-0 md:border-r-0 md:border-l dark:border-gray-700 dark:bg-gray-900"
 		>
 			<div class="mb-4 flex items-start justify-between">
 				<h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -411,7 +423,7 @@
 		</div>
 	{:else}
 		<div
-			class="flex w-80 shrink-0 items-center justify-center border-l border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900"
+			class="hidden w-80 shrink-0 items-center justify-center border-l border-gray-200 bg-white p-5 md:flex dark:border-gray-700 dark:bg-gray-900"
 		>
 			<p class="text-sm text-gray-400 dark:text-gray-500">Click a node to see details</p>
 		</div>
