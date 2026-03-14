@@ -20,7 +20,6 @@ Audit settings are defined in `config/harbor.yaml`.
 
 ```yaml
 audit:
-  fail_on: fail
   exclude_community_repos: true
   engines:
     - id: static
@@ -31,7 +30,6 @@ audit:
 
 ### Fields
 
-- `fail_on`: Exit with status `1` when the strongest audit result is at or above this level
 - `exclude_community_repos`: When `true`, only skills from your own org are audited
 - `engines`: Ordered list of audit engines to run
 
@@ -101,6 +99,7 @@ harbor audit --history-id 550e8400-e29b-41d4-a716-446655440000
 - `--history-id`: Attach the audit summary to an existing `collect-history.yaml` entry
 
 `harbor audit` always updates `data/report.yaml`. History is updated only when `--history-id` is provided.
+Audit findings do not change the CLI exit code. Non-zero exit codes are reserved for technical failures such as invalid configuration, engine crashes, or malformed JSON output.
 
 ## Engine Contract
 
@@ -118,7 +117,7 @@ Minimum valid response:
 
 ```json
 {
-	"result": "warn"
+	"result": "info"
 }
 ```
 
@@ -143,13 +142,13 @@ Extended response:
 
 ### Response Fields
 
-- `result`: Required. One of `pass`, `warn`, `fail`
+- `result`: Required. One of `pass`, `info`, `warn`, `fail`
 - `summary`: Optional short explanation
 - `findings`: Optional list of detected issues
 
 ### Finding Fields
 
-- `level`: Optional. One of `warn`, `fail`
+- `level`: Optional. One of `info`, `warn`, `fail`
 - `summary`: Recommended short explanation
 - `file`: Optional relative path within the skill directory
 - `line`: Optional 1-based line number
@@ -172,7 +171,7 @@ Each skill stores:
 
 The overall skill result is derived from stored engine results when needed:
 
-- `fail > warn > pass`
+- `fail > warn > info > pass`
 
 ## Timeout Behavior
 
@@ -198,19 +197,20 @@ These fields are optional in the public engine contract, but the built-in engine
 
 The built-in `static` engine currently groups findings into the following categories.
 
-| Category                 | What it checks                                                  | Typical matches                                                                  | Default level | References                 |
-| ------------------------ | --------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------- | -------------------------- |
-| `instruction_safety`     | Attempts to override system/developer instructions              | `ignore previous`, `override system`, `<system>`, `you are now`                  | `warn`        | `2026-ASI01`, `2026-ASI02` |
-| `capability_risk`        | Destructive commands or arbitrary code execution patterns       | `rm -rf`, `eval(`, `exec(`, `child_process`, `os.system`, `subprocess`           | `fail`        | `2026-ASI03`, `2026-ASI05` |
-| `permission_scope`       | Privilege escalation or unsafe permission assumptions           | `sudo`, `chmod 777`, `--privileged`, `as root`                                   | `warn`        | `2026-ASI04`, `2026-ASI05` |
-| `data_handling`          | Access to secrets, credentials, or sensitive local files        | `process.env`, `api_key`, `secret`, `token`, `password`, `.env`, `~/.ssh`        | `warn`        | `2026-ASI06`               |
-| `external_communication` | Outbound communication or data transfer patterns                | `curl`, `wget`, `fetch(`, `https://`, `webhook`                                  | `warn`        | `2026-ASI03`, `2026-ASI09` |
-| `provenance_trust`       | Provenance and supply-chain related references                  | `_from:`, `forked from`, `upstream`, `mirror`                                    | `warn`        | `2026-ASI07`, `2026-ASI09` |
-| `transparency`           | Instructions that hide actions or skip user confirmation        | `do not tell`, `hide this`, `silently`, `without asking`, `without confirmation` | `warn`        | `2026-ASI10`               |
-| `resource_abuse`         | Patterns likely to cause runaway retries or resource exhaustion | `while true`, `infinite loop`, `fork bomb`, `retry forever`, `until it works`    | `warn`        | `2026-ASI08`               |
+| Category                 | What it checks                                                  | Typical matches                                                                     | Default level            | References                 |
+| ------------------------ | --------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------ | -------------------------- |
+| `instruction_safety`     | Attempts to override system/developer instructions              | `ignore previous`, `override system`, `<system>`, `you are now`                     | `warn`                   | `2026-ASI01`, `2026-ASI02` |
+| `capability_risk`        | Destructive commands or code execution signals                  | `rm -rf`, `eval(`, `exec(`, `execSync(`, `child_process`, `os.system`, `subprocess` | `info` / `warn` / `fail` | `2026-ASI03`, `2026-ASI05` |
+| `permission_scope`       | Privilege escalation or unsafe permission assumptions           | `sudo`, `chmod 777`, `--privileged`, `as root`                                      | `info`                   | `2026-ASI04`, `2026-ASI05` |
+| `data_handling`          | Access to secrets, credentials, or sensitive local files        | `process.env`, `api_key`, `secret`, `token`, `password`, `.env`, `~/.ssh`           | `info`                   | `2026-ASI06`               |
+| `external_communication` | Outbound communication or data transfer patterns                | `curl`, `wget`, `fetch(`, `https://`, `webhook`                                     | `info`                   | `2026-ASI03`, `2026-ASI09` |
+| `provenance_trust`       | Provenance and supply-chain related references                  | `_from:`, `forked from`, `upstream`, `mirror`                                       | `info`                   | `2026-ASI07`, `2026-ASI09` |
+| `transparency`           | Instructions that hide actions or skip user confirmation        | `do not tell`, `hide this`, `silently`, `without asking`, `without confirmation`    | `warn`                   | `2026-ASI10`               |
+| `resource_abuse`         | Patterns likely to cause runaway retries or resource exhaustion | `while true`, `infinite loop`, `fork bomb`, `retry forever`, `until it works`       | `warn`                   | `2026-ASI08`               |
 
 Notes:
 
 - These are simple pattern-based checks against cached Markdown files, not full semantic analysis.
 - A finding is emitted per matching line, so one file can produce multiple findings in the same category.
-- The built-in result becomes `fail` if any finding is `fail`; otherwise it becomes `warn` when at least one finding exists.
+- The built-in result becomes `fail` if any finding is `fail`, `warn` if no fail exists but at least one `warn` exists, `info` if findings are present but all are low-confidence signals, and `pass` if nothing matches.
+- The built-in engine intentionally keeps weak lexical matches such as comments, sample code, `process.env`, or external URLs at `info` unless stronger context is detected.

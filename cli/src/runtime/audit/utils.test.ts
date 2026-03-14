@@ -12,7 +12,7 @@ test('loadAuditSettings preserves an explicit empty engine list', () => {
 	mkdirSync(configDir, { recursive: true });
 	writeFileSync(
 		join(configDir, 'harbor.yaml'),
-		['audit:', '  fail_on: fail', '  exclude_community_repos: true', '  engines: []', ''].join('\n'),
+		['audit:', '  exclude_community_repos: true', '  engines: []', ''].join('\n'),
 	);
 
 	const settings = loadAuditSettings(root);
@@ -22,7 +22,6 @@ test('loadAuditSettings preserves an explicit empty engine list', () => {
 
 test('resolveAuditEngines applies the default timeout to user-defined engines', () => {
 	const settings = {
-		fail_on: 'fail' as const,
 		exclude_community_repos: true,
 		engines: [{ id: 'company-policy', command: ['python3', 'scripts/audit.py'] }],
 	};
@@ -33,7 +32,6 @@ test('resolveAuditEngines applies the default timeout to user-defined engines', 
 
 test('resolveAuditEngines rejects timeout values above the maximum', () => {
 	const settings = {
-		fail_on: 'fail' as const,
 		exclude_community_repos: true,
 		engines: [
 			{

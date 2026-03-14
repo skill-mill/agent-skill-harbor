@@ -1,7 +1,7 @@
-export type AuditResultValue = 'pass' | 'warn' | 'fail';
+export type AuditResultValue = 'pass' | 'info' | 'warn' | 'fail';
 
 export interface AuditFinding {
-	level?: 'warn' | 'fail';
+	level?: 'info' | 'warn' | 'fail';
 	summary: string;
 	file?: string;
 	line?: number;
@@ -26,6 +26,7 @@ export interface AuditResultsYaml {
 
 export interface AuditResultCounts {
 	pass: number;
+	info: number;
 	warn: number;
 	fail: number;
 }
@@ -66,7 +67,6 @@ export interface AuditEngineConfig {
 }
 
 export interface AuditSettingsConfig {
-	fail_on: AuditResultValue;
 	exclude_community_repos: boolean;
 	engines: AuditEngineConfig[];
 }

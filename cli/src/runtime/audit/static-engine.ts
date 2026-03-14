@@ -4,7 +4,7 @@ import type { AuditEngineResult, AuditFinding, AuditResultValue } from './types.
 
 interface StaticRule {
 	pattern: RegExp;
-	level: 'warn' | 'fail';
+	level: 'info' | 'warn' | 'fail';
 	summary: string;
 	category: string;
 	references: string[];
@@ -19,36 +19,36 @@ const STATIC_RULES: StaticRule[] = [
 		references: ['2026-ASI01', '2026-ASI02'],
 	},
 	{
-		pattern: /\b(rm -rf|eval\(|exec\(|child_process|os\.system|subprocess)\b/i,
-		level: 'fail',
-		summary: 'Potentially dangerous code execution pattern detected.',
+		pattern: /\b(rm\s+-rf|eval\(|exec\(|execsync\(|child_process|os\.system|subprocess)\b/i,
+		level: 'info',
+		summary: 'Potentially sensitive code execution pattern detected.',
 		category: 'capability_risk',
 		references: ['2026-ASI03', '2026-ASI05'],
 	},
 	{
 		pattern: /\b(sudo|chmod 777|--privileged|as root)\b/i,
-		level: 'warn',
+		level: 'info',
 		summary: 'Elevated privilege or unsafe permission pattern detected.',
 		category: 'permission_scope',
 		references: ['2026-ASI04', '2026-ASI05'],
 	},
 	{
 		pattern: /\b(process\.env|api[_-]?key|secret|token|password|private key|\.env|~\/\.ssh)\b/i,
-		level: 'warn',
+		level: 'info',
 		summary: 'Sensitive data access or disclosure pattern detected.',
 		category: 'data_handling',
 		references: ['2026-ASI06'],
 	},
 	{
 		pattern: /\b(curl|wget|fetch\(|https?:\/\/|webhook)\b/i,
-		level: 'warn',
+		level: 'info',
 		summary: 'External communication pattern detected.',
 		category: 'external_communication',
 		references: ['2026-ASI03', '2026-ASI09'],
 	},
 	{
 		pattern: /\b(_from:|forked from|upstream|mirror)\b/i,
-		level: 'warn',
+		level: 'info',
 		summary: 'Supply-chain or provenance-related reference detected.',
 		category: 'provenance_trust',
 		references: ['2026-ASI07', '2026-ASI09'],
@@ -69,6 +69,47 @@ const STATIC_RULES: StaticRule[] = [
 	},
 ];
 
+const DANGEROUS_RM_RF_PATTERN = /\brm\s+-rf\s+([^\s`"')\]}]+)/i;
+const SAFE_CLEAN_TARGET_PATTERN = /^(dist|build|coverage|out|target|\.cache|\.next|node_modules|tmp|temp)(?:[\\/]|$)/i;
+
+function classifyCommentPrefix(line: string): boolean {
+	const trimmed = line.trimStart();
+	return (
+		trimmed.startsWith('//') ||
+		trimmed.startsWith('#') ||
+		trimmed.startsWith('*') ||
+		trimmed.startsWith('<!--') ||
+		trimmed.startsWith('--')
+	);
+}
+
+function adjustStaticRuleLevel(rule: StaticRule, line: string, inCodeBlock: boolean): StaticRule['level'] {
+	if (rule.category !== 'capability_risk') {
+		return inCodeBlock && rule.level === 'warn' ? 'info' : rule.level;
+	}
+
+	const trimmed = line.trim();
+	const isCommentLike = classifyCommentPrefix(line);
+	const rmMatch = line.match(DANGEROUS_RM_RF_PATTERN);
+
+	if (rmMatch) {
+		const target = rmMatch[1].replace(/^['"`]/, '').replace(/['"`]$/, '');
+		if (/^(\/|\$HOME|~\/|~$)/.test(target) && !SAFE_CLEAN_TARGET_PATTERN.test(target.replace(/^\/+/, ''))) {
+			return 'fail';
+		}
+		if (SAFE_CLEAN_TARGET_PATTERN.test(target.replace(/^\/+/, ''))) {
+			return 'info';
+		}
+		return inCodeBlock || isCommentLike ? 'info' : 'warn';
+	}
+
+	if (/\b(eval\(|exec\(|execsync\(|child_process|os\.system|subprocess)\b/i.test(trimmed)) {
+		return inCodeBlock || isCommentLike ? 'info' : 'warn';
+	}
+
+	return rule.level;
+}
+
 function collectMarkdownFiles(dir: string): string[] {
 	const files: string[] = [];
 	for (const entry of readdirSync(dir)) {
@@ -85,7 +126,8 @@ function collectMarkdownFiles(dir: string): string[] {
 
 function deriveResult(findings: AuditFinding[]): AuditResultValue {
 	if (findings.some((finding) => finding.level === 'fail')) return 'fail';
-	if (findings.length > 0) return 'warn';
+	if (findings.some((finding) => finding.level === 'warn')) return 'warn';
+	if (findings.some((finding) => finding.level === 'info')) return 'info';
 	return 'pass';
 }
 
@@ -112,11 +154,16 @@ export function analyzeStaticSkill(projectRoot: string, skillKey: string): Audit
 	for (const filePath of markdownFiles) {
 		const relPath = relative(skillDir, filePath) || 'SKILL.md';
 		const lines = readFileSync(filePath, 'utf-8').split(/\r?\n/);
+		let inCodeBlock = false;
 		for (const [index, line] of lines.entries()) {
+			if (line.trimStart().startsWith('```')) {
+				inCodeBlock = !inCodeBlock;
+			}
 			for (const rule of STATIC_RULES) {
 				if (!rule.pattern.test(line)) continue;
+				const level = adjustStaticRuleLevel(rule, line, inCodeBlock);
 				findings.push({
-					level: rule.level,
+					level,
 					summary: rule.summary,
 					file: relPath,
 					line: index + 1,
@@ -135,7 +182,7 @@ export function analyzeStaticSkill(projectRoot: string, skillKey: string): Audit
 			}
 		: {
 				result,
-				summary: `${findings.length} potential issue(s) detected by the static audit engine.`,
+				summary: `${findings.length} potential signal(s) detected by the static audit engine.`,
 				findings,
 			};
 }

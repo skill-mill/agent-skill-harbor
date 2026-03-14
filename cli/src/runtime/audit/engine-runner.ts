@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import type { AuditEngineConfig, AuditEngineResult, AuditFinding, AuditResultValue } from './types.js';
 import { analyzeStaticSkill } from './static-engine.js';
 
-const RESULT_VALUES: AuditResultValue[] = ['pass', 'warn', 'fail'];
+const RESULT_VALUES: AuditResultValue[] = ['pass', 'info', 'warn', 'fail'];
 
 function isResultValue(value: unknown): value is AuditResultValue {
 	return typeof value === 'string' && RESULT_VALUES.includes(value as AuditResultValue);
@@ -17,7 +17,7 @@ function sanitizeFinding(value: unknown): AuditFinding | null {
 		summary: raw.summary,
 	};
 
-	if (raw.level === 'warn' || raw.level === 'fail') finding.level = raw.level;
+	if (raw.level === 'info' || raw.level === 'warn' || raw.level === 'fail') finding.level = raw.level;
 	if (typeof raw.file === 'string' && raw.file.length > 0) finding.file = raw.file;
 	if (typeof raw.line === 'number' && Number.isInteger(raw.line) && raw.line > 0) finding.line = raw.line;
 	if (typeof raw.category === 'string' && raw.category.length > 0) finding.category = raw.category;
@@ -35,7 +35,7 @@ function parseEngineOutput(stdout: string): AuditEngineResult {
 	}
 	const parsed = JSON.parse(stdout) as Record<string, unknown>;
 	if (!isResultValue(parsed.result)) {
-		throw new Error('Engine result must include result: pass | warn | fail.');
+		throw new Error('Engine result must include result: pass | info | warn | fail.');
 	}
 
 	const result: AuditEngineResult = {

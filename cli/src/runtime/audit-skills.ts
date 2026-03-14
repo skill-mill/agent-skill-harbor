@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { compareAuditResults, loadAuditSettings, parseCliArgs } from './audit/utils.js';
+import { parseCliArgs } from './audit/utils.js';
 import { runAudit } from './audit/run-audit.js';
 import { updateCollectHistoryEntry } from './collect-history.js';
 
@@ -8,7 +8,6 @@ const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, 
 
 export function runAuditSkillsCli(argv: string[] = process.argv.slice(2)): void {
 	const cliArgs = parseCliArgs(argv);
-	const settings = loadAuditSettings(PROJECT_ROOT);
 	const summary = runAudit({
 		projectRoot: PROJECT_ROOT,
 		force: cliArgs.force,
@@ -24,10 +23,6 @@ export function runAuditSkillsCli(argv: string[] = process.argv.slice(2)): void 
 				...(summary.report ? { report: summary.report } : {}),
 			};
 		});
-	}
-
-	if (compareAuditResults(summary.overall, settings.fail_on) >= 0) {
-		process.exit(1);
 	}
 }
 

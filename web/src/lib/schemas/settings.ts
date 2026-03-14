@@ -23,7 +23,6 @@ const auditEngineSchema = z.object({
 });
 
 const auditSchema = z.object({
-	fail_on: z.enum(['pass', 'warn', 'fail']).default('fail'),
 	exclude_community_repos: z.boolean().default(true),
 	engines: z.array(auditEngineSchema).default([{ id: 'static' }]),
 });

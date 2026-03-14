@@ -24,14 +24,12 @@ interface CatalogYaml {
 
 type RawSettings = {
 	audit?: {
-		fail_on?: AuditResultValue;
 		exclude_community_repos?: boolean;
 		engines?: AuditEngineConfig[];
 	};
 };
 
 const DEFAULT_AUDIT_SETTINGS: AuditSettingsConfig = {
-	fail_on: 'fail',
 	exclude_community_repos: true,
 	engines: [{ id: 'static' }],
 };
@@ -80,7 +78,6 @@ export function loadAuditSettings(projectRoot: string): AuditSettingsConfig {
 		const raw = yamlLoad(readFileSync(settingsPath, 'utf-8')) as RawSettings | null;
 		const audit = raw?.audit;
 		return {
-			fail_on: audit?.fail_on ?? DEFAULT_AUDIT_SETTINGS.fail_on,
 			exclude_community_repos: audit?.exclude_community_repos ?? DEFAULT_AUDIT_SETTINGS.exclude_community_repos,
 			engines: audit?.engines ?? DEFAULT_AUDIT_SETTINGS.engines,
 		};
@@ -194,6 +191,6 @@ export function filterAuditSkills(
 }
 
 export function compareAuditResults(a: AuditResultValue, b: AuditResultValue): number {
-	const rank: Record<AuditResultValue, number> = { pass: 0, warn: 1, fail: 2 };
+	const rank: Record<AuditResultValue, number> = { pass: 0, info: 1, warn: 2, fail: 3 };
 	return rank[a] - rank[b];
 }

@@ -26,9 +26,7 @@ test('runAudit reports processed and skipped counts by ownership bucket', () => 
 
 		writeFileSync(
 			join(root, 'config', 'harbor.yaml'),
-			['audit:', '  fail_on: fail', '  exclude_community_repos: false', '  engines:', '    - id: static', ''].join(
-				'\n',
-			),
+			['audit:', '  exclude_community_repos: false', '  engines:', '    - id: static', ''].join('\n'),
 		);
 
 		const repositories = {
@@ -97,7 +95,7 @@ test('runAudit reports processed and skipped counts by ownership bucket', () => 
 		assert.equal(summary.processed, 2);
 		assert.equal(summary.skipped, 1);
 		assert.equal(summary.report?.org.processed.pass, 1);
-		assert.equal(summary.report?.org.processed.fail, 1);
+		assert.equal(summary.report?.org.processed.info, 1);
 		assert.equal(summary.report?.community.skipped.warn, 1);
 	} finally {
 		if (previousRoot === undefined) delete process.env.SKILL_HARBOR_ROOT;

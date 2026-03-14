@@ -61,12 +61,12 @@ export interface CollectionEntry {
 	};
 	report?: {
 		org: {
-			processed: { pass: number; warn: number; fail: number };
-			skipped: { pass: number; warn: number; fail: number };
+			processed: { pass: number; info: number; warn: number; fail: number };
+			skipped: { pass: number; info: number; warn: number; fail: number };
 		};
 		community: {
-			processed: { pass: number; warn: number; fail: number };
-			skipped: { pass: number; warn: number; fail: number };
+			processed: { pass: number; info: number; warn: number; fail: number };
+			skipped: { pass: number; info: number; warn: number; fail: number };
 		};
 	};
 }

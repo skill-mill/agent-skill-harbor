@@ -20,11 +20,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 4, warn: 1, fail: 1 }
-      skipped: { pass: 23, warn: 7, fail: 2 }
+      processed: { pass: 4, info: 1, warn: 0, fail: 1 }
+      skipped: { pass: 23, info: 5, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: 8a4d7cf1-3b6c-4994-8f7c-ef6e16719d02
   collecting:
     collected_at: '2026-03-11T20:40:24.115Z'
@@ -39,11 +39,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 8, warn: 3, fail: 1 }
-      skipped: { pass: 18, warn: 6, fail: 2 }
+      processed: { pass: 8, info: 2, warn: 1, fail: 1 }
+      skipped: { pass: 18, info: 4, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: f57d9835-bcf7-4f67-bc58-8b6c89e7e503
   collecting:
     collected_at: '2026-03-10T18:30:12.000Z'
@@ -58,11 +58,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 6, warn: 2, fail: 1 }
-      skipped: { pass: 20, warn: 6, fail: 2 }
+      processed: { pass: 6, info: 1, warn: 1, fail: 1 }
+      skipped: { pass: 20, info: 4, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: 1b0fb577-8a71-4ec4-9b45-77c62fd78504
   collecting:
     collected_at: '2026-03-09T15:22:45.000Z'
@@ -77,11 +77,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 5, warn: 2, fail: 1 }
-      skipped: { pass: 20, warn: 6, fail: 2 }
+      processed: { pass: 5, info: 1, warn: 1, fail: 1 }
+      skipped: { pass: 20, info: 4, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: 6f2b812b-b68c-4148-b5ac-7d70d9d8c405
   collecting:
     collected_at: '2026-03-08T12:10:30.000Z'
@@ -96,11 +96,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 5, warn: 1, fail: 1 }
-      skipped: { pass: 19, warn: 6, fail: 2 }
+      processed: { pass: 5, info: 1, warn: 0, fail: 1 }
+      skipped: { pass: 19, info: 4, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: c4ae20c0-6fc4-4d64-8c0c-f08db1f95506
   collecting:
     collected_at: '2026-03-07T09:55:18.000Z'
@@ -115,11 +115,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 4, warn: 2, fail: 1 }
-      skipped: { pass: 18, warn: 6, fail: 2 }
+      processed: { pass: 4, info: 1, warn: 1, fail: 1 }
+      skipped: { pass: 18, info: 4, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: 9dbd4ab4-c77a-49b3-955f-b38685d37d07
   collecting:
     collected_at: '2026-03-06T14:42:05.000Z'
@@ -134,11 +134,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 4, warn: 1, fail: 1 }
-      skipped: { pass: 17, warn: 5, fail: 2 }
+      processed: { pass: 4, info: 1, warn: 0, fail: 1 }
+      skipped: { pass: 17, info: 3, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: 4dd63555-25a9-4ae0-9d61-b08410d39908
   collecting:
     collected_at: '2026-03-05T11:30:00.000Z'
@@ -153,11 +153,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 3, warn: 1, fail: 1 }
-      skipped: { pass: 17, warn: 4, fail: 2 }
+      processed: { pass: 3, info: 1, warn: 0, fail: 1 }
+      skipped: { pass: 17, info: 2, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: e43d70c8-63e5-499a-bb26-8f2ff4ea8609
   collecting:
     collected_at: '2026-03-04T16:15:33.000Z'
@@ -172,11 +172,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 3, warn: 1, fail: 1 }
-      skipped: { pass: 15, warn: 4, fail: 2 }
+      processed: { pass: 3, info: 1, warn: 0, fail: 1 }
+      skipped: { pass: 15, info: 2, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - id: 54a36fb9-6ead-4517-87ce-1be65d8fbc10
   collecting:
     collected_at: '2026-03-03T08:45:20.000Z'
@@ -191,11 +191,11 @@
     skipped: false
   report:
     org:
-      processed: { pass: 3, warn: 1, fail: 1 }
-      skipped: { pass: 14, warn: 4, fail: 2 }
+      processed: { pass: 3, info: 1, warn: 0, fail: 1 }
+      skipped: { pass: 14, info: 2, warn: 2, fail: 2 }
     community:
-      processed: { pass: 0, warn: 0, fail: 0 }
-      skipped: { pass: 0, warn: 0, fail: 0 }
+      processed: { pass: 0, info: 0, warn: 0, fail: 0 }
+      skipped: { pass: 0, info: 0, warn: 0, fail: 0 }
 - collecting:
     collected_at: '2026-03-02T19:20:10.000Z'
     duration_sec: 540

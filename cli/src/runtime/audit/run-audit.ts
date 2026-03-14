@@ -22,7 +22,7 @@ import type {
 } from './types.js';
 
 function emptyCounts(): AuditResultCounts {
-	return { pass: 0, warn: 0, fail: 0 };
+	return { pass: 0, info: 0, warn: 0, fail: 0 };
 }
 
 function emptyBucket(): AuditHistoryReportBucket {
@@ -83,7 +83,6 @@ export function runAudit(options: RunAuditOptions): AuditRunSummary {
 		};
 		if (log) {
 			console.log('Audit settings:');
-			console.log(`  fail_on: ${settings.fail_on}`);
 			console.log(`  exclude_community_repos: ${settings.exclude_community_repos}`);
 			console.log(`  force: ${options.force ?? false}`);
 			console.log(`  timeout: default=${DEFAULT_ENGINE_TIMEOUT_SEC}s, max=${MAX_ENGINE_TIMEOUT_SEC}s`);
@@ -114,7 +113,6 @@ export function runAudit(options: RunAuditOptions): AuditRunSummary {
 
 	if (log) {
 		console.log('Audit settings:');
-		console.log(`  fail_on: ${settings.fail_on}`);
 		console.log(`  exclude_community_repos: ${settings.exclude_community_repos}`);
 		console.log(`  force: ${options.force ?? false}`);
 		console.log(`  timeout: default=${DEFAULT_ENGINE_TIMEOUT_SEC}s, max=${MAX_ENGINE_TIMEOUT_SEC}s`);
@@ -183,9 +181,11 @@ export function runAudit(options: RunAuditOptions): AuditRunSummary {
 		console.log(`  skipped: ${skippedCount}`);
 		console.log(`  processed: ${processedCount}`);
 		console.log(`  processed.pass: ${processedCounts.pass}`);
+		console.log(`  processed.info: ${processedCounts.info}`);
 		console.log(`  processed.warn: ${processedCounts.warn}`);
 		console.log(`  processed.fail: ${processedCounts.fail}`);
 		console.log(`  skipped.pass: ${skippedCounts.pass}`);
+		console.log(`  skipped.info: ${skippedCounts.info}`);
 		console.log(`  skipped.warn: ${skippedCounts.warn}`);
 		console.log(`  skipped.fail: ${skippedCounts.fail}`);
 		console.log(`  duration_ms: ${durationMs}`);
@@ -207,6 +207,7 @@ export function runAudit(options: RunAuditOptions): AuditRunSummary {
 function addCounts(a: AuditResultCounts, b: AuditResultCounts): AuditResultCounts {
 	return {
 		pass: a.pass + b.pass,
+		info: a.info + b.info,
 		warn: a.warn + b.warn,
 		fail: a.fail + b.fail,
 	};

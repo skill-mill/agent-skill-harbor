@@ -209,21 +209,26 @@
 		return {
 			processed: {
 				pass: entry.report.org.processed.pass + entry.report.community.processed.pass,
+				info: entry.report.org.processed.info + entry.report.community.processed.info,
 				warn: entry.report.org.processed.warn + entry.report.community.processed.warn,
 				fail: entry.report.org.processed.fail + entry.report.community.processed.fail,
 			},
 			skipped: {
 				pass: entry.report.org.skipped.pass + entry.report.community.skipped.pass,
+				info: entry.report.org.skipped.info + entry.report.community.skipped.info,
 				warn: entry.report.org.skipped.warn + entry.report.community.skipped.warn,
 				fail: entry.report.org.skipped.fail + entry.report.community.skipped.fail,
 			},
 		};
 	}
 
-	function formatAuditCounts(label: string, counts: { pass: number; warn: number; fail: number }): string {
-		const total = counts.pass + counts.warn + counts.fail;
+	function formatAuditCounts(
+		label: string,
+		counts: { pass: number; info: number; warn: number; fail: number },
+	): string {
+		const total = counts.pass + counts.info + counts.warn + counts.fail;
 		if (total === 0) return `${label}: 0`;
-		return `${label}: P${counts.pass} W${counts.warn} F${counts.fail}`;
+		return `${label}: P${counts.pass} I${counts.info} W${counts.warn} F${counts.fail}`;
 	}
 </script>
 
