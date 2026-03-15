@@ -9,6 +9,7 @@
 	import GithubSlugger from 'github-slugger';
 	import { marked } from 'marked';
 	import DOMPurify from 'isomorphic-dompurify';
+	import { getResolvedFrom, getResolvedFromUrl } from '$lib/utils/resolved-from';
 
 	interface Props {
 		data: { skill: FlatSkillEntry; allSkills: FlatSkillEntry[]; body: string; freshPeriodDays: number };
@@ -117,18 +118,8 @@
 	let metadata = $derived((skill.frontmatter.metadata ?? {}) as Record<string, unknown>);
 	let formatDate = (iso: string) =>
 		new Date(iso).toLocaleDateString($locale, { year: 'numeric', month: 'short', day: 'numeric' });
-	let fromRef = $derived.by(() => {
-		const raw = skill.frontmatter._from;
-		if (typeof raw === 'string') return raw;
-		if (Array.isArray(raw) && raw.length > 0) return String(raw[raw.length - 1]);
-		return null;
-	});
-	let fromUrl = $derived.by(() => {
-		if (!fromRef) return null;
-		const match = fromRef.match(/^([^/]+\/[^@]+)@(.+)$/);
-		if (!match) return null;
-		return `https://github.com/${match[1]}/tree/${match[2]}`;
-	});
+	let fromRef = $derived.by(() => getResolvedFrom(skill));
+	let fromUrl = $derived.by(() => getResolvedFromUrl(skill));
 
 	let isPublic = $derived(skill.visibility === 'public');
 

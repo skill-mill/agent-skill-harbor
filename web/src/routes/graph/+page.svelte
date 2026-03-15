@@ -9,6 +9,7 @@
 	import { t } from '$lib/i18n';
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import type { GraphNodeAttrs, SkillNodeAttrs, RepoNodeAttrs } from '$lib/utils/graph';
+	import { getResolvedFromRepoLabel } from '$lib/utils/resolved-from';
 
 	interface Props {
 		data: { skills: FlatSkillEntry[] };
@@ -92,14 +93,7 @@
 			selected.nodeType === 'repo' &&
 			!skills.some((skill) => {
 				const ownerRepo = `${skill.owner}/${skill.repo}`;
-				const fromRaw = skill.frontmatter._from;
-				const fromStr = (
-					typeof fromRaw === 'string'
-						? fromRaw
-						: Array.isArray(fromRaw) && fromRaw.length > 0
-							? String(fromRaw[fromRaw.length - 1])
-							: ''
-				).replace(/@.*$/, '');
+				const fromStr = getResolvedFromRepoLabel(skill);
 				return ownerRepo === selected.label || fromStr === selected.label;
 			})
 		) {
@@ -123,14 +117,7 @@
 		const repoLabel = selectedAttrs.label;
 		return data.skills.filter((s) => {
 			const ownerRepo = `${s.owner}/${s.repo}`;
-			const fromRaw = s.frontmatter._from;
-			const fromStr = (
-				typeof fromRaw === 'string'
-					? fromRaw
-					: Array.isArray(fromRaw) && fromRaw.length > 0
-						? String(fromRaw[fromRaw.length - 1])
-						: ''
-			).replace(/@.*$/, '');
+			const fromStr = getResolvedFromRepoLabel(s);
 			return ownerRepo === repoLabel || fromStr === repoLabel;
 		});
 	});

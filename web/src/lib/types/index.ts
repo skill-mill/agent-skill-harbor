@@ -11,6 +11,7 @@ export interface CatalogSkillEntry {
 	updated_at?: string;
 	registered_at?: string;
 	frontmatter: Record<string, unknown>;
+	resolved_from?: string;
 }
 
 export interface RepositoryEntry {
@@ -90,4 +91,5 @@ export interface FlatSkillEntry {
 	repo_sha?: string;
 	tree_sha?: string | null;
 	is_fork?: boolean;
+	resolved_from?: string;
 }

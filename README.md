@@ -106,13 +106,18 @@ my-skill-harbor/
 
 ## Skill Provenance Tracking
 
-Using [agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) to install and manage skills automatically records the `_from` history in SKILL.md frontmatter, enabling your organization to trace the origin of every skill.
+Harbor can trace skill provenance when the downloaded skill includes copy-source metadata.
+
+The primary integration is [agent-skill-porter](https://github.com/skill-mill/agent-skill-porter), which records `_from` in skill frontmatter. Harbor also supports GitHub-based `skills-lock.json` metadata written by [agent-skills](https://github.com/vercel-labs/skills) / `vercel-labs/agent-skills`.
+
+See [Skill Catalog Guide](docs/02-skill-catalog.md) for catalog pages and provenance behavior.
 
 ## Documentation
 
 - [Organization Setup](docs/01-organization-setup.md)
-- [Audit Guide](docs/02-audit.md)
-- [Governance Guide](docs/03-governance-guide.md)
+- [Skill Catalog Guide](docs/02-skill-catalog.md)
+- [Audit Guide](docs/03-audit.md)
+- [Governance Guide](docs/04-governance-guide.md)
 - [Local Development](docs/91-local-development.md)
 - [Release](docs/92-release.md)
 

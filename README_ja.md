@@ -105,13 +105,18 @@ my-skill-harbor/
 
 ## スキルの来歴追跡
 
-[agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) を使ってスキルのインストール・管理を行うと、SKILL.md frontmatter の `_from` 履歴が自動記録され、すべてのスキルの出所を追跡できます。
+Harbor は、ダウンロードしたスキルにコピー元メタデータが含まれていれば、その来歴を追跡できます。
+
+主な連携先は [agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) で、skill frontmatter の `_from` を使って来歴を解決します。加えて、[agent-skills](https://github.com/vercel-labs/skills) / `vercel-labs/agent-skills` が保存する GitHub ベースの `skills-lock.json` にも対応しています。
+
+カタログ画面の構成と来歴追跡の挙動の詳細は [Skill Catalog Guide](docs/02-skill-catalog_ja.md) を参照してください。
 
 ## ドキュメント
 
 - [組織セットアップ](docs/01-organization-setup_ja.md)
-- [Audit ガイド](docs/02-audit_ja.md)
-- [ガバナンスガイド](docs/03-governance-guide_ja.md)
+- [スキル カタログ ガイド](docs/02-skill-catalog_ja.md)
+- [Audit ガイド](docs/03-audit_ja.md)
+- [ガバナンス ガイド](docs/04-governance-guide_ja.md)
 - [ローカル開発](docs/91-local-development_ja.md)
 - [リリース](docs/92-release_ja.md)
 

@@ -32,7 +32,7 @@
 		"format:check": "prettier --check \"bin/**/*.{js,ts,mjs,cjs,mts,cts}\" \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
 		"lint": "eslint --fix bin src",
 		"lint:check": "eslint bin src",
-		"test": "node --import tsx --test src/runtime/audit/*.test.ts",
+		"test": "node --import tsx --test src/runtime/**/*.test.ts",
 		"check": "tsc --noEmit -p tsconfig.json",
 		"verify": "pnpm format:check && pnpm lint:check && pnpm check",
 		"build": "tsup"

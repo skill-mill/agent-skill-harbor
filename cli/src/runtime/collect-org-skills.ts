@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
@@ -10,6 +10,13 @@ import {
 	type CategoryStats,
 	type CollectHistoryEntry,
 } from './collect-history.js';
+import {
+	normalizeResolvedFromFrontmatter,
+	normalizeResolvedFromSkillsLock,
+	parseProjectSkillsLock,
+	resolveSkillLookupName,
+	type ProjectSkillsLockEntry,
+} from './resolved-from.js';
 
 const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..', '..');
 const DATA_DIR = join(PROJECT_ROOT, 'data');
@@ -46,6 +53,7 @@ interface SkillEntry {
 	updated_at?: string;
 	registered_at?: string;
 	frontmatter: Record<string, unknown>;
+	resolved_from?: string;
 }
 
 interface RepositoryEntry {
@@ -89,6 +97,11 @@ interface ParsedFromRef {
 	repo: string;
 	repoKey: string;
 	sha: string | null;
+}
+
+interface LoadedProjectSkillsLock {
+	raw: string | null;
+	entries: Map<string, ProjectSkillsLockEntry>;
 }
 
 function loadCatalog(): CatalogYaml {
@@ -331,6 +344,22 @@ async function fetchFileContent(octokit: Octokit, owner: string, repo: string, p
 	return Buffer.from(data.content, 'base64').toString('utf-8');
 }
 
+async function fetchOptionalFileContent(
+	octokit: Octokit,
+	owner: string,
+	repo: string,
+	path: string,
+): Promise<string | null> {
+	try {
+		return await fetchFileContent(octokit, owner, repo, path);
+	} catch (error) {
+		if (error && typeof error === 'object' && 'status' in error && (error as { status: number }).status === 404) {
+			return null;
+		}
+		throw error;
+	}
+}
+
 function normalizeRepoKey(platform: string, owner: string, repo: string): string {
 	return `${platform}/${owner}/${repo}`;
 }
@@ -365,6 +394,40 @@ function collectFromRefsFromFrontmatter(
 	if (seenRepoKeys.has(parsed.repoKey) || queuedRepoKeys.has(parsed.repoKey)) return [];
 	queuedRepoKeys.add(parsed.repoKey);
 	return [parsed];
+}
+
+function resolveSkillResolvedFrom(
+	frontmatter: Record<string, unknown>,
+	skillPath: string,
+	lockEntries: Map<string, ProjectSkillsLockEntry>,
+	platform: string,
+): string | null {
+	return (
+		normalizeResolvedFromFrontmatter(frontmatter._from, platform) ??
+		normalizeResolvedFromSkillsLock(resolveSkillLookupName(frontmatter, skillPath), lockEntries, platform)
+	);
+}
+
+async function loadProjectSkillsLock(
+	octokit: Octokit,
+	target: RepoTarget,
+	repoDir: string,
+	fetchRemote: boolean,
+): Promise<LoadedProjectSkillsLock> {
+	const localPath = join(repoDir, 'skills-lock.json');
+	if (!fetchRemote) {
+		if (!existsSync(localPath)) return { raw: null, entries: new Map() };
+		const raw = readFileSync(localPath, 'utf-8');
+		return { raw, entries: parseProjectSkillsLock(raw) };
+	}
+
+	const raw = await fetchOptionalFileContent(octokit, target.owner, target.repo, 'skills-lock.json');
+	if (raw == null) {
+		if (existsSync(localPath)) unlinkSync(localPath);
+		return { raw: null, entries: new Map() };
+	}
+	saveFile(repoDir, 'skills-lock.json', raw);
+	return { raw, entries: parseProjectSkillsLock(raw) };
 }
 
 async function fetchRepoTarget(
@@ -432,6 +495,20 @@ async function collectRepoSkills(
 
 	const repoDir = join(SKILLS_DIR, platform, target.owner, target.repo);
 	if (existingRepo?.repo_sha === headSha) {
+		const needsResolvedFromBackfill = Object.values(existingRepo.skills).some((skill) => !skill.resolved_from);
+		const { entries: cachedLockEntries } = await loadProjectSkillsLock(
+			octokit,
+			target,
+			repoDir,
+			needsResolvedFromBackfill && !existsSync(join(repoDir, 'skills-lock.json')),
+		);
+		if (needsResolvedFromBackfill) {
+			for (const [skillPath, skillEntry] of Object.entries(existingRepo.skills)) {
+				if (skillEntry.resolved_from) continue;
+				const frontmatter = readFrontmatterFromSavedSkill(repoDir, skillPath);
+				skillEntry.resolved_from = resolveSkillResolvedFrom(frontmatter, skillPath, cachedLockEntries, platform) ?? undefined;
+			}
+		}
 		counts.skippedRepoCount++;
 		console.log(`  [skip] ${target.owner}/${target.repo} (repo unchanged)`);
 		if (collectFromRefs) {
@@ -463,6 +540,8 @@ async function collectRepoSkills(
 		discoveredSkills = discoverSkillsFromTree(treeData.tree as TreeEntry[]);
 	}
 
+	const { entries: lockEntries } = await loadProjectSkillsLock(octokit, target, repoDir, true);
+
 	if (discoveredSkills.length === 0) {
 		console.log(`  [skip] ${target.owner}/${target.repo} (no skills found)`);
 		counts.collectedRepoCount++;
@@ -480,11 +559,15 @@ async function collectRepoSkills(
 	for (const skill of discoveredSkills) {
 		const existingSkill = existingRepo?.skills?.[skill.skillPath];
 		if (skill.treeSha && existingSkill?.tree_sha === skill.treeSha) {
+			const frontmatter = readFrontmatterFromSavedSkill(repoDir, skill.skillPath);
+			const resolvedFrom = resolveSkillResolvedFrom(frontmatter, skill.skillPath, lockEntries, platform);
 			newSkills[skill.skillPath] = existingSkill;
+			if (resolvedFrom) {
+				newSkills[skill.skillPath].resolved_from = resolvedFrom;
+			}
 			counts.skippedSkillCount++;
 			console.log(`  [skip] ${target.owner}/${target.repo} -> ${skill.skillPath} (tree_sha unchanged)`);
 			if (collectFromRefs) {
-				const frontmatter = readFrontmatterFromSavedSkill(repoDir, skill.skillPath);
 				fromRefs.push(...collectFromRefsFromFrontmatter(platform, frontmatter, seenRepoKeys, queuedRepoKeys));
 			}
 			continue;
@@ -511,11 +594,13 @@ async function collectRepoSkills(
 
 		counts.collectedCount++;
 		const now = new Date().toISOString();
+		const resolvedFrom = resolveSkillResolvedFrom(collectedFrontmatter, skill.skillPath, lockEntries, platform);
 		newSkills[skill.skillPath] = {
 			tree_sha: skill.treeSha,
 			updated_at: now,
 			registered_at: existingSkill?.registered_at ?? now,
 			frontmatter: collectedFrontmatter,
+			...(resolvedFrom ? { resolved_from: resolvedFrom } : {}),
 		};
 	}
 

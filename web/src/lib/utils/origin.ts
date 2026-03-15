@@ -1,4 +1,5 @@
 import type { FlatSkillEntry } from '$lib/types';
+import { getResolvedFrom } from '$lib/utils/resolved-from';
 
 /** A row within an OriginGroup — one unique skill name with its origin + derivatives. */
 export interface OriginSkillRow {
@@ -18,13 +19,12 @@ export interface OriginGroup {
 }
 
 /**
- * Parse `_from` value ("owner/repo@sha") into owner and repo.
+ * Parse normalized resolved_from ("github.com/owner/repo@sha") into owner and repo.
  */
 function parseFrom(from: unknown): { owner: string; repo: string } | null {
-	const raw =
-		typeof from === 'string' ? from : Array.isArray(from) && from.length > 0 ? String(from[from.length - 1]) : null;
+	const raw = typeof from === 'string' ? from : null;
 	if (!raw) return null;
-	const match = raw.trim().match(/^([^/\s]+)\/([^@\s]+)(?:@.+)?$/);
+	const match = raw.trim().match(/^[^/\s]+\/([^/\s]+)\/([^@\s]+)(?:@.+)?$/);
 	if (!match) return null;
 	return { owner: match[1], repo: match[2] };
 }
@@ -42,7 +42,7 @@ export function resolveOrigin(skill: FlatSkillEntry, allSkills: FlatSkillEntry[]
 	let current = skill;
 
 	while (true) {
-		const fromRef = parseFrom(current.frontmatter._from);
+		const fromRef = parseFrom(getResolvedFrom(current));
 		if (!fromRef) {
 			return `${current.owner}/${current.repo}`;
 		}

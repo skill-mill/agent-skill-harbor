@@ -1,4 +1,5 @@
 import type { FlatSkillEntry } from '$lib/types';
+import { getResolvedFrom } from '$lib/utils/resolved-from';
 
 export interface SkillNodeAttrs {
 	nodeType: 'skill';
@@ -56,11 +57,11 @@ export function getColors(dark: boolean) {
 	return dark ? COLORS_DARK : COLORS;
 }
 
-function parseFrom(from: unknown): { owner: string; repo: string; sha: string } | null {
+function parseFrom(from: unknown): { owner: string; repo: string; sha: string | null } | null {
 	if (typeof from !== 'string') return null;
-	const match = from.match(/^([^/]+)\/([^@]+)@(.+)$/);
+	const match = from.match(/^[^/]+\/([^/]+)\/([^@]+)(?:@(.+))?$/);
 	if (!match) return null;
-	return { owner: match[1], repo: match[2], sha: match[3] };
+	return { owner: match[1], repo: match[2], sha: match[3] ?? null };
 }
 
 function repoNodeId(owner: string, repo: string): string {
@@ -83,7 +84,7 @@ export function buildGraphData(skills: FlatSkillEntry[], dark = false): GraphDat
 		const catalogRepo = repoNodeId(skill.owner, skill.repo);
 		repoSkillCounts.set(catalogRepo, (repoSkillCounts.get(catalogRepo) ?? 0) + 1);
 
-		const from = parseFrom(skill.frontmatter._from);
+		const from = parseFrom(getResolvedFrom(skill));
 		if (from) {
 			const sourceRepo = repoNodeId(from.owner, from.repo);
 			if (sourceRepo !== catalogRepo) {
@@ -138,7 +139,7 @@ export function buildGraphData(skills: FlatSkillEntry[], dark = false): GraphDat
 		}
 
 		// derived_from link
-		const from = parseFrom(skill.frontmatter._from);
+		const from = parseFrom(getResolvedFrom(skill));
 		if (from) {
 			const sourceRepo = repoNodeId(from.owner, from.repo);
 			if (sourceRepo !== catalogRepo && repoNodeIds.has(sourceRepo)) {

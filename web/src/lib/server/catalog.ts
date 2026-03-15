@@ -8,6 +8,7 @@ import { env } from '$env/dynamic/private';
 import type { CollectionEntry, FlatSkillEntry, RepoInfo, Visibility } from '$lib/types';
 import { governancePolicySchema, type GovernanceConfig } from '$lib/schemas/governance';
 import { settingsSchema, type SettingsConfig } from '$lib/schemas/settings';
+import { normalizeResolvedFromFrontmatter } from '$lib/utils/resolved-from';
 
 declare const __PROJECT_ROOT__: string;
 
@@ -23,6 +24,7 @@ interface SkillEntry {
 	updated_at?: string;
 	registered_at?: string;
 	frontmatter: Record<string, unknown>;
+	resolved_from?: string;
 }
 
 interface RepositoryEntry {
@@ -229,6 +231,7 @@ function buildCatalogData(): CatalogResult {
 			const fromFs = skillMdMap.get(skillPath);
 			const frontmatter = fromFs?.frontmatter ?? skillData.frontmatter;
 			const body = fromFs?.body ?? '';
+			const resolvedFrom = skillData.resolved_from ?? normalizeResolvedFromFrontmatter(frontmatter._from);
 
 			if (body) {
 				bodyMap.set(key, body);
@@ -253,6 +256,7 @@ function buildCatalogData(): CatalogResult {
 				...(repoEntry.repo_sha ? { repo_sha: repoEntry.repo_sha } : {}),
 				tree_sha: skillData.tree_sha ?? null,
 				...(repoEntry.fork ? { is_fork: true } : {}),
+				...(resolvedFrom ? { resolved_from: resolvedFrom } : {}),
 			};
 
 			skills.push(entry);
