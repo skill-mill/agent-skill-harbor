@@ -10,7 +10,6 @@ export interface CatalogSkillEntry {
 	tree_sha: string | null;
 	updated_at?: string;
 	registered_at?: string;
-	frontmatter: Record<string, unknown>;
 	resolved_from?: string;
 }
 

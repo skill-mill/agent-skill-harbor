@@ -52,7 +52,6 @@ interface SkillEntry {
 	tree_sha: string | null;
 	updated_at?: string;
 	registered_at?: string;
-	frontmatter: Record<string, unknown>;
 	resolved_from?: string;
 }
 
@@ -118,7 +117,33 @@ function loadCatalog(): CatalogYaml {
 
 function saveCatalog(catalog: CatalogYaml & { meta?: unknown }): void {
 	const { meta: _meta, ...rest } = catalog;
-	writeFileSync(SKILLS_YAML_PATH, yamlDump(rest, { lineWidth: 120, noRefs: true }));
+	writeFileSync(SKILLS_YAML_PATH, yamlDump(sanitizeCatalogForSave(rest), { lineWidth: 120, noRefs: true }));
+}
+
+export function sanitizeCatalogForSave(catalog: CatalogYaml): CatalogYaml {
+	return {
+		repositories: Object.fromEntries(
+			Object.entries(catalog.repositories).map(([repoKey, repoEntry]) => [
+				repoKey,
+				{
+					visibility: repoEntry.visibility,
+					...(repoEntry.repo_sha ? { repo_sha: repoEntry.repo_sha } : {}),
+					...(repoEntry.fork ? { fork: true } : {}),
+					skills: Object.fromEntries(
+						Object.entries(repoEntry.skills).map(([skillPath, skillEntry]) => [
+							skillPath,
+							{
+								tree_sha: skillEntry.tree_sha,
+								...(skillEntry.updated_at ? { updated_at: skillEntry.updated_at } : {}),
+								...(skillEntry.registered_at ? { registered_at: skillEntry.registered_at } : {}),
+								...(skillEntry.resolved_from ? { resolved_from: skillEntry.resolved_from } : {}),
+							},
+						]),
+					),
+				},
+			]),
+		),
+	};
 }
 
 function countFilesRecursive(dir: string): number {
@@ -599,7 +624,6 @@ async function collectRepoSkills(
 			tree_sha: skill.treeSha,
 			updated_at: now,
 			registered_at: existingSkill?.registered_at ?? now,
-			frontmatter: collectedFrontmatter,
 			...(resolvedFrom ? { resolved_from: resolvedFrom } : {}),
 		};
 	}

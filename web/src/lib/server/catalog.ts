@@ -23,7 +23,6 @@ interface SkillEntry {
 	tree_sha: string | null;
 	updated_at?: string;
 	registered_at?: string;
-	frontmatter: Record<string, unknown>;
 	resolved_from?: string;
 }
 
@@ -227,10 +226,10 @@ function buildCatalogData(): CatalogResult {
 			const key = `${repoKey}/${skillPath}`;
 			const gov = governance[key];
 
-			// Prefer SKILL.md from filesystem; fall back to catalog.yaml frontmatter
 			const fromFs = skillMdMap.get(skillPath);
-			const frontmatter = fromFs?.frontmatter ?? skillData.frontmatter;
-			const body = fromFs?.body ?? '';
+			if (!fromFs) continue;
+			const frontmatter = fromFs.frontmatter;
+			const body = fromFs.body;
 			const resolvedFrom = skillData.resolved_from ?? normalizeResolvedFromFrontmatter(frontmatter._from);
 
 			if (body) {
@@ -247,7 +246,7 @@ function buildCatalogData(): CatalogResult {
 				visibility: repoEntry.visibility as Visibility,
 				isOrgOwned: orgName != null && owner === orgName,
 				frontmatter,
-				files: fromFs?.files ?? [],
+				files: fromFs.files,
 				excerpt: body.slice(0, 300),
 				usage_policy: gov?.usage_policy ?? 'none',
 				...(gov?.note ? { note: gov.note } : {}),
