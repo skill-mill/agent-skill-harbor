@@ -31,6 +31,11 @@
 		"prohibitedTip": "Do not use — blocked by policy",
 		"unclassifiedTip": "Not yet reviewed by governance"
 	},
+	"driftStatus": {
+		"drifted": "Drifted",
+		"inSync": "In Sync",
+		"unknown": "Unknown"
+	},
 	"common": {
 		"visibility": {
 			"public": "Public",
@@ -221,6 +226,7 @@
 		"field": {
 			"owner": "Owner:",
 			"origin": "Origin:",
+			"driftStatus": "Drift:",
 			"repository": "Repository:",
 			"skillPath": "Skill path:",
 			"platform": "Platform:",

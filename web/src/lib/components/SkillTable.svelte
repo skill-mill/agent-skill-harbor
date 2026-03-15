@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
+	import DriftStatusBadge from './DriftStatusBadge.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
@@ -166,7 +167,10 @@
 							{skill.owner}/{skill.repo}
 						</td>
 						<td class="whitespace-nowrap px-4 py-3">
-							<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
+							<div class="flex flex-wrap items-center gap-1.5">
+								<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
+								<DriftStatusBadge status={skill.drift_status} />
+							</div>
 						</td>
 						<td class="hidden whitespace-nowrap px-4 py-3 lg:table-cell">
 							<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {visibilityStyle}">

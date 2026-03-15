@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
+	import DriftStatusBadge from '$lib/components/DriftStatusBadge.svelte';
 	import FileTree from '$lib/components/FileTree.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
@@ -371,6 +372,14 @@
 							{:else}
 								<span class="text-sm font-medium text-gray-900 dark:text-gray-100">{fromRef}</span>
 							{/if}
+						</dd>
+					</div>
+				{/if}
+				{#if skill.drift_status}
+					<div class="flex gap-2">
+						<dt class="text-gray-500 dark:text-gray-400">{$t('detail.field.driftStatus')}</dt>
+						<dd>
+							<DriftStatusBadge status={skill.drift_status} />
 						</dd>
 					</div>
 				{/if}

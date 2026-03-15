@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { sanitizeCatalogForSave } from './collect-org-skills.js';
+import { sanitizeCatalogForSave, updateDriftStatus } from './collect-org-skills.js';
 
 test('sanitizeCatalogForSave strips copied frontmatter from skills.yaml entries', () => {
 	assert.deepEqual(
@@ -16,6 +16,7 @@ test('sanitizeCatalogForSave strips copied frontmatter from skills.yaml entries'
 							updated_at: '2026-03-16T00:00:00.000Z',
 							registered_at: '2026-03-15T00:00:00.000Z',
 							resolved_from: 'github.com/example/origin@abc123',
+							drift_status: 'in_sync',
 							frontmatter: {
 								name: 'tools',
 								description: 'should not be saved',
@@ -25,6 +26,7 @@ test('sanitizeCatalogForSave strips copied frontmatter from skills.yaml entries'
 							updated_at: string;
 							registered_at: string;
 							resolved_from: string;
+							drift_status: 'drifted' | 'in_sync' | 'unknown';
 							frontmatter: Record<string, unknown>;
 						},
 					},
@@ -43,10 +45,130 @@ test('sanitizeCatalogForSave strips copied frontmatter from skills.yaml entries'
 							updated_at: '2026-03-16T00:00:00.000Z',
 							registered_at: '2026-03-15T00:00:00.000Z',
 							resolved_from: 'github.com/example/origin@abc123',
+							drift_status: 'in_sync',
 						},
 					},
 				},
 			},
 		},
+	);
+});
+
+test('updateDriftStatus marks matching origin tree as in_sync', () => {
+	const catalog = {
+		repositories: {
+			'github.com/example/copy': {
+				visibility: 'public',
+				skills: {
+					'skills/tooling/SKILL.md': {
+						tree_sha: 'copy-tree',
+						resolved_from: 'github.com/example/origin@abc123',
+					},
+				},
+			},
+			'github.com/example/origin': {
+				visibility: 'public',
+				skills: {
+					'upstream/tooling/SKILL.md': {
+						tree_sha: 'abc123456789',
+					},
+				},
+			},
+		},
+	};
+
+	updateDriftStatus(catalog, (repoKey, skillPath) => {
+		if (repoKey === 'github.com/example/copy' && skillPath === 'skills/tooling/SKILL.md') {
+			return { name: 'tooling' };
+		}
+		if (repoKey === 'github.com/example/origin' && skillPath === 'upstream/tooling/SKILL.md') {
+			return { name: 'tooling' };
+		}
+		return {};
+	});
+
+	assert.equal(
+		(catalog.repositories['github.com/example/copy'].skills['skills/tooling/SKILL.md'] as { drift_status?: string })
+			.drift_status,
+		'in_sync',
+	);
+});
+
+test('updateDriftStatus marks mismatched origin tree as drifted', () => {
+	const catalog = {
+		repositories: {
+			'github.com/example/copy': {
+				visibility: 'public',
+				skills: {
+					'skills/tooling/SKILL.md': {
+						tree_sha: 'copy-tree',
+						resolved_from: 'github.com/example/origin@abc123',
+					},
+				},
+			},
+			'github.com/example/origin': {
+				visibility: 'public',
+				skills: {
+					'upstream/tooling/SKILL.md': {
+						tree_sha: 'fff999456789',
+					},
+				},
+			},
+		},
+	};
+
+	updateDriftStatus(catalog, () => ({ name: 'tooling' }));
+
+	assert.equal(
+		(catalog.repositories['github.com/example/copy'].skills['skills/tooling/SKILL.md'] as { drift_status?: string })
+			.drift_status,
+		'drifted',
+	);
+});
+
+test('updateDriftStatus marks missing origin sha as unknown', () => {
+	const catalog = {
+		repositories: {
+			'github.com/example/copy': {
+				visibility: 'public',
+				skills: {
+					'skills/tooling/SKILL.md': {
+						tree_sha: 'copy-tree',
+						resolved_from: 'github.com/example/origin',
+					},
+				},
+			},
+		},
+	};
+
+	updateDriftStatus(catalog, () => ({ name: 'tooling' }));
+
+	assert.equal(
+		(catalog.repositories['github.com/example/copy'].skills['skills/tooling/SKILL.md'] as { drift_status?: string })
+			.drift_status,
+		'unknown',
+	);
+});
+
+test('updateDriftStatus clears drift_status when resolved_from is absent', () => {
+	const catalog = {
+		repositories: {
+			'github.com/example/copy': {
+				visibility: 'public',
+				skills: {
+					'skills/tooling/SKILL.md': {
+						tree_sha: 'copy-tree',
+						drift_status: 'unknown' as const,
+					},
+				},
+			},
+		},
+	};
+
+	updateDriftStatus(catalog, () => ({ name: 'tooling' }));
+
+	assert.equal(
+		'drift_status' in catalog.repositories['github.com/example/copy'].skills['skills/tooling/SKILL.md'],
+		false,
 	);
 });

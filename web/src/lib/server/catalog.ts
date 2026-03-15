@@ -24,6 +24,7 @@ interface SkillEntry {
 	updated_at?: string;
 	registered_at?: string;
 	resolved_from?: string;
+	drift_status?: 'drifted' | 'in_sync' | 'unknown';
 }
 
 interface RepositoryEntry {
@@ -256,6 +257,7 @@ function buildCatalogData(): CatalogResult {
 				tree_sha: skillData.tree_sha ?? null,
 				...(repoEntry.fork ? { is_fork: true } : {}),
 				...(resolvedFrom ? { resolved_from: resolvedFrom } : {}),
+				...(skillData.drift_status ? { drift_status: skillData.drift_status } : {}),
 			};
 
 			skills.push(entry);

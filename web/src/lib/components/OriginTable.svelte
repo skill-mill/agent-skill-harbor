@@ -3,6 +3,7 @@
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import type { OriginGroup } from '$lib/utils/origin';
 	import GovernanceBadge from './GovernanceBadge.svelte';
+	import DriftStatusBadge from './DriftStatusBadge.svelte';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
 
@@ -144,6 +145,7 @@
 												</span>
 											{/if}
 											<GovernanceBadge status={row.origin.usage_policy as UsagePolicy} />
+											<DriftStatusBadge status={row.origin.drift_status} />
 										{:else}
 											<span class="text-sm font-medium text-gray-900 dark:text-gray-100">
 												{row.skillName}
@@ -178,6 +180,7 @@
 												</span>
 											{/if}
 											<GovernanceBadge status={derivative.usage_policy as UsagePolicy} />
+											<DriftStatusBadge status={derivative.drift_status} />
 										</div>
 									</td>
 									<td class="px-4 py-1"></td>

@@ -31,6 +31,11 @@
 		"prohibitedTip": "使用禁止 — ポリシーでブロック",
 		"unclassifiedTip": "ガバナンス未レビュー"
 	},
+	"driftStatus": {
+		"drifted": "乖離あり",
+		"inSync": "同期中",
+		"unknown": "不明"
+	},
 	"common": {
 		"visibility": {
 			"public": "パブリック",
@@ -221,6 +226,7 @@
 		"field": {
 			"owner": "オーナー:",
 			"origin": "オリジン:",
+			"driftStatus": "乖離状態:",
 			"repository": "リポジトリ:",
 			"skillPath": "スキルパス:",
 			"platform": "プラットフォーム:",

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
+	import DriftStatusBadge from './DriftStatusBadge.svelte';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
 
@@ -59,6 +60,7 @@
 				</span>
 			{/if}
 			<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
+			<DriftStatusBadge status={skill.drift_status} />
 			<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {visibilityStyle}">
 				{skill.visibility}
 			</span>

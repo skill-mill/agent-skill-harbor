@@ -20,6 +20,19 @@ pnpm collect
 pnpm dev
 ```
 
+上の `pnpm collect` は、`init` で生成された Skill Harbor プロジェクト側のスクリプトです。CLI パッケージのリポジトリ自身で collector を実行する場合は、次のどちらかを使います。
+
+```bash
+pnpm --dir cli build
+node cli/dist/bin/cli.js collect
+```
+
+あるいは、ビルドなしのローカル開発実行なら:
+
+```bash
+node --import tsx bin/cli.ts collect
+```
+
 製品全体の概要やドキュメントは、リポジトリの README を参照してください。
 
 - https://github.com/skill-mill/agent-skill-harbor/blob/main/README_ja.md

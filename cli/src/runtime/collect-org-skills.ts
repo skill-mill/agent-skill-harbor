@@ -53,6 +53,7 @@ interface SkillEntry {
 	updated_at?: string;
 	registered_at?: string;
 	resolved_from?: string;
+	drift_status?: 'drifted' | 'in_sync' | 'unknown';
 }
 
 interface RepositoryEntry {
@@ -98,6 +99,11 @@ interface ParsedFromRef {
 	sha: string | null;
 }
 
+interface ParsedResolvedFrom {
+	repoKey: string;
+	sha: string | null;
+}
+
 interface LoadedProjectSkillsLock {
 	raw: string | null;
 	entries: Map<string, ProjectSkillsLockEntry>;
@@ -137,6 +143,7 @@ export function sanitizeCatalogForSave(catalog: CatalogYaml): CatalogYaml {
 								...(skillEntry.updated_at ? { updated_at: skillEntry.updated_at } : {}),
 								...(skillEntry.registered_at ? { registered_at: skillEntry.registered_at } : {}),
 								...(skillEntry.resolved_from ? { resolved_from: skillEntry.resolved_from } : {}),
+								...(skillEntry.drift_status ? { drift_status: skillEntry.drift_status } : {}),
 							},
 						]),
 					),
@@ -402,6 +409,16 @@ function parseFromRepoRef(platform: string, from: unknown): ParsedFromRef | null
 	};
 }
 
+function parseResolvedFromRef(from: string): ParsedResolvedFrom | null {
+	const trimmed = from.trim();
+	const match = trimmed.match(/^([^/\s]+)\/([^/\s]+)\/([^@\s]+)(?:@(.+))?$/);
+	if (!match) return null;
+	return {
+		repoKey: `${match[1]}/${match[2]}/${match[3]}`,
+		sha: match[4] ?? null,
+	};
+}
+
 function parseGitHubRepoUrl(url: string): { owner: string; repo: string } | null {
 	const match = url.trim().match(/^https?:\/\/github\.com\/([^/]+)\/([^/.]+)\/?$/);
 	if (!match) return null;
@@ -431,6 +448,70 @@ function resolveSkillResolvedFrom(
 		normalizeResolvedFromFrontmatter(frontmatter._from, platform) ??
 		normalizeResolvedFromSkillsLock(resolveSkillLookupName(frontmatter, skillPath), lockEntries, platform)
 	);
+}
+
+function resolveSkillIdentity(frontmatter: Record<string, unknown>, skillPath: string): string | null {
+	return resolveSkillLookupName(frontmatter, skillPath);
+}
+
+export function updateDriftStatus(
+	catalog: CatalogYaml,
+	readFrontmatter: (repoKey: string, skillPath: string) => Record<string, unknown>,
+): void {
+	const skillIdentityCache = new Map<string, string | null>();
+
+	function getSkillIdentity(repoKey: string, skillPath: string): string | null {
+		const cacheKey = `${repoKey}:${skillPath}`;
+		if (skillIdentityCache.has(cacheKey)) {
+			return skillIdentityCache.get(cacheKey) ?? null;
+		}
+		const identity = resolveSkillIdentity(readFrontmatter(repoKey, skillPath), skillPath);
+		skillIdentityCache.set(cacheKey, identity);
+		return identity;
+	}
+
+	for (const [repoKey, repoEntry] of Object.entries(catalog.repositories)) {
+		for (const [skillPath, skillEntry] of Object.entries(repoEntry.skills)) {
+			if (!skillEntry.resolved_from) {
+				delete skillEntry.drift_status;
+				continue;
+			}
+
+			const parsed = parseResolvedFromRef(skillEntry.resolved_from);
+			if (!parsed?.sha) {
+				skillEntry.drift_status = 'unknown';
+				continue;
+			}
+
+			const originRepo = catalog.repositories[parsed.repoKey];
+			if (!originRepo) {
+				skillEntry.drift_status = 'unknown';
+				continue;
+			}
+
+			const identity = getSkillIdentity(repoKey, skillPath);
+			if (!identity) {
+				skillEntry.drift_status = 'unknown';
+				continue;
+			}
+
+			const originMatch = Object.entries(originRepo.skills).find(([originSkillPath]) => {
+				return getSkillIdentity(parsed.repoKey, originSkillPath) === identity;
+			});
+			if (!originMatch) {
+				skillEntry.drift_status = 'unknown';
+				continue;
+			}
+
+			const [, originSkillEntry] = originMatch;
+			if (!originSkillEntry.tree_sha) {
+				skillEntry.drift_status = 'unknown';
+				continue;
+			}
+
+			skillEntry.drift_status = originSkillEntry.tree_sha.startsWith(parsed.sha) ? 'in_sync' : 'drifted';
+		}
+	}
 }
 
 async function loadProjectSkillsLock(
@@ -836,6 +917,11 @@ export async function runCollectOrgSkills(): Promise<void> {
 	const durationSec = Math.round((Date.now() - startTime) / 1000);
 	const totalRepos = repos.length + extraRepoCount + fromRepoCount;
 	const totalSkills = counts.collectedCount + counts.skippedSkillCount;
+
+	updateDriftStatus(catalog, (repoKey, skillPath) => {
+		const repoDir = join(SKILLS_DIR, repoKey);
+		return readFrontmatterFromSavedSkill(repoDir, skillPath);
+	});
 
 	saveCatalog(catalog);
 

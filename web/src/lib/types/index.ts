@@ -11,6 +11,7 @@ export interface CatalogSkillEntry {
 	updated_at?: string;
 	registered_at?: string;
 	resolved_from?: string;
+	drift_status?: 'drifted' | 'in_sync' | 'unknown';
 }
 
 export interface RepositoryEntry {
@@ -91,4 +92,5 @@ export interface FlatSkillEntry {
 	tree_sha?: string | null;
 	is_fork?: boolean;
 	resolved_from?: string;
+	drift_status?: 'drifted' | 'in_sync' | 'unknown';
 }
