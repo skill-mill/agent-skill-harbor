@@ -28,6 +28,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Release artifacts
+agent-skill-harbor-*.tgz
+
 # AI
 AGENTS.md
 CODEX.md
