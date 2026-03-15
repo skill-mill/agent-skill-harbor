@@ -81,9 +81,9 @@ harbor build --base=/my-repo-name
 2. GitHub リポジトリのシークレットを設定 (`GH_TOKEN`)
 3. GitHub Pages を有効化（Settings > Pages > Source: GitHub Actions）
 4. **重要:** Pages の Visibility を **Private** に設定し、Organization メンバーのみにアクセスを制限（GitHub Enterprise Cloud が必要）
-5. `CollectAndAuditSkills` ワークフローを手動トリガーして初回収集を実行
-6. `CollectAndAuditSkills` で `collect` と `audit` が別 step として順に実行されます
-7. `CollectAndAuditSkills` 成功後、デプロイワークフローが自動実行されます
+5. `CollectSkills` ワークフローを手動トリガーして初回収集を実行
+6. `CollectSkills` で `collect` と `audit` が別 step として順に実行されます
+7. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
 
 詳細は [組織セットアップガイド](docs/01-organization-setup_ja.md) を参照してください。
 

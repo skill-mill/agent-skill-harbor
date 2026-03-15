@@ -51,7 +51,7 @@ If your engine needs an additional runtime, prepare it in the environment that r
 
 ### GitHub Actions Example
 
-If you use a Python-based engine in GitHub Actions, add setup steps to `CollectAndAuditSkills` before `npx harbor audit`:
+If you use a Python-based engine in GitHub Actions, add setup steps to `CollectSkills` before `npx harbor audit`:
 
 ```yaml
 - uses: actions/setup-python@v5

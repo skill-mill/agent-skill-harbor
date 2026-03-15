@@ -73,10 +73,10 @@ pnpm dev
 ## ステップ 6: 初回デプロイ
 
 1. リポジトリにプッシュ
-2. **Actions > CollectAndAuditSkills** を開く
+2. **Actions > CollectSkills** を開く
 3. **Run workflow** をクリックして初回収集をトリガー
-4. `CollectAndAuditSkills` で `collect` と `audit` が別 step として順に実行されます
-5. `CollectAndAuditSkills` 成功後、デプロイワークフローが自動実行されます
+4. `CollectSkills` で `collect` と `audit` が別 step として順に実行されます
+5. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
 
 ## ステップ 7: ガバナンスポリシーの設定
 
@@ -119,7 +119,7 @@ Cloudflare Pages プロジェクト設定の環境変数に `CLOUDFLARE_PW_<USER
 
 ### 3. デプロイワークフローの切り替え
 
-`.github/workflows/` 内の `DeployCloudflarePages` で `workflow_run` を有効化し、`DeployGitHubPages` 側は無効化します。どちらのデプロイワークフローも `CollectAndAuditSkills` を起点にし、有効にするデプロイワークフローは1つだけにしてください。
+`.github/workflows/` 内の `DeployCloudflarePages` で `workflow_run` を有効化し、`DeployGitHubPages` 側は無効化します。どちらのデプロイワークフローも `CollectSkills` を起点にし、有効にするデプロイワークフローは1つだけにしてください。
 
 > **注意:** `DeployCloudflarePages` は production のみをデプロイし、手動実行も `main` のみを許可します。
 
@@ -137,7 +137,7 @@ pnpm update agent-skill-harbor
 
 ```
 ┌──────────────────────────────┐
-│  CollectAndAuditSkills        │
+│  CollectSkills                │
 │  - Org リポジトリをスキャン      │
 │  - SKILL.md をパース           │
 │  - YAML を書き出し             │

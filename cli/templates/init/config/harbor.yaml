@@ -9,8 +9,10 @@ collector:
 
 audit:
   exclude_community_repos: true # audit only your org-owned repos by default
-  engines:
-    - id: builtin.static
+  engines: [] # default empty; enable engines explicitly after reviewing your audit policy
+  # builtin.static is still alpha, so keep it opt-in until you are ready to use Harbor audit
+  # engines:
+  #   - id: builtin.static
     # - id: company-policy
     #   command: ["python3", "scripts/company-policy-audit.py"]
     #   timeout_sec: 30 # default 30, max 300

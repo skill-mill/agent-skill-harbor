@@ -1,5 +1,12 @@
 # Changelog
 
+## [cli 0.11.1] / [web 0.10.0] - 2026-03-15
+
+### Changed
+
+- Renamed the init workflow template from `CollectAndAuditSkills` to `CollectSkills` so collection remains the stable entry point as post-collect processing grows
+- Changed the default `audit.engines` scaffold to `[]` and kept `builtin.static` commented out because it is still alpha and should stay opt-in by default
+
 ## [cli 0.11.0] / [web 0.10.0] - 2026-03-15
 
 ### Added

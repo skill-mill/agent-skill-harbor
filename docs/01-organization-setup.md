@@ -73,10 +73,10 @@ pnpm dev
 ## Step 6: Initial Deployment
 
 1. Push to your repository
-2. Go to **Actions > CollectAndAuditSkills**
+2. Go to **Actions > CollectSkills**
 3. Click **Run workflow** to trigger the first collection
-4. `CollectAndAuditSkills` will run `collect` and then `audit` as separate steps
-5. The deploy workflow will run automatically after `CollectAndAuditSkills` succeeds
+4. `CollectSkills` will run `collect` and then `audit` as separate steps
+5. The deploy workflow will run automatically after `CollectSkills` succeeds
 
 ## Step 7: Configure Governance Policies
 
@@ -119,7 +119,7 @@ Set one or more `CLOUDFLARE_PW_<USERNAME>` environment variables in your Cloudfl
 
 ### 3. Switch Deploy Workflow
 
-In `.github/workflows/`, enable `workflow_run` in `DeployCloudflarePages` and disable it in `DeployGitHubPages`. Both deploy workflows should listen to `CollectAndAuditSkills`, and only one deploy workflow should have `workflow_run` enabled at a time.
+In `.github/workflows/`, enable `workflow_run` in `DeployCloudflarePages` and disable it in `DeployGitHubPages`. Both deploy workflows should listen to `CollectSkills`, and only one deploy workflow should have `workflow_run` enabled at a time.
 
 > **Note:** `DeployCloudflarePages` deploys production only and accepts manual runs from `main` only.
 
@@ -137,7 +137,7 @@ Your configuration files (`config/`, `.env`) and data (`data/`) are not affected
 
 ```
 ┌─────────────────────────┐
-│  CollectAndAuditSkills  │
+│  CollectSkills          │
 │  - Scan org repos       │
 │  - Parse SKILL.md       │
 │  - Write YAML           │

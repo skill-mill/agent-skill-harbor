@@ -1,5 +1,12 @@
 # 変更履歴
 
+## [cli 0.11.1] / [web 0.10.0] - 2026-03-15
+
+### 変更
+
+- init workflow template を `CollectAndAuditSkills` から `CollectSkills` に変更し、collect 後の処理が増えても収集を安定した起点として扱えるようにした
+- `audit.engines` の初期 scaffold を `[]` に変更し、`builtin.static` はまだ alpha のため既定では opt-in のコメント例として残すようにした
+
 ## [cli 0.11.0] / [web 0.10.0] - 2026-03-15
 
 ### 追加

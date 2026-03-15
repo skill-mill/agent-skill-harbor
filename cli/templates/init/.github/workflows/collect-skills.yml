@@ -1,4 +1,4 @@
-name: CollectAndAuditSkills
+name: CollectSkills
 
 on:
   # schedule:
@@ -60,7 +60,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update skill catalog and audit report"
+            git commit -m "chore: update skill catalog data"
             git push
           fi
 

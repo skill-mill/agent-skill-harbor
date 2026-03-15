@@ -51,7 +51,7 @@ Harbor は設定された engine のコマンドを実行するだけで、Pytho
 
 ### GitHub Actions の例
 
-GitHub Actions で Python ベースの engine を使う場合は、`npx harbor audit` の前に `CollectAndAuditSkills` workflow でセットアップします。
+GitHub Actions で Python ベースの engine を使う場合は、`npx harbor audit` の前に `CollectSkills` workflow でセットアップします。
 
 ```yaml
 - uses: actions/setup-python@v5

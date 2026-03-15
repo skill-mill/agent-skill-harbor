@@ -82,9 +82,9 @@ harbor build --base=/my-repo-name
 2. Configure GitHub repository secrets (`GH_TOKEN`)
 3. Enable GitHub Pages (Settings > Pages > Source: GitHub Actions)
 4. **Important:** Set Pages visibility to **Private** to restrict access to organization members only (requires GitHub Enterprise Cloud)
-5. Trigger the `CollectAndAuditSkills` workflow for initial collection
-6. `CollectAndAuditSkills` will run `collect` and then `audit` as separate steps
-7. The deploy workflow will run automatically after `CollectAndAuditSkills` succeeds
+5. Trigger the `CollectSkills` workflow for initial collection
+6. `CollectSkills` will run `collect` and then `audit` as separate steps
+7. The deploy workflow will run automatically after `CollectSkills` succeeds
 
 See [Organization Setup Guide](docs/01-organization-setup.md) for detailed instructions.
 
