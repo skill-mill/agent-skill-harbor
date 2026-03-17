@@ -54,6 +54,7 @@ export interface BuiltinPostCollectPlugin extends PostCollectPluginModule {
 
 export interface PostCollectPluginConfig {
 	id: string;
+	short_label?: string;
 }
 
 export interface PostCollectSettings {

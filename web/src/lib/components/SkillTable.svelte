@@ -179,14 +179,6 @@
 						<td class="whitespace-nowrap px-4 py-3">
 							<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
 						</td>
-						{#each pluginFilterOptions as option (option.plugin_id)}
-							{@const pluginLabel = getPluginLabel(skill, option.plugin_id)}
-							<td class="whitespace-nowrap px-4 py-3">
-								{#if pluginLabel}
-									<PluginLabelBadge label={pluginLabel.label} intent={pluginLabel.intent} />
-								{/if}
-							</td>
-						{/each}
 						<td class="hidden whitespace-nowrap px-4 py-3 lg:table-cell">
 							<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {visibilityStyle}">
 								{skill.visibility}
@@ -207,6 +199,14 @@
 								</span>
 							{/if}
 						</td>
+						{#each pluginFilterOptions as option (option.plugin_id)}
+							{@const pluginLabel = getPluginLabel(skill, option.plugin_id)}
+							<td class="whitespace-nowrap px-4 py-3">
+								{#if pluginLabel}
+									<PluginLabelBadge label={pluginLabel.label} intent={pluginLabel.intent} />
+								{/if}
+							</td>
+						{/each}
 					</tr>
 				{/each}
 			</tbody>

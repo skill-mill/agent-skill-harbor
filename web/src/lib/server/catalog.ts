@@ -430,6 +430,7 @@ export function loadLatestPluginOutputs(): PluginOutputEntry[] {
 }
 
 export function loadPluginFilterOptions(): PluginFilterOption[] {
+	const pluginSettings = new Map(loadSettingsConfig().post_collect.plugins.map((plugin) => [plugin.id, plugin]));
 	const labelsByPlugin = new Map<string, Set<string>>();
 	for (const output of loadLatestPluginOutputs()) {
 		const labels = labelsByPlugin.get(output.plugin_id) ?? new Set<string>();
@@ -442,6 +443,13 @@ export function loadPluginFilterOptions(): PluginFilterOption[] {
 		labelsByPlugin.set(output.plugin_id, labels);
 	}
 	return [...labelsByPlugin.entries()]
-		.map(([plugin_id, labels]) => ({ plugin_id, labels: [...labels].sort() }))
+		.map(([plugin_id, labels]) => {
+			const shortLabel = pluginSettings.get(plugin_id)?.short_label;
+			return {
+				plugin_id,
+				labels: [...labels].sort(),
+				...(shortLabel ? { short_label: shortLabel } : {}),
+			};
+		})
 		.sort((a, b) => a.plugin_id.localeCompare(b.plugin_id));
 }

@@ -67,7 +67,7 @@
 <div class="space-y-8">
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-			{$t('settings.collector.title')}
+			Collector
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
@@ -226,7 +226,7 @@
 
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-			{$t('settings.post_collect.title')}
+			Post Collect
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
@@ -257,8 +257,11 @@
 								<div class="space-y-3">
 									{#each data.settings.post_collect.plugins as plugin}
 										<div class="rounded-md border border-gray-200 p-3 dark:border-gray-700">
-											<div class="flex flex-wrap items-center gap-2">
+											<div class="flex flex-wrap items-center gap-2 text-sm">
 												<code class="rounded bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">{plugin.id}</code>
+												{#if plugin.short_label}
+													<span class="text-gray-500 dark:text-gray-400">short label: {plugin.short_label}</span>
+												{/if}
 											</div>
 										</div>
 									{/each}
@@ -275,7 +278,7 @@
 
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-			{$t('settings.catalog.title')}
+			Catalog
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
@@ -312,7 +315,7 @@
 
 	<section>
 		<h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
-			{$t('settings.ui.title')}
+			UI
 		</h2>
 		<div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
 			<table class="w-full">
