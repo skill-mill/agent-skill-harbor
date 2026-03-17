@@ -100,6 +100,9 @@ interface ParsedFromRef {
 }
 
 interface ParsedResolvedFrom {
+	platform: string;
+	owner: string;
+	repo: string;
 	repoKey: string;
 	sha: string | null;
 }
@@ -414,6 +417,9 @@ function parseResolvedFromRef(from: string): ParsedResolvedFrom | null {
 	const match = trimmed.match(/^([^/\s]+)\/([^/\s]+)\/([^@\s]+)(?:@(.+))?$/);
 	if (!match) return null;
 	return {
+		platform: match[1],
+		owner: match[2],
+		repo: match[3],
 		repoKey: `${match[1]}/${match[2]}/${match[3]}`,
 		sha: match[4] ?? null,
 	};
@@ -425,17 +431,25 @@ function parseGitHubRepoUrl(url: string): { owner: string; repo: string } | null
 	return { owner: match[1], repo: match[2] };
 }
 
-function collectFromRefsFromFrontmatter(
+export function collectFromResolvedFrom(
 	platform: string,
-	frontmatter: Record<string, unknown>,
+	resolvedFrom: string | undefined,
 	seenRepoKeys: Set<string>,
 	queuedRepoKeys: Set<string>,
 ): ParsedFromRef[] {
-	const parsed = parseFromRepoRef(platform, frontmatter._from);
-	if (!parsed) return [];
+	if (!resolvedFrom) return [];
+	const parsed = parseResolvedFromRef(resolvedFrom);
+	if (!parsed || parsed.platform !== platform) return [];
 	if (seenRepoKeys.has(parsed.repoKey) || queuedRepoKeys.has(parsed.repoKey)) return [];
 	queuedRepoKeys.add(parsed.repoKey);
-	return [parsed];
+	return [
+		{
+			owner: parsed.owner,
+			repo: parsed.repo,
+			repoKey: parsed.repoKey,
+			sha: parsed.sha,
+		},
+	];
 }
 
 function resolveSkillResolvedFrom(
@@ -543,7 +557,7 @@ async function fetchRepoTarget(
 	repo: string,
 	source: 'from' | 'extra' = 'from',
 ): Promise<RepoTarget | null> {
-	const label = source === 'extra' ? 'included_extra_repos' : '_from';
+	const label = source === 'extra' ? 'included_extra_repos' : 'resolved_from';
 	try {
 		await checkRateLimit(octokit);
 		const { data } = await withRetry(() => octokit.repos.get({ owner, repo }), `${owner}/${repo}`);
@@ -619,9 +633,8 @@ async function collectRepoSkills(
 		counts.skippedRepoCount++;
 		console.log(`  [skip] ${target.owner}/${target.repo} (repo unchanged)`);
 		if (collectFromRefs) {
-			for (const skillPath of Object.keys(existingRepo.skills)) {
-				const frontmatter = readFrontmatterFromSavedSkill(repoDir, skillPath);
-				fromRefs.push(...collectFromRefsFromFrontmatter(platform, frontmatter, seenRepoKeys, queuedRepoKeys));
+			for (const skillEntry of Object.values(existingRepo.skills)) {
+				fromRefs.push(...collectFromResolvedFrom(platform, skillEntry.resolved_from, seenRepoKeys, queuedRepoKeys));
 			}
 		}
 		return;
@@ -675,7 +688,7 @@ async function collectRepoSkills(
 			counts.skippedSkillCount++;
 			console.log(`  [skip] ${target.owner}/${target.repo} -> ${skill.skillPath} (tree_sha unchanged)`);
 			if (collectFromRefs) {
-				fromRefs.push(...collectFromRefsFromFrontmatter(platform, frontmatter, seenRepoKeys, queuedRepoKeys));
+				fromRefs.push(...collectFromResolvedFrom(platform, resolvedFrom ?? undefined, seenRepoKeys, queuedRepoKeys));
 			}
 			continue;
 		}
@@ -695,13 +708,12 @@ async function collectRepoSkills(
 			}
 		}
 
-		if (collectFromRefs) {
-			fromRefs.push(...collectFromRefsFromFrontmatter(platform, collectedFrontmatter, seenRepoKeys, queuedRepoKeys));
-		}
-
 		counts.collectedCount++;
 		const now = new Date().toISOString();
 		const resolvedFrom = resolveSkillResolvedFrom(collectedFrontmatter, skill.skillPath, lockEntries, platform);
+		if (collectFromRefs) {
+			fromRefs.push(...collectFromResolvedFrom(platform, resolvedFrom ?? undefined, seenRepoKeys, queuedRepoKeys));
+		}
 		newSkills[skill.skillPath] = {
 			tree_sha: skill.treeSha,
 			updated_at: now,
@@ -821,7 +833,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 	join(', ');
 	console.log(`Found ${repos.length} repositories${filters ? ` (${filters})` : ''}`);
 	if (includeOriginRepos) {
-		console.log(`Following public _from repositories: enabled`);
+		console.log(`Following public origin repositories: enabled`);
 	}
 
 	const counts = {

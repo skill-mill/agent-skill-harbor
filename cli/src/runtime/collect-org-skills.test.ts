@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { sanitizeCatalogForSave, updateDriftStatus } from './collect-org-skills.js';
+import { collectFromResolvedFrom, sanitizeCatalogForSave, updateDriftStatus } from './collect-org-skills.js';
 
 test('sanitizeCatalogForSave strips copied frontmatter from skills.yaml entries', () => {
 	assert.deepEqual(
@@ -171,4 +171,33 @@ test('updateDriftStatus clears drift_status when resolved_from is absent', () =>
 		'drift_status' in catalog.repositories['github.com/example/copy'].skills['skills/tooling/SKILL.md'],
 		false,
 	);
+});
+
+test('collectFromResolvedFrom queues lock-derived origin repos', () => {
+	const refs = collectFromResolvedFrom(
+		'github.com',
+		'github.com/example/origin',
+		new Set<string>(),
+		new Set<string>(),
+	);
+
+	assert.deepEqual(refs, [
+		{
+			owner: 'example',
+			repo: 'origin',
+			repoKey: 'github.com/example/origin',
+			sha: null,
+		},
+	]);
+});
+
+test('collectFromResolvedFrom ignores already queued repos', () => {
+	const refs = collectFromResolvedFrom(
+		'github.com',
+		'github.com/example/origin@abc123',
+		new Set<string>(),
+		new Set<string>(['github.com/example/origin']),
+	);
+
+	assert.deepEqual(refs, []);
 });
