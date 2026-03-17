@@ -37,4 +37,10 @@ console.log('  Copied fixtures/config/ → config/');
 cpSync(join(fixturesDir, 'data'), join(projectRoot, 'data'), { recursive: true });
 console.log('  Copied fixtures/data/ → data/');
 
-console.log('\nDone! Edit .env (uncomment and set GH_TOKEN, GH_ORG) and run:\n  pnpm collect\n  pnpm dev\n');
+console.log(
+	'\nDone! Edit .env (uncomment and set GH_TOKEN, GH_ORG) and run from the repository root:\n' +
+		'  pnpm --dir cli build\n' +
+		'  GH_TOKEN=$(gh auth token) node cli/dist/bin/cli.js collect\n' +
+		'  node cli/dist/bin/cli.js post-collect --collect-id <collect_id>\n' +
+		'  tsx cli/bin/cli.ts dev\n',
+);

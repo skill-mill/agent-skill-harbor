@@ -50,12 +50,15 @@ tsx cli/bin/cli.ts preview    # Preview built site
 cd web && pnpm check          # Type check web package
 cd web && pnpm lint           # Lint web package
 pnpm format       # Format all files with Prettier
-tsx cli/bin/cli.ts collect    # Collect skills (requires GH_TOKEN)
-cd cli && pnpm build          # Build CLI package (after modifying bin/ or src/)
+pnpm --dir cli build          # Build CLI package (after modifying bin/ or src/)
+GH_TOKEN=$(gh auth token) node cli/dist/bin/cli.js collect   # Collect skills from source
+node cli/dist/bin/cli.js post-collect --collect-id <collect_id>
 pnpm setup:dev                # Re-copy templates and fixtures
 ```
 
 The local sample data includes `data/collects.yaml` and `data/skills.yaml`. Sample plugin outputs are not included by default.
+
+When running the built CLI from the source repository, execute it from the repository root so `config/` and `data/` resolve correctly.
 
 ### Project Structure
 

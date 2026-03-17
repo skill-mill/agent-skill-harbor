@@ -50,12 +50,15 @@ tsx cli/bin/cli.ts preview    # ビルド結果のプレビュー
 cd web && pnpm check          # web package の型チェック
 cd web && pnpm lint           # web package のリント
 pnpm format       # Prettier でフォーマット
-tsx cli/bin/cli.ts collect    # スキル収集（GH_TOKEN が必要）
-cd cli && pnpm build          # CLI パッケージをビルド（bin/ や src/ を変更した後に実行）
+pnpm --dir cli build          # CLI パッケージをビルド（bin/ や src/ を変更した後に実行）
+GH_TOKEN=$(gh auth token) node cli/dist/bin/cli.js collect   # source からスキル収集
+node cli/dist/bin/cli.js post-collect --collect-id <collect_id>
 pnpm setup:dev                # テンプレートとフィクスチャを再コピー
 ```
 
 ローカル開発用のサンプルデータには `data/collects.yaml` と `data/skills.yaml` が含まれます。sample plugin の出力は既定では含まれません。
+
+source リポジトリでビルド済み CLI を実行する場合は、`config/` と `data/` を正しく参照させるため、必ずリポジトリルートで実行してください。
 
 ### プロジェクト構成
 
