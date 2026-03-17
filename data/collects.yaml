@@ -1,0 +1,270 @@
+- collect_id: ca694391-7cb4-448e-8887-c1a29bd04da2
+  collecting:
+    collected_at: '2026-03-17T20:47:25.401Z'
+    duration_sec: 352
+  statistics:
+    org:
+      repos: 16
+      repos_with_skills: 15
+      skills: 38
+      files: 296
+    community:
+      repos: 3
+      repos_with_skills: 3
+      skills: 33
+      files: 429
+- collect_id: b7d2a5f1-68b7-4cfe-9341-95cb6cb1f201
+  collecting:
+    collected_at: '2026-03-16T20:39:12.184Z'
+    duration_sec: 347
+  statistics:
+    org:
+      repos: 16
+      repos_with_skills: 14
+      skills: 37
+      files: 294
+    community:
+      repos: 3
+      repos_with_skills: 3
+      skills: 32
+      files: 426
+- collect_id: 0c495ac9-e89b-4d4c-a5bb-1efae8f73502
+  collecting:
+    collected_at: '2026-03-15T20:42:47.610Z'
+    duration_sec: 361
+  statistics:
+    org:
+      repos: 16
+      repos_with_skills: 14
+      skills: 37
+      files: 292
+    community:
+      repos: 3
+      repos_with_skills: 3
+      skills: 33
+      files: 426
+- collect_id: a37fce5b-fc8d-40aa-88b6-7d17ce0cab03
+  collecting:
+    collected_at: '2026-03-14T20:33:05.279Z'
+    duration_sec: 339
+  statistics:
+    org:
+      repos: 15
+      repos_with_skills: 13
+      skills: 36
+      files: 287
+    community:
+      repos: 3
+      repos_with_skills: 3
+      skills: 32
+      files: 421
+- collect_id: 9fd44d4b-3307-4c7d-9e2f-66d8940ab304
+  collecting:
+    collected_at: '2026-03-13T20:37:58.401Z'
+    duration_sec: 344
+  statistics:
+    org:
+      repos: 15
+      repos_with_skills: 13
+      skills: 36
+      files: 286
+    community:
+      repos: 3
+      repos_with_skills: 3
+      skills: 32
+      files: 419
+- collect_id: 4c79d7ee-6202-4cc0-beb7-50474ee91d05
+  collecting:
+    collected_at: '2026-03-12T20:29:18.992Z'
+    duration_sec: 333
+  statistics:
+    org:
+      repos: 15
+      repos_with_skills: 12
+      skills: 35
+      files: 281
+    community:
+      repos: 3
+      repos_with_skills: 3
+      skills: 31
+      files: 416
+- collect_id: 125f4ff1-92c3-4b67-b4d7-c5f7d8925b06
+  collecting:
+    collected_at: '2026-03-11T20:44:09.515Z'
+    duration_sec: 356
+  statistics:
+    org:
+      repos: 15
+      repos_with_skills: 12
+      skills: 35
+      files: 280
+    community:
+      repos: 3
+      repos_with_skills: 3
+      skills: 31
+      files: 415
+- collect_id: e4c00cb8-7fb9-4790-993f-121fe95d8807
+  collecting:
+    collected_at: '2026-03-10T20:35:41.033Z'
+    duration_sec: 341
+  statistics:
+    org:
+      repos: 15
+      repos_with_skills: 12
+      skills: 34
+      files: 276
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 31
+      files: 412
+- collect_id: 1546aa1b-9dd8-4554-8e33-814d48e50b08
+  collecting:
+    collected_at: '2026-03-09T20:31:26.247Z'
+    duration_sec: 336
+  statistics:
+    org:
+      repos: 14
+      repos_with_skills: 11
+      skills: 34
+      files: 273
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 30
+      files: 409
+- collect_id: 92431b40-0eca-42f7-9ae8-a0d594e20f09
+  collecting:
+    collected_at: '2026-03-08T20:27:49.802Z'
+    duration_sec: 329
+  statistics:
+    org:
+      repos: 14
+      repos_with_skills: 11
+      skills: 33
+      files: 270
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 30
+      files: 407
+- collect_id: 0e85d982-7900-4d6f-9a74-2f20f218fa0a
+  collecting:
+    collected_at: '2026-03-07T20:22:13.168Z'
+    duration_sec: 324
+  statistics:
+    org:
+      repos: 14
+      repos_with_skills: 10
+      skills: 33
+      files: 268
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 29
+      files: 404
+- collect_id: 6d4b8a6c-6da0-4d4c-b14b-fb26f0f06e0b
+  collecting:
+    collected_at: '2026-03-06T20:18:34.475Z'
+    duration_sec: 318
+  statistics:
+    org:
+      repos: 14
+      repos_with_skills: 10
+      skills: 32
+      files: 265
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 29
+      files: 401
+- collect_id: 61f4c44e-eb53-4f50-8cbb-fbfdbd72390c
+  collecting:
+    collected_at: '2026-03-05T20:25:57.039Z'
+    duration_sec: 327
+  statistics:
+    org:
+      repos: 13
+      repos_with_skills: 9
+      skills: 31
+      files: 259
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 28
+      files: 397
+- collect_id: 89ce0a3b-bdbd-4df5-8d6d-e43d8028fe0d
+  collecting:
+    collected_at: '2026-03-04T20:20:22.201Z'
+    duration_sec: 321
+  statistics:
+    org:
+      repos: 13
+      repos_with_skills: 9
+      skills: 31
+      files: 258
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 28
+      files: 394
+- collect_id: 5ed4d8e2-2192-4f69-9940-a61395c1dc0e
+  collecting:
+    collected_at: '2026-03-03T20:15:11.990Z'
+    duration_sec: 312
+  statistics:
+    org:
+      repos: 13
+      repos_with_skills: 8
+      skills: 30
+      files: 252
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 27
+      files: 390
+- collect_id: c5ddf644-c2b9-4e9e-a6e3-22a5eaedba0f
+  collecting:
+    collected_at: '2026-03-02T20:11:03.488Z'
+    duration_sec: 306
+  statistics:
+    org:
+      repos: 12
+      repos_with_skills: 8
+      skills: 29
+      files: 247
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 27
+      files: 386
+- collect_id: 9a8b4048-df17-420f-95d9-4a23c78ad710
+  collecting:
+    collected_at: '2026-03-01T20:09:44.056Z'
+    duration_sec: 301
+  statistics:
+    org:
+      repos: 12
+      repos_with_skills: 7
+      skills: 28
+      files: 242
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 26
+      files: 381
+- collect_id: 8f98d4d7-c75d-4e43-8f1a-c3557a211011
+  collecting:
+    collected_at: '2026-02-28T20:06:12.714Z'
+    duration_sec: 298
+  statistics:
+    org:
+      repos: 12
+      repos_with_skills: 7
+      skills: 28
+      files: 240
+    community:
+      repos: 3
+      repos_with_skills: 2
+      skills: 26
+      files: 379
