@@ -431,7 +431,9 @@ export function loadLatestPluginOutputs(): PluginOutputEntry[] {
 }
 
 export function loadPluginFilterOptions(): PluginFilterOption[] {
-	const pluginSettings = new Map(loadSettingsConfig().post_collect.plugins.map((plugin) => [plugin.id, plugin]));
+	const configuredPlugins = loadSettingsConfig().post_collect.plugins;
+	const pluginSettings = new Map(configuredPlugins.map((plugin) => [plugin.id, plugin]));
+	const pluginOrder = new Map(configuredPlugins.map((plugin, index) => [plugin.id, index]));
 	const labelsByPlugin = new Map<string, Set<string>>();
 	const intentsByPlugin = new Map<string, Record<string, LabelIntent>>();
 	for (const output of loadLatestPluginOutputs()) {
@@ -460,5 +462,9 @@ export function loadPluginFilterOptions(): PluginFilterOption[] {
 				...(labelIntents && Object.keys(labelIntents).length > 0 ? { label_intents: labelIntents } : {}),
 			};
 		})
-		.sort((a, b) => a.plugin_id.localeCompare(b.plugin_id));
+		.sort((a, b) => {
+			const orderA = pluginOrder.get(a.plugin_id) ?? Number.MAX_SAFE_INTEGER;
+			const orderB = pluginOrder.get(b.plugin_id) ?? Number.MAX_SAFE_INTEGER;
+			return orderA === orderB ? a.plugin_id.localeCompare(b.plugin_id) : orderA - orderB;
+		});
 }

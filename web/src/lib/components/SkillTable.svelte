@@ -10,9 +10,10 @@
 		skills: FlatSkillEntry[];
 		pluginFilterOptions?: PluginFilterOption[];
 		freshPeriodDays?: number;
+		originBySkillKey?: Record<string, string>;
 	}
 
-	let { skills, pluginFilterOptions = [], freshPeriodDays = 0 }: Props = $props();
+	let { skills, pluginFilterOptions = [], freshPeriodDays = 0, originBySkillKey = {} }: Props = $props();
 
 	type SortKey = 'name' | 'status' | 'visibility' | 'owner' | 'repo';
 	let sortKey = $state<SortKey | null>(null);
@@ -62,6 +63,12 @@
 			hideClass: 'hidden md:table-cell',
 		},
 		{ key: 'repo' as SortKey, label: $t('skillTable.repository'), sortable: true, hideClass: 'hidden md:table-cell' },
+		{
+			key: null as SortKey | null,
+			label: $t('originTable.origin'),
+			sortable: false,
+			hideClass: 'hidden lg:table-cell',
+		},
 		{ key: 'status' as SortKey, label: $t('skillTable.status'), sortable: true, hideClass: '' },
 		{
 			key: 'visibility' as SortKey,
@@ -94,10 +101,12 @@
 		<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 			<thead class="bg-gray-50 dark:bg-gray-800/50">
 				<tr>
-					{#each columns as col (col.label)}
+					{#each columns as col, index (col.label)}
 						<th
 							class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 {col.hideClass} {col.sortable
 								? 'cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300'
+								: ''} {index === 0
+								? 'sticky left-0 z-20 bg-gray-50 shadow-[1px_0_0_0_rgba(229,231,235,1)] dark:bg-gray-800/50 dark:shadow-[1px_0_0_0_rgba(55,65,81,1)]'
 								: ''}"
 							onclick={() => col.sortable && col.key && toggleSort(col.key)}
 						>
@@ -134,6 +143,7 @@
 				{#each sortedSkills as skill (skill.key)}
 					{@const skillName = String(skill.frontmatter.name ?? skill.repo)}
 					{@const skillDescription = String(skill.frontmatter.description ?? '')}
+					{@const origin = originBySkillKey[skill.key]}
 					{@const visibilityStyle =
 						skill.visibility === 'public'
 							? 'bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300'
@@ -141,7 +151,9 @@
 								? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
 								: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'}
 					<tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50">
-						<td class="max-w-[20rem] px-4 py-3">
+						<td
+							class="sticky left-0 z-10 max-w-[20rem] bg-white px-4 py-3 shadow-[1px_0_0_0_rgba(229,231,235,1)] dark:bg-gray-900 dark:shadow-[1px_0_0_0_rgba(55,65,81,1)]"
+						>
 							<div class="flex items-center gap-1.5">
 								<a
 									href="{base}/skills/{skill.key}"
@@ -175,6 +187,11 @@
 						</td>
 						<td class="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400 md:table-cell">
 							{skill.owner}/{skill.repo}
+						</td>
+						<td class="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-500 dark:text-gray-400 lg:table-cell">
+							{#if origin}
+								{origin}
+							{/if}
 						</td>
 						<td class="whitespace-nowrap px-4 py-3">
 							<GovernanceBadge status={skill.usage_policy as UsagePolicy} />

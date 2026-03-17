@@ -6,9 +6,10 @@
 	interface Props {
 		skills: FlatSkillEntry[];
 		freshPeriodDays?: number;
+		originBySkillKey?: Record<string, string>;
 	}
 
-	let { skills, freshPeriodDays = 0 }: Props = $props();
+	let { skills, freshPeriodDays = 0, originBySkillKey = {} }: Props = $props();
 </script>
 
 {#if skills.length === 0}
@@ -18,7 +19,7 @@
 {:else}
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 		{#each skills as skill (skill.key)}
-			<SkillCard {skill} {freshPeriodDays} />
+			<SkillCard {skill} {freshPeriodDays} origin={originBySkillKey[skill.key]} />
 		{/each}
 	</div>
 {/if}

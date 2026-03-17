@@ -8,9 +8,10 @@
 	interface Props {
 		skill: FlatSkillEntry;
 		freshPeriodDays?: number;
+		origin?: string;
 	}
 
-	let { skill, freshPeriodDays = 0 }: Props = $props();
+	let { skill, freshPeriodDays = 0, origin }: Props = $props();
 
 	let isNew = $derived(
 		freshPeriodDays > 0 &&
@@ -29,6 +30,7 @@
 	let skillName = $derived(String(skill.frontmatter.name ?? skill.repo));
 	let skillDescription = $derived(String(skill.frontmatter.description ?? ''));
 	let metadata = $derived((skill.frontmatter.metadata ?? {}) as Record<string, unknown>);
+	let showOrigin = $derived(!!origin);
 </script>
 
 <a
@@ -98,6 +100,9 @@
 			</span>
 		{/if}
 		<span class="min-w-0 break-all">{skill.owner}/{skill.repo}</span>
+		{#if showOrigin}
+			<span class="min-w-0 break-all">Origin: {origin}</span>
+		{/if}
 		{#if metadata.author}
 			<span class="break-all">by {metadata.author}</span>
 		{/if}

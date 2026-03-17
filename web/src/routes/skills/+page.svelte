@@ -15,6 +15,7 @@
 	import { createSearchIndex, searchSkills } from '$lib/utils/search';
 	import { filterSkills, type FilterState, type OrgOwnership } from '$lib/utils/filter';
 	import { groupByOrigin } from '$lib/utils/origin';
+	import { getResolvedFromRepoLabel } from '$lib/utils/resolved-from';
 	import { t } from '$lib/i18n';
 
 	type GroupMode = 'none' | 'repo' | 'origin';
@@ -87,6 +88,9 @@
 	});
 
 	let pluginFilterOptions = $derived(data.pluginFilterOptions ?? []);
+	let originBySkillKey = $derived.by(() =>
+		Object.fromEntries(allSkills.map((skill) => [skill.key, getResolvedFromRepoLabel(skill) ?? ''])),
+	);
 
 	function updateUrl(
 		newQuery: string,
@@ -199,8 +203,8 @@
 	{:else if view === 'list' && groupMode === 'repo'}
 		<RepoTable repos={displayedRepos} skills={displayedSkills} {freshPeriodDays} />
 	{:else if view === 'list'}
-		<SkillTable skills={displayedSkills} {pluginFilterOptions} {freshPeriodDays} />
+		<SkillTable skills={displayedSkills} {pluginFilterOptions} {freshPeriodDays} {originBySkillKey} />
 	{:else}
-		<SkillList skills={displayedSkills} {freshPeriodDays} />
+		<SkillList skills={displayedSkills} {freshPeriodDays} {originBySkillKey} />
 	{/if}
 </div>
