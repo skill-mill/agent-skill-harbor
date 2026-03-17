@@ -199,7 +199,7 @@
 	{:else if view === 'list' && groupMode === 'repo'}
 		<RepoTable repos={displayedRepos} skills={displayedSkills} {freshPeriodDays} />
 	{:else if view === 'list'}
-		<SkillTable skills={displayedSkills} {freshPeriodDays} />
+		<SkillTable skills={displayedSkills} {pluginFilterOptions} {freshPeriodDays} />
 	{:else}
 		<SkillList skills={displayedSkills} {freshPeriodDays} />
 	{/if}

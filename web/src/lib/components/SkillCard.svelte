@@ -59,15 +59,15 @@
 					{$t('skillCard.new')}
 				</span>
 			{/if}
+			<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {visibilityStyle}">
+				{skill.visibility}
+			</span>
 			<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
 			{#if skill.plugin_labels}
 				{#each skill.plugin_labels as pluginLabel (`${pluginLabel.plugin_id}:${pluginLabel.label}`)}
 					<PluginLabelBadge label={pluginLabel.label} intent={pluginLabel.intent} />
 				{/each}
 			{/if}
-			<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {visibilityStyle}">
-				{skill.visibility}
-			</span>
 		</div>
 	</div>
 

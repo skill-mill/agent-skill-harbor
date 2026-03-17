@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
+	import type { FlatSkillEntry, LabelIntent, PluginFilterOption, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
 	import PluginLabelBadge from './PluginLabelBadge.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
@@ -8,10 +8,11 @@
 
 	interface Props {
 		skills: FlatSkillEntry[];
+		pluginFilterOptions?: PluginFilterOption[];
 		freshPeriodDays?: number;
 	}
 
-	let { skills, freshPeriodDays = 0 }: Props = $props();
+	let { skills, pluginFilterOptions = [], freshPeriodDays = 0 }: Props = $props();
 
 	type SortKey = 'name' | 'status' | 'visibility' | 'owner' | 'repo';
 	let sortKey = $state<SortKey | null>(null);
@@ -78,6 +79,10 @@
 			Date.now() - new Date(skill.registered_at).getTime() < freshPeriodDays * 86_400_000
 		);
 	}
+
+	function getPluginLabel(skill: FlatSkillEntry, pluginId: string): { label: string; intent: LabelIntent } | null {
+		return skill.plugin_labels?.find((entry) => entry.plugin_id === pluginId) ?? null;
+	}
 </script>
 
 {#if skills.length === 0}
@@ -116,6 +121,11 @@
 									</svg>
 								{/if}
 							</span>
+						</th>
+					{/each}
+					{#each pluginFilterOptions as option (option.plugin_id)}
+						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+							{option.plugin_id}
 						</th>
 					{/each}
 				</tr>
@@ -167,15 +177,16 @@
 							{skill.owner}/{skill.repo}
 						</td>
 						<td class="whitespace-nowrap px-4 py-3">
-							<div class="flex flex-wrap items-center gap-1.5">
-								<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
-								{#if skill.plugin_labels}
-									{#each skill.plugin_labels as pluginLabel (`${pluginLabel.plugin_id}:${pluginLabel.label}`)}
-										<PluginLabelBadge label={pluginLabel.label} intent={pluginLabel.intent} />
-									{/each}
-								{/if}
-							</div>
+							<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
 						</td>
+						{#each pluginFilterOptions as option (option.plugin_id)}
+							{@const pluginLabel = getPluginLabel(skill, option.plugin_id)}
+							<td class="whitespace-nowrap px-4 py-3">
+								{#if pluginLabel}
+									<PluginLabelBadge label={pluginLabel.label} intent={pluginLabel.intent} />
+								{/if}
+							</td>
+						{/each}
 						<td class="hidden whitespace-nowrap px-4 py-3 lg:table-cell">
 							<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {visibilityStyle}">
 								{skill.visibility}
