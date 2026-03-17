@@ -8,6 +8,7 @@ import { env } from '$env/dynamic/private';
 import type {
 	CollectionEntry,
 	FlatSkillEntry,
+	LabelIntent,
 	PluginFilterOption,
 	PluginLabelEntry,
 	PluginOutputEntry,
@@ -432,23 +433,31 @@ export function loadLatestPluginOutputs(): PluginOutputEntry[] {
 export function loadPluginFilterOptions(): PluginFilterOption[] {
 	const pluginSettings = new Map(loadSettingsConfig().post_collect.plugins.map((plugin) => [plugin.id, plugin]));
 	const labelsByPlugin = new Map<string, Set<string>>();
+	const intentsByPlugin = new Map<string, Record<string, LabelIntent>>();
 	for (const output of loadLatestPluginOutputs()) {
 		const labels = labelsByPlugin.get(output.plugin_id) ?? new Set<string>();
-		for (const label of Object.keys(output.label_intents ?? {})) {
-			if (label) labels.add(label);
+		const intents = intentsByPlugin.get(output.plugin_id) ?? {};
+		for (const [label, intent] of Object.entries(output.label_intents ?? {})) {
+			if (label) {
+				labels.add(label);
+				intents[label] = intent;
+			}
 		}
 		for (const result of Object.values(output.results ?? {})) {
 			if (result?.label) labels.add(result.label);
 		}
 		labelsByPlugin.set(output.plugin_id, labels);
+		intentsByPlugin.set(output.plugin_id, intents);
 	}
 	return [...labelsByPlugin.entries()]
 		.map(([plugin_id, labels]) => {
 			const shortLabel = pluginSettings.get(plugin_id)?.short_label;
+			const labelIntents = intentsByPlugin.get(plugin_id);
 			return {
 				plugin_id,
 				labels: [...labels].sort(),
 				...(shortLabel ? { short_label: shortLabel } : {}),
+				...(labelIntents && Object.keys(labelIntents).length > 0 ? { label_intents: labelIntents } : {}),
 			};
 		})
 		.sort((a, b) => a.plugin_id.localeCompare(b.plugin_id));

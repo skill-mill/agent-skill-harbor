@@ -125,7 +125,7 @@
 					{/each}
 					{#each pluginFilterOptions as option (option.plugin_id)}
 						<th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-							{option.plugin_id}
+							{option.short_label ?? option.plugin_id}
 						</th>
 					{/each}
 				</tr>

@@ -75,6 +75,7 @@ export interface PluginFilterOption {
 	plugin_id: string;
 	labels: string[];
 	short_label?: string;
+	label_intents?: Record<string, LabelIntent>;
 }
 
 export interface PluginLabelEntry {

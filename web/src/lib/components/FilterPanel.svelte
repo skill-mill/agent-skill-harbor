@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { PluginFilterOption, UsagePolicy, Visibility } from '$lib/types';
-	import type { FilterState, OrgOwnership } from '$lib/utils/filter';
+	import type { LabelIntent, PluginFilterOption, UsagePolicy, Visibility } from '$lib/types';
+	import { PLUGIN_NO_LABEL_VALUE, type FilterState, type OrgOwnership } from '$lib/utils/filter';
 	import { t } from '$lib/i18n';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Select from '$lib/components/ui/select';
@@ -53,6 +53,16 @@
 		{ value: 'community', labelKey: 'common.orgOwnership.community' },
 	];
 
+	const NONE_LABEL = '(no label)';
+	const pluginIntentClasses: Record<LabelIntent, string> = {
+		neutral: 'border-gray-300 bg-gray-900 text-white dark:border-gray-500 dark:bg-gray-100 dark:text-gray-900',
+		info: 'border-sky-300 bg-sky-100 text-sky-800 dark:border-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+		success:
+			'border-green-300 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-900/30 dark:text-green-300',
+		warn: 'border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+		danger: 'border-red-300 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300',
+	};
+
 	function onStatusChange(value: string | undefined) {
 		onchange({ ...filters, status: value && value !== '__all__' ? (value as UsagePolicy) : null });
 	}
@@ -87,6 +97,28 @@
 
 	function clearAll() {
 		onchange({ status: null, visibility: null, orgOwnership: null, pluginLabels: {} });
+	}
+
+	function getStatusLabel(value: UsagePolicy | null): string {
+		if (value === 'none') return NONE_LABEL;
+		return value ? $t(policyOptions.find((opt) => opt.value === value)?.labelKey ?? '') : $t('filter.allStatus');
+	}
+
+	function getPluginTriggerLabel(option: PluginFilterOption): string {
+		const selected = filters.pluginLabels[option.plugin_id];
+		if (selected === PLUGIN_NO_LABEL_VALUE) return NONE_LABEL;
+		return selected ?? option.short_label ?? option.plugin_id;
+	}
+
+	function getPluginTriggerClass(option: PluginFilterOption): string {
+		const selected = filters.pluginLabels[option.plugin_id];
+		if (!selected) {
+			return 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400';
+		}
+		if (selected === PLUGIN_NO_LABEL_VALUE) {
+			return pluginIntentClasses.neutral;
+		}
+		return pluginIntentClasses[option.label_intents?.[selected] ?? 'neutral'];
 	}
 </script>
 
@@ -137,15 +169,17 @@
 		<Select.Trigger
 			size="sm"
 			class="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {filters.status
-				? policyOptions.find((opt) => opt.value === filters.status)?.color
+				? filters.status === 'none'
+					? 'border-gray-300 bg-gray-900 text-white dark:border-gray-500 dark:bg-gray-100 dark:text-gray-900'
+					: policyOptions.find((opt) => opt.value === filters.status)?.color
 				: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
 		>
-			{filters.status ? $t(policyOptions.find((opt) => opt.value === filters.status)?.labelKey ?? '') : $t('filter.allStatus')}
+			{getStatusLabel(filters.status)}
 		</Select.Trigger>
 		<Select.Content>
 			<Select.Item value="__all__" label={$t('filter.all')} />
 			{#each policyOptions as opt}
-				<Select.Item value={opt.value} label={$t(opt.labelKey)} />
+				<Select.Item value={opt.value} label={opt.value === 'none' ? NONE_LABEL : $t(opt.labelKey)} />
 			{/each}
 		</Select.Content>
 	</Select.Root>
@@ -159,17 +193,16 @@
 			>
 				<Select.Trigger
 					size="sm"
-					class="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {filters.pluginLabels[option.plugin_id]
-						? 'border-gray-300 bg-gray-900 text-white dark:border-gray-500 dark:bg-gray-100 dark:text-gray-900'
-						: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
+					class="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {getPluginTriggerClass(option)}"
 				>
-					{filters.pluginLabels[option.plugin_id] ?? option.short_label ?? option.plugin_id}
+					{getPluginTriggerLabel(option)}
 				</Select.Trigger>
 				<Select.Content>
 					<Select.Item value="__all__" label={$t('filter.all')} />
 					{#each option.labels as label}
 						<Select.Item value={label} {label} />
 					{/each}
+					<Select.Item value={PLUGIN_NO_LABEL_VALUE} label={NONE_LABEL} />
 				</Select.Content>
 			</Select.Root>
 		{/each}

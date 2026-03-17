@@ -1,6 +1,7 @@
 import type { FlatSkillEntry, UsagePolicy, Visibility } from '$lib/types';
 
 export type OrgOwnership = 'org' | 'community';
+export const PLUGIN_NO_LABEL_VALUE = '__none__';
 
 export interface FilterState {
 	status: UsagePolicy | null;
@@ -31,7 +32,10 @@ export function filterSkills(skills: FlatSkillEntry[], filters: FilterState): Fl
 			}
 		}
 		for (const [pluginId, label] of Object.entries(filters.pluginLabels)) {
-			const matched = (skill.plugin_labels ?? []).some((entry) => entry.plugin_id === pluginId && entry.label === label);
+			const matched =
+				label === PLUGIN_NO_LABEL_VALUE
+					? !(skill.plugin_labels ?? []).some((entry) => entry.plugin_id === pluginId)
+					: (skill.plugin_labels ?? []).some((entry) => entry.plugin_id === pluginId && entry.label === label);
 			if (!matched) {
 				return false;
 			}

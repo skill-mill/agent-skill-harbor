@@ -8,22 +8,37 @@ export async function run(context: {
 		>;
 	};
 }) {
-	const results: Record<string, { label: string; raw: string }> = {};
+	const results: Record<string, { label?: string; raw: string }> = {};
+	let index = 0;
 
 	for (const [repoKey, repoEntry] of Object.entries(context.catalog.repositories)) {
 		for (const skillPath of Object.keys(repoEntry.skills)) {
 			const skillKey = `${repoKey}/${skillPath}`;
-			results[skillKey] = {
-				label: 'Sample',
-				raw: 'This is a sample post-collect plugin result.',
-			};
+			const variant = index % 3;
+			if (variant === 0) {
+				results[skillKey] = {
+					label: 'Pass',
+					raw: 'This is a sample post-collect plugin result with a "Pass" label.',
+				};
+			} else if (variant === 1) {
+				results[skillKey] = {
+					label: 'Review',
+					raw: 'This is a sample post-collect plugin result with a "Review" label.',
+				};
+			} else {
+				results[skillKey] = {
+					raw: 'This is a sample post-collect plugin result without a label.',
+				};
+			}
+			index += 1;
 		}
 	}
 
 	return {
 		summary: `Generated sample output for ${Object.keys(results).length} skill(s).`,
 		label_intents: {
-			Sample: 'info' as const,
+			Pass: 'success' as const,
+			Review: 'warn' as const,
 		},
 		results,
 	};

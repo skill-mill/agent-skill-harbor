@@ -13,6 +13,7 @@ data/*
 !data/.gitkeep
 guide/*
 !guide/.gitkeep
+plugins/*
 
 # SvelteKit
 web/.svelte-kit/
