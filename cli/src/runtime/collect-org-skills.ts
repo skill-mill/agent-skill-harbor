@@ -420,7 +420,7 @@ function parseResolvedFromRef(from: string): ParsedResolvedFrom | null {
 		platform: match[1],
 		owner: match[2],
 		repo: match[3],
-		repoKey: `${match[1]}/${match[2]}/${match[3]}`,
+		repoKey: normalizeRepoKey(match[1], match[2], match[3]),
 		sha: match[4] ?? null,
 	};
 }

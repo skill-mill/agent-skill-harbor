@@ -174,11 +174,12 @@ test('updateDriftStatus clears drift_status when resolved_from is absent', () =>
 });
 
 test('collectFromResolvedFrom queues lock-derived origin repos', () => {
+	const queuedRepoKeys = new Set<string>();
 	const refs = collectFromResolvedFrom(
 		'github.com',
 		'github.com/example/origin',
 		new Set<string>(),
-		new Set<string>(),
+		queuedRepoKeys,
 	);
 
 	assert.deepEqual(refs, [
@@ -189,15 +190,18 @@ test('collectFromResolvedFrom queues lock-derived origin repos', () => {
 			sha: null,
 		},
 	]);
+	assert.equal(queuedRepoKeys.has('github.com/example/origin'), true);
 });
 
 test('collectFromResolvedFrom ignores already queued repos', () => {
+	const queuedRepoKeys = new Set<string>(['github.com/example/origin']);
 	const refs = collectFromResolvedFrom(
 		'github.com',
 		'github.com/example/origin@abc123',
 		new Set<string>(),
-		new Set<string>(['github.com/example/origin']),
+		queuedRepoKeys,
 	);
 
 	assert.deepEqual(refs, []);
+	assert.equal(queuedRepoKeys.size, 1);
 });
