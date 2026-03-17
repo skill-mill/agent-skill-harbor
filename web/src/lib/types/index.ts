@@ -73,6 +73,12 @@ export interface PluginOutput {
 	results?: Record<string, PluginSkillResult>;
 }
 
+export interface PluginLabelEntry {
+	plugin_id: string;
+	label: string;
+	intent: LabelIntent;
+}
+
 export interface FlatSkillEntry {
 	key: string;
 	repoKey: string;
@@ -93,4 +99,5 @@ export interface FlatSkillEntry {
 	tree_sha?: string | null;
 	is_fork?: boolean;
 	resolved_from?: string;
+	plugin_labels?: PluginLabelEntry[];
 }

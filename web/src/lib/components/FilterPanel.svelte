@@ -7,10 +7,11 @@
 
 	interface Props {
 		filters: FilterState;
+		pluginLabels?: string[];
 		onchange: (filters: FilterState) => void;
 	}
 
-	let { filters, onchange }: Props = $props();
+	let { filters, pluginLabels = [], onchange }: Props = $props();
 
 	const policyOptions: { value: UsagePolicy; labelKey: string; tooltipKey: string; color: string }[] = [
 		{
@@ -69,15 +70,25 @@
 		onchange({ ...filters, orgOwnerships });
 	}
 
+	function togglePluginLabel(label: string) {
+		const pluginLabels = filters.pluginLabels.includes(label)
+			? filters.pluginLabels.filter((entry) => entry !== label)
+			: [...filters.pluginLabels, label];
+		onchange({ ...filters, pluginLabels });
+	}
+
 	let visibilityValue = $derived(filters.visibilities[0] ?? '__all__');
 	let orgOwnershipValue = $derived(filters.orgOwnerships[0] ?? '__all__');
 
 	let hasActiveFilters = $derived(
-		filters.statuses.length > 0 || filters.visibilities.length > 0 || filters.orgOwnerships.length > 0,
+		filters.statuses.length > 0 ||
+			filters.visibilities.length > 0 ||
+			filters.orgOwnerships.length > 0 ||
+			filters.pluginLabels.length > 0,
 	);
 
 	function clearAll() {
-		onchange({ statuses: [], visibilities: [], orgOwnerships: [] });
+		onchange({ statuses: [], visibilities: [], orgOwnerships: [], pluginLabels: [] });
 	}
 </script>
 
@@ -147,6 +158,20 @@
 			<Tooltip.Content>{$t(opt.tooltipKey)}</Tooltip.Content>
 		</Tooltip.Root>
 	{/each}
+
+	{#if pluginLabels.length > 0}
+		<span class="mx-1 text-gray-300 dark:text-gray-600">|</span>
+		{#each pluginLabels as label}
+			<button
+				onclick={() => togglePluginLabel(label)}
+				class="rounded-full border px-3 py-1 text-xs font-medium transition-colors {filters.pluginLabels.includes(label)
+					? 'border-gray-300 bg-gray-900 text-white ring-1 ring-offset-1 dark:border-gray-500 dark:bg-gray-100 dark:text-gray-900 dark:ring-offset-gray-950'
+					: 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700'}"
+			>
+				{label}
+			</button>
+		{/each}
+	{/if}
 
 	{#if hasActiveFilters}
 		<button

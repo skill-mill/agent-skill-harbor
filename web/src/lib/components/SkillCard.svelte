@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
+	import PluginLabelBadge from './PluginLabelBadge.svelte';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
 
@@ -59,6 +60,11 @@
 				</span>
 			{/if}
 			<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
+			{#if skill.plugin_labels}
+				{#each skill.plugin_labels as pluginLabel (`${pluginLabel.plugin_id}:${pluginLabel.label}`)}
+					<PluginLabelBadge label={pluginLabel.label} intent={pluginLabel.intent} />
+				{/each}
+			{/if}
 			<span class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium {visibilityStyle}">
 				{skill.visibility}
 			</span>

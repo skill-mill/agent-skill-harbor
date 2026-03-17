@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
+	import PluginLabelBadge from './PluginLabelBadge.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
@@ -168,6 +169,11 @@
 						<td class="whitespace-nowrap px-4 py-3">
 							<div class="flex flex-wrap items-center gap-1.5">
 								<GovernanceBadge status={skill.usage_policy as UsagePolicy} />
+								{#if skill.plugin_labels}
+									{#each skill.plugin_labels as pluginLabel (`${pluginLabel.plugin_id}:${pluginLabel.label}`)}
+										<PluginLabelBadge label={pluginLabel.label} intent={pluginLabel.intent} />
+									{/each}
+								{/if}
 							</div>
 						</td>
 						<td class="hidden whitespace-nowrap px-4 py-3 lg:table-cell">

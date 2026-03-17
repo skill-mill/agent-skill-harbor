@@ -32,7 +32,7 @@
 
 	// Client-side state
 	let query = $state('');
-	let filters = $state<FilterState>({ statuses: [], visibilities: [], orgOwnerships: [] });
+	let filters = $state<FilterState>({ statuses: [], visibilities: [], orgOwnerships: [], pluginLabels: [] });
 	let view = $state<'card' | 'list'>('card');
 	let groupMode = $state<GroupMode>('none');
 
@@ -44,6 +44,7 @@
 			statuses: (params.get('status')?.split(',').filter(Boolean) ?? []) as UsagePolicy[],
 			visibilities: (params.get('visibility')?.split(',').filter(Boolean) ?? []) as Visibility[],
 			orgOwnerships: (params.get('origin')?.split(',').filter(Boolean) ?? []) as OrgOwnership[],
+			pluginLabels: params.get('plugin_label')?.split(',').filter(Boolean) ?? [],
 		};
 		const v = params.get('view');
 		view = v === 'list' ? 'list' : 'card';
@@ -62,11 +63,21 @@
 
 	let displayedRepos = $derived.by(() => {
 		const matchedRepoKeys = new Set(displayedSkills.map((s) => s.repoKey));
-		if (!query && !filters.statuses.length && !filters.visibilities.length && !filters.orgOwnerships.length) {
+		if (
+			!query &&
+			!filters.statuses.length &&
+			!filters.visibilities.length &&
+			!filters.orgOwnerships.length &&
+			!filters.pluginLabels.length
+		) {
 			return allRepos;
 		}
 		return allRepos.filter((r) => matchedRepoKeys.has(r.repoKey));
 	});
+
+	let availablePluginLabels = $derived.by(() =>
+		Array.from(new Set(allSkills.flatMap((skill) => (skill.plugin_labels ?? []).map((entry) => entry.label)))).sort(),
+	);
 
 	function updateUrl(
 		newQuery: string,
@@ -80,6 +91,7 @@
 		if (newFilters.statuses.length) params.set('status', newFilters.statuses.join(','));
 		if (newFilters.visibilities.length) params.set('visibility', newFilters.visibilities.join(','));
 		if (newFilters.orgOwnerships.length) params.set('origin', newFilters.orgOwnerships.join(','));
+		if (newFilters.pluginLabels.length) params.set('plugin_label', newFilters.pluginLabels.join(','));
 		if (newView === 'list') params.set('view', 'list');
 		if (newView === 'list' && newGroupMode === 'none') params.set('group', 'flat');
 		if (newView === 'list' && newGroupMode === 'repo') params.set('group', 'repo');
@@ -112,7 +124,11 @@
 	}
 
 	let hasFilters = $derived(
-		query !== '' || filters.statuses.length > 0 || filters.visibilities.length > 0 || filters.orgOwnerships.length > 0,
+		query !== '' ||
+			filters.statuses.length > 0 ||
+			filters.visibilities.length > 0 ||
+			filters.orgOwnerships.length > 0 ||
+			filters.pluginLabels.length > 0,
 	);
 
 	let originGroups = $derived.by(() => {
@@ -155,7 +171,7 @@
 	<div class="mb-6 space-y-4">
 		<SearchBar value={query} onchange={handleSearch} />
 		<div class="flex flex-wrap items-center gap-3">
-			<FilterPanel {filters} onchange={handleFilterChange} />
+			<FilterPanel {filters} pluginLabels={availablePluginLabels} onchange={handleFilterChange} />
 			<span class="tabular-nums text-sm text-gray-500 dark:text-gray-400 sm:ml-auto">
 				{#if hasFilters}
 					<span class="font-semibold text-gray-900 dark:text-gray-100">{displayedSkills.length}</span> / {allSkills.length}

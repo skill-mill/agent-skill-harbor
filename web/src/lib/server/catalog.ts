@@ -5,7 +5,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
-import type { CollectionEntry, FlatSkillEntry, PluginOutput, RepoInfo, Visibility } from '$lib/types';
+import type { CollectionEntry, FlatSkillEntry, PluginLabelEntry, PluginOutput, RepoInfo, Visibility } from '$lib/types';
 import { governancePolicySchema, type GovernanceConfig } from '$lib/schemas/governance';
 import { settingsSchema, type SettingsConfig } from '$lib/schemas/settings';
 import { normalizeResolvedFromFrontmatter } from '$lib/utils/resolved-from';
@@ -44,6 +44,32 @@ interface CatalogResult {
 	skills: FlatSkillEntry[];
 	repos: RepoInfo[];
 	bodyMap: Map<string, string>;
+}
+
+function buildPluginLabelMap(outputs: PluginOutput[]): Map<string, PluginLabelEntry[]> {
+	const map = new Map<string, PluginLabelEntry[]>();
+	for (const output of outputs) {
+		const labelIntents = output.label_intents ?? {};
+		for (const [skillKey, result] of Object.entries(output.results ?? {})) {
+			if (!result || typeof result !== 'object' || typeof result.label !== 'string' || result.label.length === 0) {
+				continue;
+			}
+			const entries = map.get(skillKey) ?? [];
+			entries.push({
+				plugin_id: output.plugin.id,
+				label: result.label,
+				intent: labelIntents[result.label] ?? 'neutral',
+			});
+			map.set(skillKey, entries);
+		}
+	}
+	for (const [skillKey, entries] of map.entries()) {
+		entries.sort((a, b) =>
+			a.plugin_id === b.plugin_id ? a.label.localeCompare(b.label) : a.plugin_id.localeCompare(b.plugin_id),
+		);
+		map.set(skillKey, entries);
+	}
+	return map;
 }
 
 // Module-level cache: parsed once per build
@@ -187,6 +213,7 @@ function buildCatalogData(): CatalogResult {
 	const freshPeriodDays = admin.catalog?.skill?.fresh_period_days ?? 0;
 	const governance = loadGovernance();
 	const catalogYaml = loadCatalogYaml();
+	const pluginLabelMap = buildPluginLabelMap(loadPluginOutputs());
 
 	const skills: FlatSkillEntry[] = [];
 	const repos: RepoInfo[] = [];
@@ -257,6 +284,7 @@ function buildCatalogData(): CatalogResult {
 				tree_sha: skillData.tree_sha ?? null,
 				...(repoEntry.fork ? { is_fork: true } : {}),
 				...(resolvedFrom ? { resolved_from: resolvedFrom } : {}),
+				...(pluginLabelMap.get(key)?.length ? { plugin_labels: pluginLabelMap.get(key) } : {}),
 			};
 
 			skills.push(entry);
