@@ -1,0 +1,8 @@
+{
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"agent-skill-harbor": ">={{PACKAGE_VERSION}} <1",
+		"agent-skill-harbor-post-collect": ">={{POST_COLLECT_VERSION}} <1"
+	}
+}

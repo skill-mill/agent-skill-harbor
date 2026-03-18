@@ -21,12 +21,19 @@
 		"guide/",
 		"src/",
 		"static/",
+		"templates/",
 		"package.json",
 		"svelte.config.js",
 		"tsconfig.json",
 		"vite.config.ts",
 		"components.json"
 	],
+	"exports": {
+		"./build": "./src/cli/commands/build.js",
+		"./deploy": "./src/cli/commands/deploy.js",
+		"./dev": "./src/cli/commands/dev.js",
+		"./preview": "./src/cli/commands/preview.js"
+	},
 	"scripts": {
 		"format": "prettier --write \"src/**/*.{js,ts,mjs,cjs,mts,cts,svelte}\" \"guide/**/*.md\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
 		"format:check": "prettier --check \"src/**/*.{js,ts,mjs,cjs,mts,cts,svelte}\" \"guide/**/*.md\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",

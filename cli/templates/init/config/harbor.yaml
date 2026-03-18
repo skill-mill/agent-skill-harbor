@@ -11,6 +11,17 @@ post_collect:
   plugins:
     - id: builtin.detect-drift
       short_label: Drift
+  #   - id: builtin.audit-promptfoo-security
+  #     short_label: Security
+  #     config:
+  #       model: openai:gpt-5
+  #       vulnerabilities:
+  #         - prompt-injection
+  #         - prompt-extraction
+  #         - jailbreak
+  #         - policy-violation
+  #       risk_threshold: 1
+  #       critical_threshold: 3
   #   - id: builtin.audit-static
   #     short_label: Audit
   #   - id: sample_plugin

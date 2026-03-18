@@ -4,15 +4,22 @@ This document describes the release workflow for the published packages.
 
 ## Packages
 
+- `agent-skill-harbor`: Thin published wrapper package containing the `harbor` executable, templates, and command dispatch
+- `agent-skill-harbor-collector`: Published collect runtime package
+- `agent-skill-harbor-post-collect`: Published post-collect runtime package
 - `agent-skill-harbor-web`: Published web package containing the SvelteKit app source and web build dependencies
-- `agent-skill-harbor`: Published CLI package containing the `harbor` executable, templates, and collector runtime
 
 ## Release Strategy
 
 - Release only the package that changed.
-- If both packages changed, or if the CLI now requires a newer minimum web version, publish `agent-skill-harbor-web` first and `agent-skill-harbor` second.
+- If multiple packages changed, publish runtime packages before the wrapper package.
 
-The CLI package depends on `agent-skill-harbor-web`, but it now uses a broad semver range. You only need a coordinated two-package release when the CLI starts depending on a newer web capability that has not been published yet.
+Recommended order when several packages changed:
+
+1. `agent-skill-harbor-web`
+2. `agent-skill-harbor-collector`
+3. `agent-skill-harbor-post-collect`
+4. `agent-skill-harbor`
 
 ## Release Checklist
 
@@ -33,6 +40,30 @@ pnpm --filter agent-skill-harbor-web publish --access public
 git tag web-v<version>
 ```
 
+### Releasing `agent-skill-harbor-collector`
+
+```bash
+pnpm install --no-frozen-lockfile
+pnpm --dir collector lint:check
+pnpm --dir collector check
+pnpm --dir collector test
+pnpm --dir collector build
+pnpm --filter agent-skill-harbor-collector publish --access public
+git tag collector-v<version>
+```
+
+### Releasing `agent-skill-harbor-post-collect`
+
+```bash
+pnpm install --no-frozen-lockfile
+pnpm --dir post-collect lint:check
+pnpm --dir post-collect check
+pnpm --dir post-collect test
+pnpm --dir post-collect build
+pnpm --filter agent-skill-harbor-post-collect publish --access public
+git tag post-collect-v<version>
+```
+
 ### Releasing `agent-skill-harbor`
 
 ```bash
@@ -45,27 +76,30 @@ pnpm --filter agent-skill-harbor publish --access public
 git tag cli-v<version>
 ```
 
-### Releasing both packages
+### Releasing multiple packages
 
 1. Release `agent-skill-harbor-web` first.
-2. Release `agent-skill-harbor` second.
-3. Create both tags after the published package set is ready to consume.
+2. Release `agent-skill-harbor-collector` and/or `agent-skill-harbor-post-collect`.
+3. Release `agent-skill-harbor` last if its metadata or templates changed.
+4. Create tags after the published package set is ready to consume.
 
 ## Tagging
 
 - Use package-specific git tags instead of a single repository-wide version tag.
 - CLI releases use `cli-vX.Y.Z`.
 - Web releases use `web-vX.Y.Z`.
-- If both packages are released together, create both tags.
+- Collector releases use `collector-vX.Y.Z`.
+- Post-collect releases use `post-collect-vX.Y.Z`.
 
 ## Versioning Notes
 
-- `cli/package.json` and `web/package.json` now version independently.
-- `cli/templates/init/package.template.json` still uses `^{{PACKAGE_VERSION}}`, so generated projects always install the current CLI release line.
-- The CLI depends on `agent-skill-harbor-web` with a broad `<1` range. Minor and patch web releases do not require a CLI release unless the CLI needs a newer minimum web version.
+- `cli/package.json`, `collector/package.json`, `post-collect/package.json`, and `web/package.json` version independently.
+- `cli/templates/init/package.template.json` and `cli/templates/init/tools/harbor/*/package.template.json` must stay aligned with the package versions you intend to publish.
 
 ## Notes
 
 - Web runtime dependencies belong in `web/package.json`.
-- CLI-only runtime dependencies belong in `cli/package.json`.
+- Wrapper-only runtime dependencies belong in `cli/package.json`.
+- Collect-only runtime dependencies belong in `collector/package.json`.
+- Post-collect-only runtime dependencies belong in `post-collect/package.json`.
 - The Vite chunk-size warning is currently expected. A manual chunking experiment showed that most of the remaining weight comes from `three`, so we are not keeping extra chunk-splitting config unless we decide to optimize the graph implementation more deeply.

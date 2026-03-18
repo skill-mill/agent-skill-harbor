@@ -87,8 +87,9 @@ harbor build --base=/my-repo-name
 3. GitHub Pages を有効化（Settings > Pages > Source: GitHub Actions）
 4. **重要:** Pages の Visibility を **Private** に設定し、Organization メンバーのみにアクセスを制限（GitHub Enterprise Cloud が必要）
 5. `CollectSkills` ワークフローを手動トリガーして初回収集を実行
-6. `CollectSkills` では `collect` と `post-collect` を別 step で順に実行します
-7. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
+6. `CollectSkills` は `tools/harbor/collector` と `tools/harbor/post-collect` から必要な依存だけを install します
+7. `CollectSkills` では `collect` と `post-collect` を別 job で順に実行します
+8. deploy workflow は `tools/harbor/web` だけを install し、`CollectSkills` 成功後に自動実行されます
 
 詳細は [組織セットアップガイド](docs/01-organization-setup_ja.md) を参照してください。
 
@@ -101,13 +102,19 @@ my-skill-harbor/
 │   ├── harbor.yaml         # 収集・カタログ設定
 │   └── governance.yaml     # スキル使用ポリシー
 ├── plugins/                # 任意のユーザー定義 post_collect plugin
+├── tools/
+│   └── harbor/
+│       ├── collector/      # collect workflow 用の分離 install surface
+│       ├── post-collect/   # post-collect workflow 用の分離 install surface
+│       └── web/            # build/deploy workflow 用の分離 install surface
 ├── data/                   # collect で生成（Git 管理）
 │   ├── collects.yaml       # 収集履歴
 │   ├── plugins/            # 生成された post_collect plugin 出力
+│   ├── plugin-reports/     # 任意の plugin 副成果物
 │   ├── skills.yaml         # スキルメタデータ
 │   └── skills/             # キャッシュされた SKILL.md ファイル
 ├── .github/workflows/      # GitHub Actions (収集 + デプロイ)
-└── package.json            # agent-skill-harbor に依存
+└── package.json            # ローカル開発用の便宜インストール（Harbor package 一式）
 ```
 
 ## スキルの来歴追跡

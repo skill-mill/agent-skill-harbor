@@ -1,3 +1,4 @@
+import { cpSync, existsSync, rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { webPackageRequire, webRoot, userRoot } from '../paths.js';
@@ -22,6 +23,13 @@ try {
 			...(basePath ? { BASE_PATH: basePath } : {}),
 		},
 	});
+	const reportsDir = resolve(userRoot, 'data', 'plugin-reports');
+	const buildReportsDir = resolve(outputDir, 'plugin-reports');
+	rmSync(buildReportsDir, { recursive: true, force: true });
+	if (existsSync(reportsDir)) {
+		cpSync(reportsDir, buildReportsDir, { recursive: true });
+		console.log(`  Copied plugin reports: ${buildReportsDir}`);
+	}
 	console.log(`\nBuild complete! Output in ${outputDir}`);
 } catch (e: any) {
 	process.exit(e.status ?? 1);

@@ -75,8 +75,10 @@ pnpm dev
 1. Push to your repository
 2. Go to **Actions > CollectSkills**
 3. Click **Run workflow** to trigger the first collection
-4. `CollectSkills` will run `collect` and `post-collect` as separate steps
-5. The deploy workflow will run automatically after `CollectSkills` succeeds
+4. `CollectSkills` installs only `tools/harbor/collector` in the collect job and `tools/harbor/post-collect` in the post-collect job
+5. `CollectSkills` runs `collect` and `post-collect` as separate jobs with `data/` artifact handoff
+6. The deploy workflow installs only `tools/harbor/web`
+7. The deploy workflow will run automatically after `CollectSkills` succeeds
 
 For plugin configuration and output files, see [Post-Collect Plugins](03-post-collect-plugins.md).
 

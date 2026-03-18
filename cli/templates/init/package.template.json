@@ -11,6 +11,9 @@
 		"preview": "harbor preview"
 	},
 	"dependencies": {
-		"agent-skill-harbor": ">={{PACKAGE_VERSION}} <1"
+		"agent-skill-harbor": ">={{PACKAGE_VERSION}} <1",
+		"agent-skill-harbor-collector": ">={{COLLECTOR_VERSION}} <1",
+		"agent-skill-harbor-post-collect": ">={{POST_COLLECT_VERSION}} <1",
+		"agent-skill-harbor-web": ">={{WEB_VERSION}} <1"
 	}
 }

@@ -201,6 +201,7 @@
 	"detail": {
 		"viewRepository": "View Repository",
 		"viewSkillMd": "View SKILL.md",
+		"viewHtmlReport": "View HTML report",
 		"community": "Community",
 		"section": {
 			"details": "Details",

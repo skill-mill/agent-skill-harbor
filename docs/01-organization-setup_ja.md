@@ -75,8 +75,10 @@ pnpm dev
 1. リポジトリにプッシュ
 2. **Actions > CollectSkills** を開く
 3. **Run workflow** をクリックして初回収集をトリガー
-4. `CollectSkills` で `collect` と `post-collect` が別 step で実行されます
-5. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
+4. `CollectSkills` では collect job が `tools/harbor/collector` だけを install し、post-collect job が `tools/harbor/post-collect` だけを install します
+5. `CollectSkills` では `collect` と `post-collect` が別 job で実行され、`data/` artifact を受け渡します
+6. deploy workflow は `tools/harbor/web` だけを install します
+7. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
 
 plugin の設定方法や出力ファイルについては [Post-Collect Plugins](03-post-collect-plugins_ja.md) を参照してください。
 

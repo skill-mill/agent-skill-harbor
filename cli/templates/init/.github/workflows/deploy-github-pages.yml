@@ -31,15 +31,12 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install web dependencies
+        run: pnpm install --dir tools/harbor/web
 
       - name: Build
-        run: npx harbor build --base=/${{ github.event.repository.name }}
-        # For local development (source repo), use instead:
-        # run: pnpm build
+        run: pnpm --dir tools/harbor/web exec harbor build --project-root "$GITHUB_WORKSPACE" --base=/${{ github.event.repository.name }}
 
       - name: Create Pages artifact
         run: |

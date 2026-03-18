@@ -24,6 +24,7 @@ export async function runPostCollectCli(argv: string[] = process.argv.slice(2)):
 	await runPostCollect({
 		projectRoot: PROJECT_ROOT,
 		collectId: args.collectId ?? null,
+		orgName: process.env.GH_ORG ?? undefined,
 		catalog: loadCatalog(PROJECT_ROOT),
 		log: true,
 	});

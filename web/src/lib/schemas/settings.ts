@@ -23,6 +23,7 @@ const uiSchema = z.object({
 const postCollectPluginSchema = z.object({
 	id: z.string(),
 	short_label: z.string().optional(),
+	config: z.record(z.string(), z.unknown()).optional(),
 });
 
 const postCollectSchema = z.object({

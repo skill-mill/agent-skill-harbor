@@ -28,27 +28,40 @@
 		"templates/"
 	],
 	"scripts": {
-		"format": "prettier --write \"bin/**/*.{js,ts,mjs,cjs,mts,cts}\" \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
-		"format:check": "prettier --check \"bin/**/*.{js,ts,mjs,cjs,mts,cts}\" \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
-		"lint": "eslint --fix bin src",
-		"lint:check": "eslint bin src",
-		"test": "node --import tsx --test \"src/**/*.test.ts\"",
+		"format": "prettier --write \"bin/**/*.{js,ts,mjs,cjs,mts,cts}\" \"src/cli/gen.ts\" \"src/cli/paths.ts\" \"src/cli/commands/{gen,init}.ts\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
+		"format:check": "prettier --check \"bin/**/*.{js,ts,mjs,cjs,mts,cts}\" \"src/cli/gen.ts\" \"src/cli/paths.ts\" \"src/cli/commands/{gen,init}.ts\" \"*.{js,ts,mjs,cjs,mts,cts,json,md}\"",
+		"lint": "eslint --fix bin/cli.ts src/cli/paths.ts src/cli/gen.ts src/cli/commands/init.ts src/cli/commands/gen.ts",
+		"lint:check": "eslint bin/cli.ts src/cli/paths.ts src/cli/gen.ts src/cli/commands/init.ts src/cli/commands/gen.ts",
+		"test": "node --import tsx --test \"src/cli/**/*.test.ts\"",
 		"check": "tsc --noEmit -p tsconfig.json",
 		"verify": "pnpm format:check && pnpm lint:check && pnpm check",
 		"build": "tsup"
 	},
-	"dependencies": {
-		"@octokit/rest": "^21.1.1",
-		"agent-skill-harbor-web": ">=0.8.7 <1",
-		"js-yaml": "^4.1.0",
-		"tsx": "^4.19.0"
+	"peerDependencies": {
+		"agent-skill-harbor-collector": ">=0.12.0 <1",
+		"agent-skill-harbor-post-collect": ">=0.12.0 <1",
+		"agent-skill-harbor-web": ">=0.11.0 <1"
+	},
+	"peerDependenciesMeta": {
+		"agent-skill-harbor-collector": {
+			"optional": true
+		},
+		"agent-skill-harbor-post-collect": {
+			"optional": true
+		},
+		"agent-skill-harbor-web": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
-		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^22.15.0",
 		"eslint": "^9.18.0",
 		"tsup": "8.5.1",
+		"tsx": "^4.19.0",
 		"typescript": "^5.7.0",
-		"typescript-eslint": "^8.20.0"
+		"typescript-eslint": "^8.20.0",
+		"agent-skill-harbor-collector": "workspace:*",
+		"agent-skill-harbor-post-collect": "workspace:*",
+		"agent-skill-harbor-web": "workspace:*"
 	}
 }

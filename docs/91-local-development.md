@@ -29,7 +29,11 @@ cd agent-skill-harbor
 pnpm install
 pnpm setup:dev    # Create .env and pull demo config/data/guide
 # Edit .env: uncomment and set GH_TOKEN, GH_ORG
-tsx cli/bin/cli.ts dev
+pnpm --dir collector build
+pnpm --dir post-collect build
+pnpm --dir cli build
+pnpm --dir web build
+node cli/dist/bin/cli.js dev
 ```
 
 The development server will start at `http://localhost:5173`.
@@ -47,31 +51,58 @@ This command requires network access.
 ### Commands
 
 ```bash
-tsx cli/bin/cli.ts dev        # Start development server
-tsx cli/bin/cli.ts build      # Build the catalog site via CLI
-tsx cli/bin/cli.ts preview    # Preview built site
+node cli/dist/bin/cli.js dev       # Start development server
+node cli/dist/bin/cli.js build     # Build the catalog site via CLI
+node cli/dist/bin/cli.js preview   # Preview built site
 cd web && pnpm check          # Type check web package
 cd web && pnpm lint           # Lint web package
 pnpm format       # Format all files with Prettier
-pnpm --dir cli build          # Build CLI package (after modifying bin/ or src/)
-GH_TOKEN=$(gh auth token) node cli/dist/bin/cli.js collect   # Collect skills from source
+pnpm --dir collector build    # Rebuild collect package after changing collector/
+pnpm --dir post-collect build # Rebuild post-collect package after changing post-collect/
+pnpm --dir cli build          # Rebuild wrapper CLI after changing cli/
+pnpm --dir web build          # Rebuild web package after changing web/
+GH_TOKEN=$(gh auth token) node cli/dist/bin/cli.js collect
 node cli/dist/bin/cli.js post-collect --collect-id <collect_id>
 pnpm setup:dev                # Refresh local demo config/data/guide
 ```
 
 The demo data includes `data/collects.yaml`, `data/skills.yaml`, and sample plugin outputs from the demo repository.
 
-When running the built CLI from the source repository, execute it from the repository root so `config/` and `data/` resolve correctly.
+When running the built CLI from the source repository, execute it from the repository root so `config/`, `data/`, and `guide/` resolve correctly.
+
+### Typical Verification Flow
+
+```bash
+cd /Users/fumi/ws/hobby/agent-skill-harbor
+pnpm install
+pnpm setup:dev
+pnpm --dir collector build
+pnpm --dir post-collect build
+pnpm --dir cli build
+pnpm --dir web build
+
+GH_TOKEN=$(gh auth token) node cli/dist/bin/cli.js collect --force
+grep -m1 '^  collect_id:' data/collects.yaml
+node cli/dist/bin/cli.js post-collect --collect-id <collect_id>
+node cli/dist/bin/cli.js build
+node cli/dist/bin/cli.js dev
+node cli/dist/bin/cli.js preview
+```
+
+Use this flow when you want to validate the full collector -> post-collect -> web pipeline from the source repository. Use `dev` when you want to inspect the live development server, and `preview` when you want to inspect the built output.
 
 ### Project Structure
 
 ```
+├── collector/             # Published collect runtime package
 ├── cli/
-│   ├── bin/              # CLI entry point
-│   ├── src/cli/          # CLI commands (init, collect, build, dev, preview)
-│   └── templates/        # Project scaffold templates bundled into the CLI package
+│   ├── bin/              # Thin harbor wrapper
+│   ├── src/cli/          # init/gen and command dispatch
+│   └── templates/        # Project scaffold templates bundled into the wrapper package
+├── post-collect/         # Published post-collect runtime package
 ├── scripts/              # Development scripts (setup-dev, collect)
 ├── web/                  # SvelteKit frontend application
+│   ├── src/cli/          # build/dev/preview/deploy command entrypoints
 │   ├── src/lib/server/   # Server-side data loading (catalog, docs)
 │   ├── src/routes/       # Pages (catalog, skill detail, graph, docs)
 │   └── src/lib/i18n/     # Internationalization (en, ja)
@@ -90,10 +121,12 @@ When running the built CLI from the source repository, execute it from the repos
 
 ### Package Layout
 
-- **`agent-skill-harbor`**: The published CLI package rooted at `cli/`. It contains the `harbor` executable, project templates, and collector runtime.
-- **`agent-skill-harbor-web`**: The published SvelteKit web package. It contains the frontend source, SvelteKit config, and web build dependencies.
-- **Runtime dependency direction**: The CLI package depends on `agent-skill-harbor-web` and resolves the web build toolchain from the installed web package instead of bundling `web/` into the CLI tarball.
-- **Dependency ownership**: Web UI and SvelteKit dependencies should be managed in `web/package.json`. CLI/runtime dependencies belong in `cli/package.json`, while the root `package.json` is workspace-only.
+- **`agent-skill-harbor`**: Thin published wrapper package rooted at `cli/`. It provides the `harbor` executable, `init`, `gen`, templates, and command dispatch.
+- **`agent-skill-harbor-collector`**: Published collect runtime package rooted at `collector/`.
+- **`agent-skill-harbor-post-collect`**: Published post-collect runtime package rooted at `post-collect/`. Heavy dependencies such as `promptfoo` live here.
+- **`agent-skill-harbor-web`**: Published SvelteKit web package rooted at `web/`. It also owns `build`, `dev`, `preview`, and `deploy`.
+- **Install surface split**: Generated projects keep `tools/harbor/collector`, `tools/harbor/post-collect`, and `tools/harbor/web` so workflows can install only the dependencies they need.
+- **Dependency ownership**: Web UI and SvelteKit dependencies belong in `web/package.json`. Collect-only runtime dependencies belong in `collector/package.json`. Post-collect-only runtime dependencies belong in `post-collect/package.json`. The root `package.json` is workspace-only.
 
 ### Release Notes
 

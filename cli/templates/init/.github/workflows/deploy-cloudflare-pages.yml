@@ -46,12 +46,11 @@ jobs:
         if: ${{ steps.preflight.outputs.enabled == 'true' }}
         with:
           node-version: '24'
-          cache: 'pnpm'
 
-      - name: Install dependencies
+      - name: Install web dependencies
         if: ${{ steps.preflight.outputs.enabled == 'true' }}
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --dir tools/harbor/web
 
       - name: Deploy to Cloudflare Pages
         if: ${{ steps.preflight.outputs.enabled == 'true' }}
-        run: npx harbor deploy cloudflare-pages
+        run: pnpm --dir tools/harbor/web exec harbor deploy cloudflare-pages --project-root "$GITHUB_WORKSPACE"

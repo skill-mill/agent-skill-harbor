@@ -1,6 +1,13 @@
 node_modules/
 dist/
 cli/dist/
+cli/node_modules/
+collector/dist/
+collector/node_modules/
+post-collect/dist/
+post-collect/node_modules/
+web/dist/
+web/node_modules/
 build/
 .env
 .env.*

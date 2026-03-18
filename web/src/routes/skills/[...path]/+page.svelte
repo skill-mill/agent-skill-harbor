@@ -29,7 +29,7 @@
 			pluginOutputs: {
 				id: string;
 				labelIntents: Record<string, LabelIntent>;
-				result: Record<string, unknown> & { label?: string; raw?: string };
+				result: Record<string, unknown> & { label?: string; raw?: string; report_path?: string };
 			}[];
 		};
 	}
@@ -94,9 +94,9 @@
 		return hash ? `${resolvedPath}#${hash}` : resolvedPath;
 	}
 
-	function getPluginExtraYaml(result: Record<string, unknown> & { label?: string; raw?: string }): string | null {
+	function getPluginExtraYaml(result: Record<string, unknown> & { label?: string; raw?: string; report_path?: string }): string | null {
 		const extraEntries = Object.entries(result).filter(([key, value]) => {
-			if (key === 'label' || key === 'raw') return false;
+			if (key === 'label' || key === 'raw' || key === 'report_path') return false;
 			return value !== undefined;
 		});
 		if (extraEntries.length === 0) return null;
@@ -109,7 +109,11 @@
 	const ACTIONABLE_INTENTS: Set<string> = new Set(['warn', 'danger', 'info']);
 
 	function buildIssueUrl(
-		plugin: { id: string; labelIntents: Record<string, LabelIntent>; result: Record<string, unknown> & { label?: string; raw?: string } },
+		plugin: {
+			id: string;
+			labelIntents: Record<string, LabelIntent>;
+			result: Record<string, unknown> & { label?: string; raw?: string; report_path?: string };
+		},
 	): string | null {
 		if (!skill.repoKey.startsWith('github.com/')) return null;
 		const intent = plugin.labelIntents[plugin.result.label ?? ''];
@@ -119,7 +123,7 @@
 		const title = (plugin.result.raw ?? plugin.result.label ?? '').slice(0, 256);
 
 		const bodyParts: string[] = [];
-		bodyParts.push(`Harbor: ${$page.url.href}`);
+		bodyParts.push(`This issue was created from Agent Skill Harbor.\n${$page.url.href}`);
 		const extraYaml = getPluginExtraYaml(plugin.result);
 		if (extraYaml) {
 			bodyParts.push('```yaml\n' + extraYaml + '\n```');
@@ -127,6 +131,12 @@
 		const body = bodyParts.join('\n\n').slice(0, 8000);
 
 		return `${repoUrl}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+	}
+
+	function getReportHref(result: Record<string, unknown> & { report_path?: string }): string | null {
+		return typeof result.report_path === 'string' && result.report_path.length > 0
+			? `${base}/${result.report_path}`.replace(/\/+/g, '/')
+			: null;
 	}
 
 	function renderSkillMarkdown(markdown: string, skill: FlatSkillEntry): string {
@@ -422,6 +432,7 @@
 				{#each pluginOutputs as plugin}
 					{@const extraYaml = getPluginExtraYaml(plugin.result)}
 					{@const issueUrl = buildIssueUrl(plugin)}
+					{@const reportHref = getReportHref(plugin.result)}
 					<div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
 						<div class="flex items-center gap-3">
 							<code
@@ -444,6 +455,17 @@
 								>
 									<GitHubLogo class="h-3.5 w-3.5" />
 									Create Issue
+								</a>
+							{/if}
+							{#if reportHref}
+								<a
+									href={reportHref}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+								>
+									<FileText class="h-3.5 w-3.5" />
+									{$t('detail.viewHtmlReport')}
 								</a>
 							{/if}
 						</div>

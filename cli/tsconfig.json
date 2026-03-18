@@ -11,5 +11,5 @@
 		"declaration": false,
 		"sourceMap": false
 	},
-	"include": ["bin/**/*.ts", "src/**/*.ts"]
+	"include": ["bin/cli.ts", "src/cli/paths.ts", "src/cli/gen.ts", "src/cli/commands/init.ts", "src/cli/commands/gen.ts"]
 }
