@@ -2,6 +2,9 @@
 	import ConfigRawPanel from '$lib/components/ConfigRawPanel.svelte';
 	import { t } from '$lib/i18n';
 	import * as Popover from '$lib/components/ui/popover';
+	import Info from '@lucide/svelte/icons/info';
+	import Check from '@lucide/svelte/icons/check';
+	import X from '@lucide/svelte/icons/x';
 
 	let { data } = $props();
 
@@ -36,13 +39,7 @@
 					class="inline-flex items-center rounded p-0.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
 					aria-label={`Open YAML key ${key}`}
 				>
-					<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-						<path
-							fill-rule="evenodd"
-							d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-8.75-3a.75.75 0 011.5 0v.25a.75.75 0 01-1.5 0V7zm0 2.5a.75.75 0 011.5 0v3.5a.75.75 0 01-1.5 0V9.5z"
-							clip-rule="evenodd"
-						/>
-					</svg>
+					<Info class="h-3.5 w-3.5" />
 				</button>
 			{/snippet}
 		</Popover.Trigger>
@@ -96,22 +93,12 @@
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.collector.exclude_forks}
 								<span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
-									<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-										<path
-											fill-rule="evenodd"
-											d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-											clip-rule="evenodd"
-										/>
-									</svg>
+									<Check class="h-4 w-4" />
 									{$t('settings.enabled')}
 								</span>
 							{:else}
 								<span class="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500">
-									<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-										<path
-											d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-										/>
-									</svg>
+									<X class="h-4 w-4" />
 									{$t('settings.disabled')}
 								</span>
 							{/if}
@@ -127,22 +114,12 @@
 						<td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
 							{#if data.settings.collector.include_origin_repos}
 								<span class="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
-									<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-										<path
-											fill-rule="evenodd"
-											d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-											clip-rule="evenodd"
-										/>
-									</svg>
+									<Check class="h-4 w-4" />
 									{$t('settings.enabled')}
 								</span>
 							{:else}
 								<span class="inline-flex items-center gap-1 text-gray-400 dark:text-gray-500">
-									<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-										<path
-											d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-										/>
-									</svg>
+									<X class="h-4 w-4" />
 									{$t('settings.disabled')}
 								</span>
 							{/if}

@@ -4,6 +4,8 @@
 	import PluginLabelBadge from './PluginLabelBadge.svelte';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
+	import Building2 from '@lucide/svelte/icons/building-2';
+	import Globe from '@lucide/svelte/icons/globe';
 
 	interface Props {
 		skill: FlatSkillEntry;
@@ -78,24 +80,14 @@
 			<span
 				class="inline-flex items-center gap-1 rounded bg-blue-50 px-1.5 py-0.5 font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
 			>
-				<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M4 16.5v-13h-.25a.75.75 0 010-1.5h12.5a.75.75 0 010 1.5H16v13h.25a.75.75 0 010 1.5h-3.5a.75.75 0 01-.75-.75v-2.5a.75.75 0 00-.75-.75h-2.5a.75.75 0 00-.75.75v2.5a.75.75 0 01-.75.75h-3.5a.75.75 0 010-1.5H4zm3-11a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5v-1zm.5 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-1a.5.5 0 00-.5-.5h-1zm3.5-3.5a.5.5 0 01.5-.5h1a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-1a.5.5 0 01-.5-.5v-1zm.5 3.5a.5.5 0 00-.5.5v1a.5.5 0 00.5.5h1a.5.5 0 00.5-.5v-1a.5.5 0 00-.5-.5h-1z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+				<Building2 class="h-3.5 w-3.5" />
 				{skill.owner}
 			</span>
 		{:else}
 			<span
 				class="inline-flex items-center gap-1 rounded bg-gray-100 px-1.5 py-0.5 font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400"
 			>
-				<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-					<path
-						d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z"
-					/>
-				</svg>
+				<Globe class="h-3.5 w-3.5" />
 				{$t('skillCard.community')}
 			</span>
 		{/if}
