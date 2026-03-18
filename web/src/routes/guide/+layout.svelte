@@ -7,8 +7,8 @@
 </script>
 
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-	<div class="lg:grid lg:grid-cols-[220px_1fr] lg:gap-8">
-		<nav class="mb-6 lg:mb-0">
+	<div class="lg:grid lg:grid-cols-4 lg:gap-8">
+		<nav class="mb-6 lg:col-span-1 lg:mb-0 lg:sticky lg:top-24 lg:self-start">
 			<h2 class="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Guide</h2>
 			<ul class="space-y-1">
 				{#each data.docs as item}
@@ -27,7 +27,7 @@
 				{/each}
 			</ul>
 		</nav>
-		<div>
+		<div class="lg:col-span-3">
 			{@render children()}
 		</div>
 	</div>

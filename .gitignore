@@ -7,10 +7,10 @@ build/
 !.env.example
 
 # Local development data (created by setup:dev)
-config/
-data/
-guide/
-plugins/*
+/config/
+/data/
+/guide/
+/plugins/
 
 # SvelteKit
 web/.svelte-kit/
