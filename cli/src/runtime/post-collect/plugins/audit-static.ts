@@ -16,7 +16,7 @@ function mapLabelIntent(label: string): LabelIntent {
 	}
 }
 
-function mapAuditLabel(value: 'pass' | 'info' | 'warn' | 'fail'): string {
+function mapAuditLabel(value: 'pass' | 'info' | 'warn' | 'fail'): 'Pass' | 'Info' | 'Warn' | 'Fail' {
 	switch (value) {
 		case 'pass':
 			return 'Pass';
@@ -33,12 +33,15 @@ export const auditStaticPlugin: BuiltinPostCollectPlugin = {
 	id: 'builtin.audit-static',
 	run(context): PostCollectPluginResult {
 		const results: NonNullable<PostCollectPluginResult['results']> = {};
+		const counts = { Pass: 0, Info: 0, Warn: 0, Fail: 0 };
 
+		console.log('     audit-static: scanning cached markdown files');
 		for (const [repoKey, repoEntry] of Object.entries(context.catalog.repositories)) {
 			for (const skillPath of Object.keys(repoEntry.skills)) {
 				const skillKey = `${repoKey}/${skillPath}`;
 				const audit = analyzeStaticSkill(context.project_root, skillKey);
 				const label = mapAuditLabel(audit.result);
+				counts[label] += 1;
 				results[skillKey] = {
 					label,
 					raw: audit.summary ?? undefined,
@@ -46,6 +49,9 @@ export const auditStaticPlugin: BuiltinPostCollectPlugin = {
 				};
 			}
 		}
+		console.log(
+			`     audit-static: scanned ${Object.keys(results).length} skill(s) (${counts.Pass} pass, ${counts.Info} info, ${counts.Warn} warn, ${counts.Fail} fail)`,
+		);
 
 		return {
 			summary: `${Object.keys(results).length} skill(s) scanned by the static audit plugin.`,

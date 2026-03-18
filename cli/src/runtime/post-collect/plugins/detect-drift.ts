@@ -64,11 +64,14 @@ export const detectDriftPlugin: BuiltinPostCollectPlugin = {
 		const skillIdentityCache = new Map<string, string | null>();
 		const buildSkillFilePath = (repoKey: string, skillPath: string) =>
 			`${context.paths.skills_dir}/${repoKey}/${skillPath}`;
+		let checked = 0;
 
+		console.log('     detect-drift: scanning collected skills for origin drift');
 		for (const [repoKey, repoEntry] of Object.entries(context.catalog.repositories)) {
 			for (const [skillPath, skillEntry] of Object.entries(repoEntry.skills)) {
 				const skillKey = `${repoKey}/${skillPath}`;
 				if (!skillEntry.resolved_from) continue;
+				checked += 1;
 				const parsed = parseResolvedFromRef(skillEntry.resolved_from);
 				if (!parsed?.sha) {
 					results[skillKey] = { label: 'Unknown', raw: 'Resolved origin SHA is missing.' };
@@ -109,6 +112,16 @@ export const detectDriftPlugin: BuiltinPostCollectPlugin = {
 				};
 			}
 		}
+
+		const counts = { 'In sync': 0, Drifted: 0, Unknown: 0 };
+		for (const result of Object.values(results)) {
+			if (result?.label === 'In sync' || result?.label === 'Drifted' || result?.label === 'Unknown') {
+				counts[result.label] += 1;
+			}
+		}
+		console.log(
+			`     detect-drift: checked ${checked} skill(s) (${counts['In sync']} in sync, ${counts.Drifted} drifted, ${counts.Unknown} unknown)`,
+		);
 
 		return {
 			summary: `${Object.keys(results).length} skill(s) checked for drift.`,

@@ -205,3 +205,32 @@ test('runPostCollect rejects invalid user plugin ids', async () => {
 		/Invalid user plugin id "plugin\.sample"/,
 	);
 });
+
+test('runPostCollect logs plugin start, built-in summary and saved path', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'post-collect-log-'));
+	mkdirSync(join(root, 'data'), { recursive: true });
+
+	const logs: string[] = [];
+	const originalLog = console.log;
+	console.log = (...args: unknown[]) => {
+		logs.push(args.map((arg) => String(arg)).join(' '));
+	};
+
+	try {
+		await runPostCollect({
+			projectRoot: root,
+			collectId: 'collect-log',
+			catalog: { repositories: {} },
+			log: true,
+			plugins: [{ id: 'builtin.detect-drift' }],
+		});
+	} finally {
+		console.log = originalLog;
+	}
+
+	assert.match(logs.join('\n'), /builtin\.detect-drift \(start\)/);
+	assert.match(logs.join('\n'), /detect-drift: scanning collected skills for origin drift/);
+	assert.match(logs.join('\n'), /detect-drift: checked 0 skill\(s\) \(0 in sync, 0 drifted, 0 unknown\)/);
+	assert.match(logs.join('\n'), /builtin\.detect-drift \(done\)/);
+	assert.match(logs.join('\n'), /saved: .*builtin\.detect-drift\.yaml/);
+});

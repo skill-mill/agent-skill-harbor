@@ -34,6 +34,10 @@ interface SavedPluginOutputEntry extends PostCollectPluginResult {
 	collect_id?: string;
 }
 
+function getPluginOutputPath(projectRoot: string, pluginId: string): string {
+	return join(projectRoot, 'data', 'plugins', `${pluginId}.yaml`);
+}
+
 function loadPostCollectSettings(projectRoot: string): PostCollectSettings {
 	const settingsPath = join(projectRoot, 'config', 'harbor.yaml');
 	if (!existsSync(settingsPath)) {
@@ -118,7 +122,7 @@ async function loadUserPlugin(projectRoot: string, pluginId: string): Promise<Po
 }
 
 function loadPluginOutputHistory(projectRoot: string, pluginId: string): SavedPluginOutputEntry[] {
-	const outputPath = join(projectRoot, 'data', 'plugins', `${pluginId}.yaml`);
+	const outputPath = getPluginOutputPath(projectRoot, pluginId);
 	if (!existsSync(outputPath)) return [];
 	try {
 		const raw = yamlLoad(readFileSync(outputPath, 'utf-8'));
@@ -129,7 +133,7 @@ function loadPluginOutputHistory(projectRoot: string, pluginId: string): SavedPl
 }
 
 function savePluginOutput(projectRoot: string, pluginId: string, collectId: string | null, result: PostCollectPluginResult): void {
-	const outputPath = join(projectRoot, 'data', 'plugins', `${pluginId}.yaml`);
+	const outputPath = getPluginOutputPath(projectRoot, pluginId);
 	const historyLimit = loadHistoryLimit(projectRoot);
 	mkdirSync(dirname(outputPath), { recursive: true });
 	const payload: SavedPluginOutputEntry = {
@@ -180,10 +184,16 @@ export async function runPostCollect(options: RunPostCollectOptions): Promise<vo
 	for (const plugin of plugins) {
 		const builtIn = BUILTIN_PLUGINS.get(plugin.id);
 		const context: PostCollectPluginContext = { ...contextBase, plugin_id: plugin.id };
-		if (log) console.log(`  -> ${plugin.id}`);
+		const outputPath = getPluginOutputPath(options.projectRoot, plugin.id);
+		if (log) console.log(`  -> ${plugin.id} (start)`);
 		const result = builtIn
 			? await builtIn.run(context)
 			: await (await loadUserPlugin(options.projectRoot, plugin.id)).run(context);
-		savePluginOutput(options.projectRoot, plugin.id, options.collectId ?? null, normalizePluginResult(result));
+		const normalizedResult = normalizePluginResult(result);
+		savePluginOutput(options.projectRoot, plugin.id, options.collectId ?? null, normalizedResult);
+		if (log) {
+			console.log(`     ${plugin.id} (done)`);
+			console.log(`     saved: ${outputPath}`);
+		}
 	}
 }
