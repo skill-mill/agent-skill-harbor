@@ -6,7 +6,23 @@ const args = process.argv.slice(3);
 const targetDir = args[0] ? resolve(process.cwd(), args[0]) : process.cwd();
 const projectName = basename(targetDir);
 const templatesDir = resolve(packageRoot, 'templates/init');
-const packageVersion = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf-8')).version as string;
+const cliPackageJson = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf-8')) as {
+	version: string;
+	peerDependencies?: Record<string, string>;
+};
+const packageVersion = cliPackageJson.version;
+
+function getPeerDependencyVersion(packageName: string): string {
+	const version = cliPackageJson.peerDependencies?.[packageName];
+	if (!version) {
+		throw new Error(`Missing peer dependency version for ${packageName} in cli/package.json`);
+	}
+	return version;
+}
+
+const collectorVersion = getPeerDependencyVersion('agent-skill-harbor-collector');
+const postCollectVersion = getPeerDependencyVersion('agent-skill-harbor-post-collect');
+const webVersion = getPeerDependencyVersion('agent-skill-harbor-web');
 
 console.log(`\nInitializing Agent Skill Harbor project: ${projectName}`);
 console.log(`  Directory: ${targetDir}\n`);
@@ -30,7 +46,12 @@ if (existing.length > 0) {
 const pkgTemplate = readFileSync(join(templatesDir, 'package.template.json'), 'utf-8');
 writeFileSync(
 	join(targetDir, 'package.json'),
-	pkgTemplate.replace('{{PROJECT_NAME}}', projectName).replace('{{PACKAGE_VERSION}}', packageVersion),
+	pkgTemplate
+		.replace('{{PROJECT_NAME}}', projectName)
+		.replaceAll('{{PACKAGE_VERSION}}', packageVersion)
+		.replaceAll('{{COLLECTOR_VERSION}}', collectorVersion)
+		.replaceAll('{{POST_COLLECT_VERSION}}', postCollectVersion)
+		.replaceAll('{{WEB_VERSION}}', webVersion),
 );
 console.log('  Created package.json');
 
@@ -73,6 +94,27 @@ console.log('  Created data/');
 cpSync(join(templatesDir, 'guide'), join(targetDir, 'guide'), { recursive: true });
 console.log('  Created guide/');
 
+// tools/harbor/
+const toolTemplateFiles = [
+	'tools/harbor/collector/package.template.json',
+	'tools/harbor/post-collect/package.template.json',
+	'tools/harbor/web/package.template.json',
+];
+for (const templatePath of toolTemplateFiles) {
+	const source = join(templatesDir, templatePath);
+	const output = join(targetDir, templatePath.replace('.template', ''));
+	const content = readFileSync(source, 'utf-8')
+		.replaceAll('{{PACKAGE_VERSION}}', packageVersion)
+		.replaceAll('{{COLLECTOR_VERSION}}', collectorVersion)
+		.replaceAll('{{POST_COLLECT_VERSION}}', postCollectVersion)
+		.replaceAll('{{WEB_VERSION}}', webVersion);
+	mkdirSync(resolve(output, '..'), { recursive: true });
+	writeFileSync(output, content);
+}
+console.log('  Created tools/harbor/collector/package.json');
+console.log('  Created tools/harbor/post-collect/package.json');
+console.log('  Created tools/harbor/web/package.json');
+
 console.log(`
 Done! Next steps:
 
@@ -84,4 +126,5 @@ Done! Next steps:
      pnpm collect   (or npx harbor collect)
   5. Start development server:
      pnpm dev       (or npx harbor dev)
+  6. GitHub Actions install scoped dependencies from tools/harbor/*
 `);

@@ -4,11 +4,7 @@ Agent Skill Harbor can run plugins after each `collect`.
 
 ## Built-in Plugins
 
-Harbor currently provides these built-in plugins:
-
-- `builtin.detect-drift`
-- `builtin.audit-static`
-- `builtin.audit-promptfoo-security`
+Harbor currently provides these built-in plugins.
 
 Configure them in `config/harbor.yaml`:
 
@@ -39,6 +35,43 @@ Each `post_collect.plugins[]` entry supports these common fields:
 - `config`: optional plugin-specific configuration object
 
 `config` is intentionally generic. Harbor passes it to the plugin as-is via `context.plugin_config`, and each plugin decides how to interpret it. There is no global schema shared by all plugins.
+
+### `builtin.detect-drift`
+
+Detects whether collected skills have drifted from their recorded upstream origin.
+
+- Primary purpose: provenance drift detection
+- Typical output labels: `In sync`, `Drifted`, `Unknown`
+- Recommended use: enable this when you rely on copied or imported skills and want to know when upstream changed
+
+This plugin is lightweight and uses only collected catalog data plus saved skill files.
+
+### `builtin.audit-static`
+
+Runs a lightweight static audit against cached markdown and metadata.
+
+- Primary purpose: rule-based linting / risk spotting
+- Typical output labels: `Pass`, `Info`, `Warn`, `Fail`
+- Recommended use: enable this when you want cheap checks without LLM cost
+
+This plugin does not call external LLM APIs. It scans local cached files only.
+
+### `builtin.audit-promptfoo-security`
+
+Runs `promptfoo` red teaming against org-owned skills and summarizes the results into Harbor labels.
+
+- Primary purpose: LLM-based security / prompt safety auditing
+- Typical output labels: `Safe`, `Risk`, `Critical`, `Unknown`
+- Recommended use: enable this only when you explicitly want LLM-backed security checks and have configured `config.model`
+
+Important notes:
+
+- It currently targets org-owned skills only
+- It may generate HTML reports under `data/plugin-reports/builtin.audit-promptfoo-security/`
+- Harbor runs it with `PROMPTFOO_DISABLE_TELEMETRY=1` and `PROMPTFOO_DISABLE_UPDATE=1`
+- `promptfoo` can still attempt other outbound communication depending on the red-team feature set you enable
+
+If you have strong supply-chain or outbound-network constraints, review whether this plugin belongs in your `post_collect.plugins` list before enabling it.
 
 ## User-Defined Plugins
 
@@ -108,6 +141,8 @@ Harbor does not manage these files as part of the plugin result schema. The plug
 
 During `harbor build`, Harbor copies `data/plugin-reports/` into the web build output so those files can be linked from the UI.
 
+In generated projects, the build workflow installs only `tools/harbor/web`, but the copy rule stays the same because Harbor always reads `data/plugin-reports/` from the project root passed via `--project-root`.
+
 ## Web UI Behavior
 
 - Card/List/Skill detail use plugin output only when it matches the latest `collect_id`
@@ -117,9 +152,14 @@ During `harbor build`, Harbor copies `data/plugin-reports/` into the web build o
 
 ## Workflow
 
-The generated `CollectSkills` workflow runs:
+The generated `CollectSkills` workflow installs scoped dependencies from:
+
+- `tools/harbor/collector`
+- `tools/harbor/post-collect`
+
+Then it runs:
 
 1. `collect`
 2. `post-collect --collect-id ...`
 
-This keeps collection and post-collection processing separate and rerunnable.
+This keeps collection and post-collection processing separate and rerunnable, and it avoids installing heavy post-collect dependencies in the collect job.
