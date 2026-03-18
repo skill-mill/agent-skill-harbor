@@ -119,7 +119,7 @@
 		const title = (plugin.result.raw ?? plugin.result.label ?? '').slice(0, 256);
 
 		const bodyParts: string[] = [];
-		bodyParts.push(`Harbor: ${$page.url.href}`);
+		bodyParts.push(`This issue was created from Agent Skill Harbor.\n${$page.url.href}`);
 		const extraYaml = getPluginExtraYaml(plugin.result);
 		if (extraYaml) {
 			bodyParts.push('```yaml\n' + extraYaml + '\n```');
