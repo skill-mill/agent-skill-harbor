@@ -1,5 +1,25 @@
 # 変更履歴
 
+## [cli 0.13.0] / [collector 0.13.0] / [post-collect 0.13.0] / [web 0.13.0] - 2026-03-19
+
+### 追加
+
+- built-in の `builtin.audit-promptfoo-security` post-collect plugin を追加し、HTML レポート生成、スキル詳細画面からのレポートリンク、built-in plugin の挙動をまとめたドキュメントを追加した
+- install surface を分離し、薄い `agent-skill-harbor` wrapper に加えて、公開 runtime package として `agent-skill-harbor-collector`、`agent-skill-harbor-post-collect`、`agent-skill-harbor-web` を追加した
+- catalog SHA が変わっていなくても repository と skill ファイルを強制再収集できる `collect --force` を追加した
+
+### 変更
+
+- init template と GitHub Actions workflow を作り直し、`tools/harbor/{collector,post-collect,web}` から役割別 package を install する構成に変更した
+- exclude や origin 解決の変更で対象外になった repository データを collect 時に prune するようにした
+- split した runtime package と wrapper 経由の source repo 実行に合わせて、ローカル開発と release のドキュメントを更新した
+
+### 修正
+
+- collect / post-collect の project root 解決を修正し、source repo 実行でも意図した `config/` と `data/` を正しく読むようにした
+- wrapper から委譲した command にフラグが正しく渡るよう、引数転送の不具合を修正した
+- Harbor 経由の security audit 実行時に `promptfoo` の telemetry と update check を無効化した
+
 ## [cli 0.11.1] / [web 0.10.0] - 2026-03-15
 
 ### 変更

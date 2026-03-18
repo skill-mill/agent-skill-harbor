@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor-post-collect",
-	"version": "0.12.0",
+	"version": "0.13.0",
 	"type": "module",
 	"description": "Post-collect runtime package for Agent Skill Harbor.",
 	"license": "MIT",

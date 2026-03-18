@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor",
-	"version": "0.12.0",
+	"version": "0.13.0",
 	"type": "module",
 	"description": "Skill governance for companies. Skill discovery for teams.",
 	"keywords": [
@@ -38,9 +38,9 @@
 		"build": "tsup"
 	},
 	"peerDependencies": {
-		"agent-skill-harbor-collector": ">=0.12.0 <1",
-		"agent-skill-harbor-post-collect": ">=0.12.0 <1",
-		"agent-skill-harbor-web": ">=0.11.0 <1"
+		"agent-skill-harbor-collector": ">=0.13.0 <1",
+		"agent-skill-harbor-post-collect": ">=0.13.0 <1",
+		"agent-skill-harbor-web": ">=0.13.0 <1"
 	},
 	"peerDependenciesMeta": {
 		"agent-skill-harbor-collector": {
