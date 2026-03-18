@@ -88,6 +88,7 @@ export interface PluginHistoryColumn {
 	short_label?: string;
 	labels: string[];
 	intent_labels: string[];
+	label_intents?: Record<string, LabelIntent>;
 	label_abbreviations: Record<string, string>;
 }
 

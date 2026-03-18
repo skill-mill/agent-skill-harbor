@@ -560,18 +560,22 @@ export function loadPluginHistoryColumns(): PluginHistoryColumn[] {
 	const pluginOrder = new Map(configuredPlugins.map((plugin, index) => [plugin.id, index]));
 	const labelsByPlugin = new Map<string, Set<string>>();
 	const intentLabelsByPlugin = new Map<string, Set<string>>();
+	const intentsByPlugin = new Map<string, Record<string, LabelIntent>>();
 
 	for (const output of loadPluginOutputHistory()) {
 		const labels = labelsByPlugin.get(output.plugin_id) ?? new Set<string>();
 		const intentLabels = intentLabelsByPlugin.get(output.plugin_id) ?? new Set<string>();
-		for (const label of Object.keys(output.label_intents ?? {})) {
+		const labelIntents = intentsByPlugin.get(output.plugin_id) ?? {};
+		for (const [label, intent] of Object.entries(output.label_intents ?? {})) {
 			if (label) {
 				labels.add(label);
 				intentLabels.add(label);
+				labelIntents[label] = intent;
 			}
 		}
 		labelsByPlugin.set(output.plugin_id, labels);
 		intentLabelsByPlugin.set(output.plugin_id, intentLabels);
+		intentsByPlugin.set(output.plugin_id, labelIntents);
 	}
 
 	for (const collectSummary of Object.values(loadPluginHistorySummaries())) {
@@ -594,6 +598,9 @@ export function loadPluginHistoryColumns(): PluginHistoryColumn[] {
 				...(shortLabel ? { short_label: shortLabel } : {}),
 				labels: orderedLabels,
 				intent_labels: orderedIntentLabels,
+				...(Object.keys(intentsByPlugin.get(plugin_id) ?? {}).length > 0
+					? { label_intents: intentsByPlugin.get(plugin_id) }
+					: {}),
 				label_abbreviations: computeMinimalUniquePrefixes(orderedLabels),
 			};
 		})

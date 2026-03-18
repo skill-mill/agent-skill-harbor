@@ -207,11 +207,13 @@
 
 			<!-- Invisible hit areas -->
 			{#each computed.points as point, i}
+				{@const hitWidth = Math.max(20, chartWidth / data.length)}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<circle
-					cx={point.x}
-					cy={height / 2}
-					r={Math.max(12, chartWidth / data.length / 2)}
+				<rect
+					x={point.x - hitWidth / 2}
+					y={padding.top}
+					width={hitWidth}
+					height={computed.innerHeight}
 					fill="transparent"
 					onpointerenter={() => (hoveredIndex = i)}
 					onpointerleave={() => (hoveredIndex = null)}

@@ -4,6 +4,7 @@
 	import { base } from '$app/paths';
 	import { onMount } from 'svelte';
 	import StatCard from '$lib/components/StatCard.svelte';
+	import PluginTrendChart from '$lib/components/PluginTrendChart.svelte';
 	import TrendChart from '$lib/components/TrendChart.svelte';
 	import ViewTabs from '$lib/components/ViewTabs.svelte';
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
@@ -164,8 +165,9 @@
 
 	// Breakdown
 	let statusBreakdown = $derived.by(() => {
-		const counts: Record<string, number> = { recommended: 0, discouraged: 0, prohibited: 0, none: 0 };
+		const counts: Record<string, number> = { recommended: 0, discouraged: 0, prohibited: 0 };
 		for (const s of filteredSkills) {
+			if (s.usage_policy === 'none') continue;
 			counts[s.usage_policy] = (counts[s.usage_policy] ?? 0) + 1;
 		}
 		return counts;
@@ -190,9 +192,10 @@
 	});
 
 	let historyExpanded = $state(false);
-	let displayedHistory = $derived(historyExpanded ? data.collections : data.collections.slice(0, 10));
+	let displayedHistory = $derived(historyExpanded ? data.collections : data.collections.slice(0, 3));
 	let pluginHistoryColumns = $derived(data.pluginHistoryColumns ?? []);
 	let pluginHistorySummaries = $derived(data.pluginHistorySummaries ?? {});
+	const trendShapes = ['circle', 'square', 'diamond', 'triangle', 'cross'] as const;
 
 	function formatDuration(sec: number): string {
 		if (sec >= 60) {
@@ -256,6 +259,42 @@
 			.filter((value): value is { label: string; abbreviation: string; count: number } => value != null);
 	}
 
+	function formatTrendDate(iso: string): string {
+		const date = new Date(iso);
+		return `${date.getMonth() + 1}/${date.getDate()}`;
+	}
+
+	let pluginTrendSections = $derived.by(() =>
+		pluginHistoryColumns.map((column) => {
+			const labels = column.labels;
+			const canChart = labels.length > 0 && labels.length <= 5;
+			const series = canChart
+				? labels.map((label, index) => ({
+						label,
+						intent: column.label_intents?.[label] ?? 'neutral',
+						shape: trendShapes[index] ?? 'circle',
+						points: [...data.collections].reverse().map((entry) => {
+							const counts = entry.collect_id
+								? pluginHistorySummaries[entry.collect_id]?.[column.plugin_id]?.[label] ?? { org: 0, community: 0 }
+								: { org: 0, community: 0 };
+							const value =
+								ownerFilter === 'org'
+									? counts.org
+									: ownerFilter === 'community'
+										? counts.community
+										: counts.org + counts.community;
+							return { label: formatTrendDate(entry.collecting.collected_at), value };
+						}),
+					}))
+				: [];
+			return {
+				...column,
+				canChart,
+				series,
+			};
+		}),
+	);
+
 </script>
 
 <svelte:head>
@@ -301,14 +340,6 @@
 		<StatCard label={$t('stats.totalFiles')} value={totalFiles.toLocaleString()} />
 		<StatCard label={$t('stats.lastCollected')} value={lastCollectedFormatted} />
 	</div>
-
-	<!-- Trend Chart -->
-	{#if trendData.length > 0}
-		<div class="mb-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-			<h2 class="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">{$t('stats.skillTrend')}</h2>
-			<TrendChart data={trendData} secondaryData={adoptionTrendData} secondaryLabel="%" />
-		</div>
-	{/if}
 
 	<!-- Breakdown -->
 	<div class="mb-8 grid gap-4 sm:grid-cols-3">
@@ -375,7 +406,7 @@
 	</div>
 
 	<!-- Collection History Table -->
-	<div class="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
+	<div class="mt-8 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
 		<div class="border-b border-gray-200 px-5 py-4 dark:border-gray-700">
 			<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">{$t('stats.collectHistory')}</h2>
 		</div>
@@ -535,4 +566,33 @@
 			{/if}
 		{/if}
 	</div>
+
+	<!-- Trend Chart -->
+	{#if trendData.length > 0}
+		<div class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+			<h2 class="mb-4 text-sm font-medium text-gray-500 dark:text-gray-400">{$t('stats.skillTrend')}</h2>
+			<TrendChart data={trendData} secondaryData={adoptionTrendData} secondaryLabel="%" />
+		</div>
+	{/if}
+
+	{#if pluginTrendSections.length > 0}
+		<div class="mt-8 space-y-6">
+			{#each pluginTrendSections as section (section.plugin_id)}
+				<div class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+					<div class="mb-4">
+						<h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">
+							{section.short_label ?? section.plugin_id}
+						</h2>
+					</div>
+					{#if section.canChart}
+						<PluginTrendChart series={section.series} />
+					{:else}
+						<p class="text-sm text-gray-500 dark:text-gray-400">
+							Too many labels to chart ({section.labels.length}).
+						</p>
+					{/if}
+				</div>
+			{/each}
+		</div>
+	{/if}
 </div>
