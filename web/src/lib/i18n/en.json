@@ -188,7 +188,6 @@
 			"title": "Post Collect"
 		},
 		"governance": {
-			"title": "Governance Policies",
 			"skill_path": "Skill",
 			"policy": "Policy",
 			"note": "Note",

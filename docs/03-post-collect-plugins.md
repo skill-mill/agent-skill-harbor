@@ -50,9 +50,19 @@ Each file stores multiple runs, newest first. Entries are linked to `data/collec
 
 Output fields:
 
-- `summary`
-- `label_intents`
-- `results`
+- `summary`: human-readable summary of the plugin run
+- `label_intents`: maps each label to a visual intent used for coloring in the UI
+- `results`: per-skill results keyed by skill path
+
+### `label_intents` values
+
+| Value     | Color   | Usage example                |
+|-----------|---------|------------------------------|
+| `neutral` | Gray    | Default / unknown state      |
+| `info`    | Blue    | Informational finding        |
+| `success` | Green   | Passed / in sync             |
+| `warn`    | Amber   | Warning / needs attention    |
+| `danger`  | Red     | Failed / critical issue      |
 
 Within each skill result:
 

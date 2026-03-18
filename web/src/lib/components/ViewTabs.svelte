@@ -3,6 +3,10 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { t } from '$lib/i18n';
+	import Grid2x2 from '@lucide/svelte/icons/grid-2x2';
+	import List from '@lucide/svelte/icons/list';
+	import Network from '@lucide/svelte/icons/network';
+	import BarChart3 from '@lucide/svelte/icons/bar-chart-3';
 
 	export type ViewMode = 'card' | 'list' | 'graph' | 'stats';
 
@@ -77,33 +81,13 @@
 				: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300'}"
 		>
 			{#if tab.icon === 'grid'}
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M4.25 2A2.25 2.25 0 002 4.25v2.5A2.25 2.25 0 004.25 9h2.5A2.25 2.25 0 009 6.75v-2.5A2.25 2.25 0 006.75 2h-2.5zm0 9A2.25 2.25 0 002 13.25v2.5A2.25 2.25 0 004.25 18h2.5A2.25 2.25 0 009 15.75v-2.5A2.25 2.25 0 006.75 11h-2.5zm9-9A2.25 2.25 0 0011 4.25v2.5A2.25 2.25 0 0013.25 9h2.5A2.25 2.25 0 0018 6.75v-2.5A2.25 2.25 0 0015.75 2h-2.5zm0 9A2.25 2.25 0 0011 13.25v2.5A2.25 2.25 0 0013.25 18h2.5A2.25 2.25 0 0018 15.75v-2.5A2.25 2.25 0 0015.75 11h-2.5z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+				<Grid2x2 class="h-4 w-4" />
 			{:else if tab.icon === 'list'}
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-					<path
-						fill-rule="evenodd"
-						d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 5A.75.75 0 012.75 9h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 9.75zm0 5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+				<List class="h-4 w-4" />
 			{:else if tab.icon === 'graph'}
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-					<path
-						d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 17v1h-3zM4.75 14.094A5.973 5.973 0 004 17v1H1v-1a3 3 0 013.75-2.906z"
-					/>
-				</svg>
+				<Network class="h-4 w-4" />
 			{:else}
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-					<path
-						d="M12 2a1 1 0 011 1v14a1 1 0 11-2 0V3a1 1 0 011-1zM6 8a1 1 0 011 1v8a1 1 0 11-2 0V9a1 1 0 011-1zM18 6a1 1 0 011 1v10a1 1 0 11-2 0V7a1 1 0 011-1z"
-					/>
-				</svg>
+				<BarChart3 class="h-4 w-4" />
 			{/if}
 			{$t(`viewTabs.${tab.key}`)}
 		</button>

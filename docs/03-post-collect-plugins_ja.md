@@ -50,9 +50,19 @@ harbor gen sample-plugin
 
 主な出力フィールド:
 
-- `summary`
-- `label_intents`
-- `results`
+- `summary`: 実行結果の概要テキスト
+- `label_intents`: 各ラベルに対する UI 表示用の intent（色分け）マッピング
+- `results`: スキルパスをキーとしたスキルごとの結果
+
+### `label_intents` の値一覧
+
+| 値        | 色     | 用途例                       |
+|-----------|--------|------------------------------|
+| `neutral` | グレー | デフォルト / 不明な状態      |
+| `info`    | 青     | 情報提供レベルの検出         |
+| `success` | 緑     | 合格 / 同期済み              |
+| `warn`    | アンバー | 警告 / 要確認               |
+| `danger`  | 赤     | 失敗 / 重大な問題            |
 
 各 skill ごとの `results` では:
 
