@@ -36,7 +36,7 @@ jobs:
         id: collect_id
         if: ${{ steps.collect.outcome == 'success' }}
         run: |
-          collect_id="$(grep -m1 '^  collect_id:' data/collects.yaml | awk '{print $2}')"
+          collect_id="$(grep -m1 '^[[:space:]-]*collect_id:' data/collects.yaml | awk '{print $NF}')"
           if [ -z "$collect_id" ]; then
             echo "collect_id not found in data/collects.yaml" >&2
             exit 1
