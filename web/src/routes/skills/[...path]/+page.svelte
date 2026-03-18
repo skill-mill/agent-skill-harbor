@@ -405,6 +405,16 @@
 		</div>
 	</div>
 
+	<!-- Files -->
+	{#if skill.files && skill.files.length > 0}
+		<div class="mb-8 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
+			<h2 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">
+				{$t('detail.section.files')} ({skill.files.length})
+			</h2>
+			<FileTree files={skill.files} linkPrefix="https://{skill.repoKey}/blob/HEAD/" />
+		</div>
+	{/if}
+
 	{#if pluginOutputs.length > 0}
 		<div class="mb-8 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
 			<h2 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">Plugin Outputs</h2>
@@ -452,16 +462,6 @@
 					</div>
 				{/each}
 			</div>
-		</div>
-	{/if}
-
-	<!-- Files -->
-	{#if skill.files && skill.files.length > 0}
-		<div class="mb-8 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
-			<h2 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">
-				{$t('detail.section.files')} ({skill.files.length})
-			</h2>
-			<FileTree files={skill.files} linkPrefix="https://{skill.repoKey}/blob/HEAD/" />
 		</div>
 	{/if}
 
