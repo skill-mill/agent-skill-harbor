@@ -10,6 +10,7 @@
 	import GithubSlugger from 'github-slugger';
 	import { marked } from 'marked';
 	import DOMPurify from 'isomorphic-dompurify';
+	import { dump as yamlDump } from 'js-yaml';
 	import { getResolvedFrom, getResolvedFromUrl } from '$lib/utils/resolved-from';
 
 	interface Props {
@@ -84,6 +85,18 @@
 
 		const resolvedPath = segments.join('/');
 		return hash ? `${resolvedPath}#${hash}` : resolvedPath;
+	}
+
+	function getPluginExtraYaml(result: Record<string, unknown> & { label?: string; raw?: string }): string | null {
+		const extraEntries = Object.entries(result).filter(([key, value]) => {
+			if (key === 'label' || key === 'raw') return false;
+			return value !== undefined;
+		});
+		if (extraEntries.length === 0) return null;
+		return yamlDump(Object.fromEntries(extraEntries), {
+			noRefs: true,
+			lineWidth: 0
+		}).trim();
 	}
 
 	function renderSkillMarkdown(markdown: string, skill: FlatSkillEntry): string {
@@ -407,18 +420,32 @@
 			<h2 class="mb-3 text-sm font-medium text-gray-500 dark:text-gray-400">Plugin Outputs</h2>
 			<div class="space-y-4">
 				{#each pluginOutputs as plugin}
+					{@const extraYaml = getPluginExtraYaml(plugin.result)}
 					<div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
 						<div class="flex items-center gap-3">
-							<code class="rounded bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">{plugin.id}</code>
-								{#if plugin.result.label}
-									<PluginLabelBadge
-										label={plugin.result.label}
-										intent={plugin.labelIntents[plugin.result.label] ?? 'neutral'}
-									/>
-								{/if}
+							<code
+								class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-100"
+							>
+								{plugin.id}
+							</code>
+							{#if plugin.result.label}
+								<PluginLabelBadge
+									label={plugin.result.label}
+									intent={plugin.labelIntents[plugin.result.label] ?? 'neutral'}
+								/>
+							{/if}
 						</div>
 						{#if plugin.result.raw}
-							<p class="mt-3 text-sm text-gray-700 dark:text-gray-300">{plugin.result.raw}</p>
+							<div
+								class="mt-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm whitespace-pre-wrap text-gray-700 dark:border-gray-700 dark:bg-gray-950/60 dark:text-gray-300"
+							>
+								{plugin.result.raw}
+							</div>
+						{/if}
+						{#if extraYaml}
+							<pre
+								class="mt-3 overflow-x-auto rounded-md border border-gray-200 bg-gray-50 p-3 text-xs leading-6 text-gray-700 dark:border-gray-700 dark:bg-gray-950/60 dark:text-gray-300"
+							><code>{extraYaml}</code></pre>
 						{/if}
 					</div>
 				{/each}
