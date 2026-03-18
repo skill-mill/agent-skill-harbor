@@ -1,5 +1,25 @@
 # Changelog
 
+## [cli 0.13.0] / [collector 0.13.0] / [post-collect 0.13.0] / [web 0.13.0] - 2026-03-19
+
+### Added
+
+- Added the built-in `builtin.audit-promptfoo-security` post-collect plugin, including HTML report generation, report links in skill detail pages, and docs for built-in plugin behavior
+- Added install-surface separation with published `agent-skill-harbor-collector`, `agent-skill-harbor-post-collect`, and `agent-skill-harbor-web` runtime packages alongside the thin `agent-skill-harbor` wrapper
+- Added `collect --force` to refresh repositories and skill files even when catalog SHAs are unchanged
+
+### Changed
+
+- Reworked init templates and GitHub workflows to install role-specific Harbor packages from `tools/harbor/{collector,post-collect,web}`
+- Made collect prune stale repository data when repositories fall out of scope due to excludes or origin resolution changes
+- Improved local development and release docs to reflect the split runtime packages and wrapper-based source-repo workflows
+
+### Fixed
+
+- Fixed project-root resolution across collect and post-collect so source-repo execution reads and writes the intended `config/` and `data/` directories
+- Fixed wrapper command argument forwarding so delegated commands receive their own flags correctly
+- Disabled `promptfoo` telemetry and update checks during Harbor-driven security audits
+
 ## [cli 0.12.0] / [web 0.11.0] - 2026-03-16
 
 ### Added
