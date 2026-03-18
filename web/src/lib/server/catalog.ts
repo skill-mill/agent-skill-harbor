@@ -10,6 +10,8 @@ import type {
 	FlatSkillEntry,
 	LabelIntent,
 	PluginFilterOption,
+	PluginHistoryColumn,
+	PluginHistorySummary,
 	PluginLabelEntry,
 	PluginOutputEntry,
 	RepoInfo,
@@ -376,6 +378,8 @@ export function loadCollectHistory(): CollectionEntry[] {
 
 let cachedPluginOutputs: PluginOutputEntry[] | null = null;
 let cachedLatestPluginOutputs: PluginOutputEntry[] | null = null;
+let cachedPluginHistoryColumns: PluginHistoryColumn[] | null = null;
+let cachedPluginHistorySummaries: Record<string, PluginHistorySummary> | null = null;
 
 export function loadPluginOutputHistory(): PluginOutputEntry[] {
 	if (!dev && cachedPluginOutputs) return cachedPluginOutputs;
@@ -467,4 +471,117 @@ export function loadPluginFilterOptions(): PluginFilterOption[] {
 			const orderB = pluginOrder.get(b.plugin_id) ?? Number.MAX_SAFE_INTEGER;
 			return orderA === orderB ? a.plugin_id.localeCompare(b.plugin_id) : orderA - orderB;
 		});
+}
+
+function getSkillOwnerFromKey(skillKey: string): string | null {
+	const parts = skillKey.split('/');
+	return parts.length >= 4 ? parts[1] : null;
+}
+
+function computeMinimalUniquePrefixes(labels: string[]): Record<string, string> {
+	const uniqueLabels = [...new Set(labels.filter((label) => label.length > 0))].sort((a, b) => a.localeCompare(b));
+	const lowered = uniqueLabels.map((label) => label.toLocaleLowerCase());
+	const prefixes: Record<string, string> = {};
+
+	for (const [index, label] of uniqueLabels.entries()) {
+		const lower = lowered[index];
+		let prefix = label;
+
+		for (let length = 1; length <= label.length; length++) {
+			const candidate = lower.slice(0, length);
+			const isUnique = lowered.every((other, otherIndex) => otherIndex === index || !other.startsWith(candidate));
+			if (isUnique) {
+				prefix = label.slice(0, length);
+				break;
+			}
+		}
+
+		prefixes[label] = prefix;
+	}
+
+	return prefixes;
+}
+
+export function loadPluginHistorySummaries(): Record<string, PluginHistorySummary> {
+	if (!dev && cachedPluginHistorySummaries) return cachedPluginHistorySummaries;
+
+	const { orgName } = loadCatalog();
+	const configuredPlugins = loadSettingsConfig().post_collect.plugins;
+	const pluginOrder = new Map(configuredPlugins.map((plugin, index) => [plugin.id, index]));
+	const summaries: Record<string, PluginHistorySummary> = {};
+
+	for (const output of loadPluginOutputHistory()) {
+		if (!output.collect_id) continue;
+		const collectSummary = (summaries[output.collect_id] ??= {});
+		const pluginSummary = (collectSummary[output.plugin_id] ??= {});
+
+		for (const [skillKey, result] of Object.entries(output.results ?? {})) {
+			if (!result?.label) continue;
+			const labelSummary = (pluginSummary[result.label] ??= { org: 0, community: 0 });
+			const owner = getSkillOwnerFromKey(skillKey);
+			if (orgName != null && owner === orgName) {
+				labelSummary.org++;
+			} else {
+				labelSummary.community++;
+			}
+		}
+	}
+
+	for (const collectSummary of Object.values(summaries)) {
+		for (const pluginId of Object.keys(collectSummary)) {
+			const orderedLabels = Object.keys(collectSummary[pluginId]).sort((a, b) => a.localeCompare(b));
+			collectSummary[pluginId] = Object.fromEntries(
+				orderedLabels.map((label) => [label, collectSummary[pluginId][label]]),
+			);
+		}
+	}
+
+	cachedPluginHistorySummaries = Object.fromEntries(
+		Object.entries(summaries).sort((a, b) => b[0].localeCompare(a[0])).map(([collectId, collectSummary]) => [
+			collectId,
+			Object.fromEntries(
+				Object.entries(collectSummary).sort(([pluginA], [pluginB]) => {
+					const orderA = pluginOrder.get(pluginA) ?? Number.MAX_SAFE_INTEGER;
+					const orderB = pluginOrder.get(pluginB) ?? Number.MAX_SAFE_INTEGER;
+					return orderA === orderB ? pluginA.localeCompare(pluginB) : orderA - orderB;
+				}),
+			),
+		]),
+	);
+
+	return cachedPluginHistorySummaries;
+}
+
+export function loadPluginHistoryColumns(): PluginHistoryColumn[] {
+	if (!dev && cachedPluginHistoryColumns) return cachedPluginHistoryColumns;
+
+	const configuredPlugins = loadSettingsConfig().post_collect.plugins;
+	const pluginSettings = new Map(configuredPlugins.map((plugin) => [plugin.id, plugin]));
+	const pluginOrder = new Map(configuredPlugins.map((plugin, index) => [plugin.id, index]));
+	const labelsByPlugin = new Map<string, Set<string>>();
+
+	for (const collectSummary of Object.values(loadPluginHistorySummaries())) {
+		for (const [pluginId, labelCounts] of Object.entries(collectSummary)) {
+			const labels = labelsByPlugin.get(pluginId) ?? new Set<string>();
+			for (const label of Object.keys(labelCounts)) labels.add(label);
+			labelsByPlugin.set(pluginId, labels);
+		}
+	}
+
+	cachedPluginHistoryColumns = [...labelsByPlugin.entries()]
+		.map(([plugin_id, labels]) => {
+			const shortLabel = pluginSettings.get(plugin_id)?.short_label;
+			return {
+				plugin_id,
+				...(shortLabel ? { short_label: shortLabel } : {}),
+				label_abbreviations: computeMinimalUniquePrefixes([...labels]),
+			};
+		})
+		.sort((a, b) => {
+			const orderA = pluginOrder.get(a.plugin_id) ?? Number.MAX_SAFE_INTEGER;
+			const orderB = pluginOrder.get(b.plugin_id) ?? Number.MAX_SAFE_INTEGER;
+			return orderA === orderB ? a.plugin_id.localeCompare(b.plugin_id) : orderA - orderB;
+		});
+
+	return cachedPluginHistoryColumns;
 }

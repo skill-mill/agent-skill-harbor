@@ -78,6 +78,21 @@ export interface PluginFilterOption {
 	label_intents?: Record<string, LabelIntent>;
 }
 
+export interface PluginHistoryLabelCounts {
+	org: number;
+	community: number;
+}
+
+export interface PluginHistoryColumn {
+	plugin_id: string;
+	short_label?: string;
+	label_abbreviations: Record<string, string>;
+}
+
+export interface PluginHistorySummary {
+	[pluginId: string]: Record<string, PluginHistoryLabelCounts>;
+}
+
 export interface PluginLabelEntry {
 	plugin_id: string;
 	label: string;

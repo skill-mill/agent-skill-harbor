@@ -8,7 +8,15 @@
 	import ViewTabs from '$lib/components/ViewTabs.svelte';
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
 	import * as Select from '$lib/components/ui/select';
-	import type { CollectionEntry, FlatSkillEntry, RepoInfo, UsagePolicy } from '$lib/types';
+	import * as Tooltip from '$lib/components/ui/tooltip';
+	import type {
+		CollectionEntry,
+		FlatSkillEntry,
+		PluginHistoryColumn,
+		PluginHistorySummary,
+		RepoInfo,
+		UsagePolicy,
+	} from '$lib/types';
 	import { t, locale } from '$lib/i18n';
 
 	interface Props {
@@ -16,6 +24,8 @@
 			skills: FlatSkillEntry[];
 			repos: RepoInfo[];
 			collections: CollectionEntry[];
+			pluginHistoryColumns?: PluginHistoryColumn[];
+			pluginHistorySummaries?: Record<string, PluginHistorySummary>;
 		};
 	}
 
@@ -181,6 +191,8 @@
 
 	let historyExpanded = $state(false);
 	let displayedHistory = $derived(historyExpanded ? data.collections : data.collections.slice(0, 10));
+	let pluginHistoryColumns = $derived(data.pluginHistoryColumns ?? []);
+	let pluginHistorySummaries = $derived(data.pluginHistorySummaries ?? {});
 
 	function formatDuration(sec: number): string {
 		if (sec >= 60) {
@@ -200,6 +212,46 @@
 			hour: '2-digit',
 			minute: '2-digit',
 		});
+	}
+
+	function formatPluginHistoryCell(entry: CollectionEntry, pluginId: string): string {
+		return getPluginHistoryItems(entry, pluginId)
+			.map((item) => `${item.abbreviation}:${item.count}`)
+			.join(' ');
+	}
+
+	function getPluginHistoryTooltip(entry: CollectionEntry, pluginId: string): string {
+		return getPluginHistoryItems(entry, pluginId)
+			.map((item) => `${item.label}: ${item.count}`)
+			.join('\n');
+	}
+
+	function getPluginHistoryItems(entry: CollectionEntry, pluginId: string): Array<{
+		label: string;
+		abbreviation: string;
+		count: number;
+	}> {
+		if (!entry.collect_id) return [];
+		const pluginSummary = pluginHistorySummaries[entry.collect_id]?.[pluginId];
+		const column = pluginHistoryColumns.find((item) => item.plugin_id === pluginId);
+		if (!pluginSummary || !column) return [];
+
+		return Object.entries(pluginSummary)
+			.map(([label, counts]) => {
+				const count =
+					ownerFilter === 'org'
+						? counts.org
+						: ownerFilter === 'community'
+							? counts.community
+							: counts.org + counts.community;
+				if (count <= 0) return null;
+				return {
+					label,
+					abbreviation: column.label_abbreviations[label] ?? label,
+					count,
+				};
+			})
+			.filter((value): value is { label: string; abbreviation: string; count: number } => value != null);
 	}
 
 </script>
@@ -359,6 +411,13 @@
 							>
 								{$t('stats.duration')}
 							</th>
+							{#each pluginHistoryColumns as column (column.plugin_id)}
+								<th
+									class="hidden px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 lg:table-cell"
+								>
+									{column.short_label ?? column.plugin_id}
+								</th>
+							{/each}
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
@@ -437,6 +496,26 @@
 								>
 									{formatDuration(entry.collecting.duration_sec)}
 								</td>
+								{#each pluginHistoryColumns as column (column.plugin_id)}
+									{@const pluginCell = formatPluginHistoryCell(entry, column.plugin_id)}
+									{@const pluginTooltip = getPluginHistoryTooltip(entry, column.plugin_id)}
+									<td
+										class="hidden whitespace-nowrap px-5 py-3 text-left tabular-nums text-sm text-gray-500 dark:text-gray-400 lg:table-cell"
+									>
+										{#if pluginCell}
+											<Tooltip.Root>
+												<Tooltip.Trigger>
+													<span class="cursor-help underline decoration-dotted underline-offset-2">
+														{pluginCell}
+													</span>
+												</Tooltip.Trigger>
+												<Tooltip.Content class="max-w-sm whitespace-pre-line text-sm">
+													{pluginTooltip}
+												</Tooltip.Content>
+											</Tooltip.Root>
+										{/if}
+									</td>
+								{/each}
 							</tr>
 						{/each}
 					</tbody>
