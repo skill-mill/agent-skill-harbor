@@ -19,6 +19,7 @@ export const load = ({ params }) => {
 		.map((output) => ({
 			id: output.plugin_id,
 			labelIntents: output.label_intents ?? {},
+			subArtifacts: output.sub_artifacts ?? [],
 			result: output.results?.[skill.key] ?? null,
 		}))
 		.filter((entry) => entry.result != null);

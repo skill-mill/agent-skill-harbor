@@ -9,6 +9,7 @@ export interface PostCollectSkillResult {
 export interface PostCollectPluginResult {
 	summary?: string;
 	label_intents?: Record<string, LabelIntent>;
+	sub_artifacts?: string[];
 	results?: Record<string, PostCollectSkillResult>;
 }
 

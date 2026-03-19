@@ -13,10 +13,28 @@
 	interface Props {
 		filters: FilterState;
 		pluginFilterOptions?: PluginFilterOption[];
+		optionCounts?: {
+			status: Record<UsagePolicy, number>;
+			visibility: Record<Visibility, number>;
+			orgOwnership: Record<OrgOwnership, number>;
+			hasOrigin: Record<OriginPresence, number>;
+			pluginLabels: Record<string, Record<string, number>>;
+		};
 		onchange: (filters: FilterState) => void;
 	}
 
-	let { filters, pluginFilterOptions = [], onchange }: Props = $props();
+	let {
+		filters,
+		pluginFilterOptions = [],
+		optionCounts = {
+			status: { recommended: 0, discouraged: 0, prohibited: 0, none: 0 },
+			visibility: { public: 0, private: 0, internal: 0 },
+			orgOwnership: { org: 0, community: 0 },
+			hasOrigin: { yes: 0, no: 0 },
+			pluginLabels: {},
+		},
+		onchange,
+	}: Props = $props();
 
 	const policyOptions: { value: UsagePolicy; labelKey: string; tooltipKey: string; color: string }[] = [
 		{
@@ -135,6 +153,10 @@
 		}
 		return pluginIntentClasses[option.label_intents?.[selected] ?? 'neutral'];
 	}
+
+	function withCount(label: string, count: number | undefined): string {
+		return `${label} (${count ?? 0})`;
+	}
 </script>
 
 <div class="flex flex-wrap items-center gap-3">
@@ -155,7 +177,7 @@
 		<Select.Content>
 			<Select.Item value="__all__" label={$t('filter.all')} />
 			{#each orgOwnershipOptions as opt}
-				<Select.Item value={opt.value} label={$t(opt.labelKey)} />
+				<Select.Item value={opt.value} label={withCount($t(opt.labelKey), optionCounts.orgOwnership[opt.value])} />
 			{/each}
 		</Select.Content>
 	</Select.Root>
@@ -174,7 +196,7 @@
 		<Select.Content>
 			<Select.Item value="__all__" label={$t('filter.all')} />
 			{#each originOptions as opt}
-				<Select.Item value={opt.value} label={$t(opt.labelKey)} />
+				<Select.Item value={opt.value} label={withCount($t(opt.labelKey), optionCounts.hasOrigin[opt.value])} />
 			{/each}
 		</Select.Content>
 	</Select.Root>
@@ -194,7 +216,7 @@
 		<Select.Content>
 			<Select.Item value="__all__" label={$t('filter.all')} />
 			{#each visibilityOptions as opt}
-				<Select.Item value={opt.value} label={$t(opt.labelKey)} />
+				<Select.Item value={opt.value} label={withCount($t(opt.labelKey), optionCounts.visibility[opt.value])} />
 			{/each}
 		</Select.Content>
 	</Select.Root>
@@ -213,7 +235,7 @@
 		<Select.Content>
 			<Select.Item value="__all__" label={$t('filter.all')} />
 			{#each policyOptions as opt}
-				<Select.Item value={opt.value} label={$t(opt.labelKey)} />
+				<Select.Item value={opt.value} label={withCount($t(opt.labelKey), optionCounts.status[opt.value])} />
 			{/each}
 		</Select.Content>
 	</Select.Root>
@@ -234,9 +256,12 @@
 				<Select.Content>
 					<Select.Item value="__all__" label={$t('filter.all')} />
 					{#each option.labels as label}
-						<Select.Item value={label} {label} />
+						<Select.Item value={label} label={withCount(label, option.counts?.[label])} />
 					{/each}
-					<Select.Item value={PLUGIN_NO_LABEL_VALUE} label={NONE_LABEL} />
+					<Select.Item
+						value={PLUGIN_NO_LABEL_VALUE}
+						label={withCount(NONE_LABEL, option.counts?.[PLUGIN_NO_LABEL_VALUE])}
+					/>
 				</Select.Content>
 			</Select.Root>
 		{/each}

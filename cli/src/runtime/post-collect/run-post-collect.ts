@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
 import { tsImport } from 'tsx/esm/api';
-import { auditStaticPlugin } from './plugins/audit-static.js';
 import { auditPromptfooSecurityPlugin } from './plugins/audit-promptfoo-security.js';
 import { detectDriftPlugin } from './plugins/detect-drift.js';
 import type {
@@ -18,7 +17,6 @@ import type {
 
 const BUILTIN_PLUGINS = new Map<string, BuiltinPostCollectPlugin>([
 	[detectDriftPlugin.id, detectDriftPlugin],
-	[auditStaticPlugin.id, auditStaticPlugin],
 	[auditPromptfooSecurityPlugin.id, auditPromptfooSecurityPlugin],
 ]);
 
@@ -148,7 +146,7 @@ function savePluginOutput(projectRoot: string, pluginId: string, collectId: stri
 	);
 	const next = [payload, ...existing];
 	const trimmed = historyLimit > 0 ? next.slice(0, historyLimit) : next;
-	writeFileSync(outputPath, yamlDump(trimmed, { lineWidth: 120, noRefs: true }));
+	writeFileSync(outputPath, yamlDump(trimmed, { lineWidth: 0, noRefs: true }));
 }
 
 export interface RunPostCollectOptions {

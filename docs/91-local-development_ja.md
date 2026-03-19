@@ -91,6 +91,26 @@ node cli/dist/bin/cli.js preview
 
 source repository 上で collector -> post-collect -> web まで一連の動作確認を行うなら、この手順が最も分かりやすいです。ライブな開発サーバーを見たいときは `dev`、ビルド済み成果物を確認したいときは `preview` を使ってください。
 
+### 注意: `harbor dev` と `pnpm --dir web dev`
+
+source repository から開発する場合は、次を使ってください。
+
+```bash
+node cli/dist/bin/cli.js dev
+```
+
+次ではなく:
+
+```bash
+pnpm --dir web dev
+```
+
+wrapper 経由の `harbor dev` は、Vite 起動前に `data/assets/` を `web/static/assets/` へ staging するため、plugin の副成果物が開発中や prerender 中にも見えるようになります。`web/` から直接 Vite を起動するとこの staging を通らないため、asset リンクが欠けたり stale なまま残ったりすることがあります。
+
+TODO:
+
+- wrapper ではなく web package 側の dev workflow に asset staging を寄せて、`pnpm --dir web dev` も正式にサポートできるようにする
+
 ### プロジェクト構成
 
 ```

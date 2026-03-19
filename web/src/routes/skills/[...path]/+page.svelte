@@ -29,6 +29,7 @@
 			pluginOutputs: {
 				id: string;
 				labelIntents: Record<string, LabelIntent>;
+				subArtifacts: string[];
 				result: Record<string, unknown> & { label?: string; raw?: string; report_path?: string };
 			}[];
 		};
@@ -113,6 +114,7 @@
 			id: string;
 			labelIntents: Record<string, LabelIntent>;
 			result: Record<string, unknown> & { label?: string; raw?: string; report_path?: string };
+			subArtifacts: string[];
 		},
 	): string | null {
 		if (!skill.repoKey.startsWith('github.com/')) return null;
@@ -120,10 +122,22 @@
 		if (!intent || !ACTIONABLE_INTENTS.has(intent)) return null;
 
 		const repoUrl = `https://${skill.repoKey}`;
-		const title = (plugin.result.raw ?? plugin.result.label ?? '').slice(0, 256);
+		const pluginLabel = plugin.id.replace(/^[^.]*\./, '');
+		const title = `${pluginLabel} result: ${(plugin.result.raw ?? plugin.result.label ?? '').slice(0, 220)}`.slice(0, 256);
 
 		const bodyParts: string[] = [];
 		bodyParts.push(`This issue was created from Agent Skill Harbor.\n${$page.url.href}`);
+		const artifactLinks = getArtifactLinks(plugin);
+		if (artifactLinks.length > 0) {
+			bodyParts.push(
+				[
+					'Related artifacts:',
+					...artifactLinks.map(
+						(artifact) => `- [${artifact.fileName}](${new URL(artifact.href, $page.url.origin).href})`,
+					),
+				].join('\n'),
+			);
+		}
 		const extraYaml = getPluginExtraYaml(plugin.result);
 		if (extraYaml) {
 			bodyParts.push('```yaml\n' + extraYaml + '\n```');
@@ -133,10 +147,41 @@
 		return `${repoUrl}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
 	}
 
-	function getReportHref(result: Record<string, unknown> & { report_path?: string }): string | null {
-		return typeof result.report_path === 'string' && result.report_path.length > 0
-			? `${base}/${result.report_path}`.replace(/\/+/g, '/')
-			: null;
+	function normalizeSkillKeyForArtifactPath(skillKey: string): string {
+		return skillKey.replace(/[^a-zA-Z0-9_-]+/g, '__').replace(/^_+|_+$/g, '');
+	}
+
+	function getArtifactLabel(fileName: string): string {
+		return `Open ${fileName}`;
+	}
+
+	function getArtifactHref(pluginId: string, fileName: string): string {
+		return `${base}/assets/plugins/${pluginId}/${normalizeSkillKeyForArtifactPath(skill.key)}/${fileName}`.replace(/\/+/g, '/');
+	}
+
+	function getArtifactLinks(
+		plugin: {
+			id: string;
+			subArtifacts: string[];
+			result: Record<string, unknown> & { report_path?: string };
+		},
+	): { fileName: string; href: string; label: string }[] {
+		const links = plugin.subArtifacts.map((fileName) => ({
+			fileName,
+			href: getArtifactHref(plugin.id, fileName),
+			label: getArtifactLabel(fileName),
+		}));
+		if (links.length > 0) return links;
+		if (typeof plugin.result.report_path === 'string' && plugin.result.report_path.length > 0) {
+			return [
+				{
+					fileName: 'report.html',
+					href: `${base}/${plugin.result.report_path}`.replace(/\/+/g, '/'),
+					label: getArtifactLabel('report.html'),
+				},
+			];
+		}
+		return [];
 	}
 
 	function renderSkillMarkdown(markdown: string, skill: FlatSkillEntry): string {
@@ -432,41 +477,47 @@
 				{#each pluginOutputs as plugin}
 					{@const extraYaml = getPluginExtraYaml(plugin.result)}
 					{@const issueUrl = buildIssueUrl(plugin)}
-					{@const reportHref = getReportHref(plugin.result)}
+					{@const artifactLinks = getArtifactLinks(plugin)}
 					<div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-						<div class="flex items-center gap-3">
-							<code
-								class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-100"
-							>
-								{plugin.id}
-							</code>
-							{#if plugin.result.label}
-								<PluginLabelBadge
-									label={plugin.result.label}
-									intent={plugin.labelIntents[plugin.result.label] ?? 'neutral'}
-								/>
-							{/if}
-							{#if issueUrl}
-								<a
-									href={issueUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+						<div class="space-y-2">
+							<div class="flex flex-wrap items-center gap-3">
+								<code
+									class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-100"
 								>
-									<GitHubLogo class="h-3.5 w-3.5" />
-									Create Issue
-								</a>
-							{/if}
-							{#if reportHref}
-								<a
-									href={reportHref}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-								>
-									<FileText class="h-3.5 w-3.5" />
-									{$t('detail.viewHtmlReport')}
-								</a>
+									{plugin.id}
+								</code>
+								{#if plugin.result.label}
+									<PluginLabelBadge
+										label={plugin.result.label}
+										intent={plugin.labelIntents[plugin.result.label] ?? 'neutral'}
+									/>
+								{/if}
+								{#if issueUrl}
+									<a
+										href={issueUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+									>
+										<GitHubLogo class="h-3.5 w-3.5" />
+										Create Issue
+									</a>
+								{/if}
+							</div>
+							{#if artifactLinks.length > 0}
+								<div class="flex flex-wrap items-center gap-2">
+									{#each artifactLinks as artifact}
+										<a
+											href={artifact.href}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2 py-0.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+										>
+											<FileText class="h-3.5 w-3.5" />
+											{artifact.label}
+										</a>
+									{/each}
+								</div>
 							{/if}
 						</div>
 						{#if plugin.result.raw}

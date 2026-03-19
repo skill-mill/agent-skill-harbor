@@ -68,6 +68,7 @@ export interface PluginOutputEntry {
 	collect_id?: string;
 	summary?: string;
 	label_intents?: Record<string, LabelIntent>;
+	sub_artifacts?: string[];
 	results?: Record<string, PluginSkillResult>;
 }
 
@@ -76,6 +77,7 @@ export interface PluginFilterOption {
 	labels: string[];
 	short_label?: string;
 	label_intents?: Record<string, LabelIntent>;
+	counts?: Record<string, number>;
 }
 
 export interface PluginHistoryLabelCounts {

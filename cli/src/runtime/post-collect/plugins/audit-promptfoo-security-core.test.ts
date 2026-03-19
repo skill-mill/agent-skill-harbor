@@ -81,7 +81,7 @@ test('summarizePromptfooOutput maps failing plugin checks to Risk', () => {
 test('summarizePromptfooOutput maps zero findings to Safe and exposes label intents', () => {
 	const result = summarizePromptfooOutput({
 		output: { results: { results: [] } },
-		reportPath: 'plugin-reports/example/index.html',
+		reportPath: 'assets/plugins/example/report.html',
 		riskThreshold: 1,
 		criticalThreshold: 3,
 	});
@@ -93,7 +93,7 @@ test('summarizePromptfooOutput maps zero findings to Safe and exposes label inte
 
 test('readPromptfooOutput throws a readable error for invalid JSON', () => {
 	const dir = mkdtempSync(join(tmpdir(), 'promptfoo-output-'));
-	const filePath = join(dir, 'results.json');
+	const filePath = join(dir, 'report.json');
 	writeFileSync(filePath, '{invalid json');
 
 	assert.throws(() => readPromptfooOutput(filePath), /Promptfoo output could not be read from/);

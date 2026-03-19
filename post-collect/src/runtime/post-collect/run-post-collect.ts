@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { dump as yamlDump, load as yamlLoad } from 'js-yaml';
 import { tsImport } from 'tsx/esm/api';
-import { auditStaticPlugin } from './plugins/audit-static.js';
 import { auditPromptfooSecurityPlugin } from './plugins/audit-promptfoo-security.js';
+import { auditSkillScannerPlugin } from './plugins/audit-skill-scanner.js';
 import { detectDriftPlugin } from './plugins/detect-drift.js';
 import type {
 	BuiltinPostCollectPlugin,
@@ -18,8 +19,8 @@ import type {
 
 const BUILTIN_PLUGINS = new Map<string, BuiltinPostCollectPlugin>([
 	[detectDriftPlugin.id, detectDriftPlugin],
-	[auditStaticPlugin.id, auditStaticPlugin],
 	[auditPromptfooSecurityPlugin.id, auditPromptfooSecurityPlugin],
+	[auditSkillScannerPlugin.id, auditSkillScannerPlugin],
 ]);
 
 interface RawSettings {
@@ -83,6 +84,11 @@ function normalizePluginResult(result: PostCollectPluginResult | null | undefine
 			Object.entries(result.label_intents).map(([label, intent]) => [label, validateIntent(intent)]),
 		);
 	}
+	if (Array.isArray(result?.sub_artifacts)) {
+		next.sub_artifacts = result.sub_artifacts.filter(
+			(artifact): artifact is string => typeof artifact === 'string' && artifact.length > 0,
+		);
+	}
 	if (result?.results) {
 		next.results = Object.fromEntries(
 			Object.entries(result.results).map(([skillKey, value]) => [skillKey, value && typeof value === 'object' ? value : {}]),
@@ -113,7 +119,7 @@ function resolveUserPluginPath(projectRoot: string, pluginId: string): string {
 
 async function loadUserPlugin(projectRoot: string, pluginId: string): Promise<PostCollectPluginModule> {
 	const modulePath = resolveUserPluginPath(projectRoot, pluginId);
-	const imported = (await tsImport(modulePath, import.meta.url)) as Partial<PostCollectPluginModule> & {
+	const imported = (await tsImport(modulePath, pathToFileURL(modulePath).href)) as Partial<PostCollectPluginModule> & {
 		default?: Partial<PostCollectPluginModule>;
 	};
 	const candidate = imported.default?.run ? imported.default : imported;
@@ -148,7 +154,7 @@ function savePluginOutput(projectRoot: string, pluginId: string, collectId: stri
 	);
 	const next = [payload, ...existing];
 	const trimmed = historyLimit > 0 ? next.slice(0, historyLimit) : next;
-	writeFileSync(outputPath, yamlDump(trimmed, { lineWidth: 120, noRefs: true }));
+	writeFileSync(outputPath, yamlDump(trimmed, { lineWidth: 0, noRefs: true }));
 }
 
 export interface RunPostCollectOptions {

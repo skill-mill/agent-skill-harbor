@@ -99,6 +99,56 @@
 	let originBySkillKey = $derived.by(() =>
 		Object.fromEntries(allSkills.map((skill) => [skill.key, getResolvedFromRepoLabel(skill) ?? ''])),
 	);
+	let filterOptionCounts = $derived.by(() => {
+		const counts = {
+			status: {
+				recommended: 0,
+				discouraged: 0,
+				prohibited: 0,
+				none: 0,
+			},
+			visibility: {
+				public: 0,
+				private: 0,
+				internal: 0,
+			},
+			orgOwnership: {
+				org: 0,
+				community: 0,
+			},
+			hasOrigin: {
+				yes: 0,
+				no: 0,
+			},
+			pluginLabels: {} as Record<string, Record<string, number>>,
+		};
+
+		for (const skill of displayedSkills) {
+			counts.status[skill.usage_policy] += 1;
+			counts.visibility[skill.visibility] += 1;
+			counts.orgOwnership[skill.isOrgOwned ? 'org' : 'community'] += 1;
+			counts.hasOrigin[skill.resolved_from ? 'yes' : 'no'] += 1;
+
+			const labelsByPlugin = new Map(skill.plugin_labels?.map((entry) => [entry.plugin_id, entry.label]) ?? []);
+			for (const option of pluginFilterOptions) {
+				const pluginCounts = (counts.pluginLabels[option.plugin_id] ??= {});
+				const label = labelsByPlugin.get(option.plugin_id);
+				if (label) {
+					pluginCounts[label] = (pluginCounts[label] ?? 0) + 1;
+				} else {
+					pluginCounts['__no_label__'] = (pluginCounts['__no_label__'] ?? 0) + 1;
+				}
+			}
+		}
+
+		return counts;
+	});
+	let pluginFilterOptionsWithCounts = $derived(
+		pluginFilterOptions.map((option) => ({
+			...option,
+			counts: filterOptionCounts.pluginLabels[option.plugin_id] ?? {},
+		})),
+	);
 
 	function updateUrl(
 		newQuery: string,
@@ -196,7 +246,12 @@
 	<div class="mb-6 space-y-4">
 		<SearchBar value={query} onchange={handleSearch} />
 		<div class="flex flex-wrap items-center gap-3">
-			<FilterPanel {filters} {pluginFilterOptions} onchange={handleFilterChange} />
+			<FilterPanel
+				{filters}
+				pluginFilterOptions={pluginFilterOptionsWithCounts}
+				optionCounts={filterOptionCounts}
+				onchange={handleFilterChange}
+			/>
 			<span class="tabular-nums text-sm text-gray-500 dark:text-gray-400 sm:ml-auto">
 				{#if hasFilters}
 					<span class="font-semibold text-gray-900 dark:text-gray-100">{displayedSkills.length}</span> / {allSkills.length}

@@ -62,16 +62,16 @@ pnpm dev
 
 依存パッケージとしてインストール後、`harbor` または `agent-skill-harbor` として利用可能：
 
-| コマンド                   | 説明                                 |
-| -------------------------- | ------------------------------------ |
-| `harbor init [dir]`        | 新しいプロジェクトをスキャフォールド |
-| `harbor gen sample-plugin` | サンプル post-collect plugin を生成  |
-| `harbor collect`           | GitHub Organization からスキルを収集 |
-| `harbor post-collect`      | collect 後プラグインを実行           |
-| `harbor build`             | 静的サイトをビルド                   |
-| `harbor deploy <target>`   | ビルド済みカタログをデプロイ         |
-| `harbor dev`               | 開発サーバーを起動                   |
-| `harbor preview`           | ビルド結果をプレビュー               |
+| コマンド                   | 説明                                             |
+| -------------------------- | ------------------------------------------------ |
+| `harbor init [dir]`        | 新しいプロジェクトをスキャフォールド             |
+| `harbor gen sample-plugin` | 例示用の user-defined post-collect plugin を生成 |
+| `harbor collect`           | GitHub Organization からスキルを収集             |
+| `harbor post-collect`      | collect 後プラグインを実行                       |
+| `harbor build`             | 静的サイトをビルド                               |
+| `harbor deploy <target>`   | ビルド済みカタログをデプロイ                     |
+| `harbor dev`               | 開発サーバーを起動                               |
+| `harbor preview`           | ビルド結果をプレビュー                           |
 
 ### ビルドオプション
 
@@ -108,9 +108,9 @@ my-skill-harbor/
 │       ├── post-collect/   # post-collect workflow 用の分離 install surface
 │       └── web/            # build/deploy workflow 用の分離 install surface
 ├── data/                   # collect で生成（Git 管理）
+│   ├── assets/             # web ビルド成果物にコピーされる静的ファイル
 │   ├── collects.yaml       # 収集履歴
 │   ├── plugins/            # 生成された post_collect plugin 出力
-│   ├── plugin-reports/     # 任意の plugin 副成果物
 │   ├── skills.yaml         # スキルメタデータ
 │   └── skills/             # キャッシュされた SKILL.md ファイル
 ├── .github/workflows/      # GitHub Actions (収集 + デプロイ)

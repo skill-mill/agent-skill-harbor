@@ -1,0 +1,38 @@
+{
+	"skill_name": "algorithmic-art",
+	"skill_path": "/Users/xxxx/agent-skill-harbor/data/skills/github.com/skill-mill/sk-frontend-kit/skills/algorithmic-art",
+	"is_safe": true,
+	"max_severity": "MEDIUM",
+	"findings_count": 1,
+	"findings": [
+		{
+			"id": "LOW_ANALYZABILITY_MODERATE",
+			"rule_id": "LOW_ANALYZABILITY",
+			"category": "policy_violation",
+			"severity": "MEDIUM",
+			"title": "Moderate analyzability score",
+			"description": "Only 76% of skill content could be analyzed. 1 of 4 files are opaque to the scanner. Some content could not be verified as safe.",
+			"file_path": null,
+			"line_number": null,
+			"snippet": null,
+			"remediation": "Review opaque files and replace with inspectable formats where possible.",
+			"analyzer": "analyzability",
+			"metadata": {
+				"score": 76.5,
+				"unanalyzable_files": 1,
+				"total_files": 4,
+				"risk_level": "MEDIUM"
+			}
+		}
+	],
+	"scan_duration_seconds": 0.0962820053100586,
+	"duration_ms": 96,
+	"analyzers_used": ["static_analyzer", "bytecode", "pipeline"],
+	"timestamp": "2026-03-19T15:50:41.250026+00:00",
+	"scan_metadata": {
+		"policy_name": "default",
+		"policy_version": "1.0",
+		"policy_preset_base": "balanced",
+		"policy_fingerprint_sha256": "90696022f7fc8c307edfd13e2d4713f9d14042a147f48a3c7c7fde921dc2a686"
+	}
+}

@@ -3,4 +3,5 @@ dist/
 node_modules/
 .svelte-kit/
 data/
+docs/samples/
 pnpm-lock.yaml

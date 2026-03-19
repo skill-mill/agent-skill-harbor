@@ -1,0 +1,75 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "skill-scanner",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/cisco-ai-defense/skill-scanner",
+          "rules": [
+            {
+              "id": "LOW_ANALYZABILITY",
+              "name": "Low Analyzability",
+              "shortDescription": {
+                "text": "Moderate analyzability score"
+              },
+              "fullDescription": {
+                "text": "Only 76% of skill content could be analyzed. 1 of 4 files are opaque to the scanner. Some content could not be verified as safe."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "properties": {
+                "category": "policy_violation",
+                "severity": "MEDIUM",
+                "tags": [
+                  "policy_violation",
+                  "security"
+                ]
+              },
+              "help": {
+                "text": "Review opaque files and replace with inspectable formats where possible.",
+                "markdown": "**Remediation**: Review opaque files and replace with inspectable formats where possible."
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "LOW_ANALYZABILITY",
+          "level": "warning",
+          "message": {
+            "text": "Only 76% of skill content could be analyzed. 1 of 4 files are opaque to the scanner. Some content could not be verified as safe."
+          },
+          "properties": {
+            "category": "policy_violation",
+            "severity": "MEDIUM",
+            "remediation": "Review opaque files and replace with inspectable formats where possible."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "SKILL.md",
+                  "uriBaseId": "%SRCROOT%"
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "primaryLocationLineHash": "LOW_ANALYZABILITY_MODERATE"
+          }
+        }
+      ],
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "endTimeUtc": "2026-03-19T15:53:57Z"
+        }
+      ]
+    }
+  ]
+}

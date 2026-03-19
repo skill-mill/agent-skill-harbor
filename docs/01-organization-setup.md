@@ -17,6 +17,13 @@ cd my-skill-harbor
 
 This scaffolds the project with configuration files, GitHub Actions workflows, and a `package.json` that depends on `agent-skill-harbor`.
 
+If a later Harbor release updates the scaffolded workflows or config files, you can reapply them in-place:
+
+```bash
+harbor init . --workflows
+harbor init . --config
+```
+
 Then push this project to a **private** repository within your organization.
 
 > **Alternative:** You can also clone the [agent-skill-harbor repository](https://github.com/skill-mill/agent-skill-harbor) directly. See the Local Development guide for details.

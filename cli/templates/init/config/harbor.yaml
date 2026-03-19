@@ -11,6 +11,13 @@ post_collect:
   plugins:
     - id: builtin.detect-drift
       short_label: Drift
+
+  #   - id: builtin.audit-skill-scanner
+  #     short_label: Scanner
+  #     config:
+  #       command: skill-scanner
+  #       options: --policy balanced
+
   #   - id: builtin.audit-promptfoo-security
   #     short_label: Security
   #     config:
@@ -22,10 +29,9 @@ post_collect:
   #         - policy-violation
   #       risk_threshold: 1
   #       critical_threshold: 3
-  #   - id: builtin.audit-static
-  #     short_label: Audit
-  #   - id: sample_plugin
-  #     short_label: Sample
+
+  #   - id: example_user_defined_plugin
+  #     short_label: Example
   # Generate the sample plugin first: harbor gen sample-plugin
   # Then uncomment the line above.
 

@@ -17,6 +17,13 @@ cd my-skill-harbor
 
 設定ファイル、GitHub Actions ワークフロー、`agent-skill-harbor` に依存する `package.json` を含むプロジェクトが生成されます。
 
+後から Harbor の release に合わせて workflow や config の scaffold を再配布したい場合は、既存プロジェクト上で次を実行できます:
+
+```bash
+harbor init . --workflows
+harbor init . --config
+```
+
 このプロジェクトを組織内の**プライベート**リポジトリにプッシュします。
 
 > **別の方法:** [agent-skill-harbor リポジトリ](https://github.com/skill-mill/agent-skill-harbor) を直接クローンすることもできます。詳しくはローカル開発ガイドを参照。

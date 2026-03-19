@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 import { tmpdir } from 'node:os';
@@ -62,11 +62,11 @@ test('runPostCollect saves detect-drift output', async () => {
 
 test('runPostCollect loads local ts plugin with tsx', async () => {
 	const root = mkdtempSync(join(tmpdir(), 'post-collect-ts-'));
-	mkdirSync(join(root, 'plugins', 'sample_plugin'), { recursive: true });
+	mkdirSync(join(root, 'plugins', 'example_user_defined_plugin'), { recursive: true });
 	mkdirSync(join(root, 'data'), { recursive: true });
 
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.ts'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.ts'),
 		[
 			"export async function run(context) {",
 			"  return {",
@@ -96,10 +96,10 @@ test('runPostCollect loads local ts plugin with tsx', async () => {
 			},
 		},
 		log: false,
-		plugins: [{ id: 'sample_plugin' }],
+		plugins: [{ id: 'example_user_defined_plugin' }],
 	});
 
-	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'sample_plugin.yaml'), 'utf-8')) as {
+	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'example_user_defined_plugin.yaml'), 'utf-8')) as {
 		summary?: string;
 		results?: Record<string, { label?: string; raw?: string }>;
 	}[];
@@ -112,11 +112,11 @@ test('runPostCollect loads local ts plugin with tsx', async () => {
 
 test('runPostCollect prefers mjs over js and ts for local plugins', async () => {
 	const root = mkdtempSync(join(tmpdir(), 'post-collect-order-'));
-	mkdirSync(join(root, 'plugins', 'sample_plugin'), { recursive: true });
+	mkdirSync(join(root, 'plugins', 'example_user_defined_plugin'), { recursive: true });
 	mkdirSync(join(root, 'data'), { recursive: true });
 
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.ts'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.ts'),
 		[
 			"export async function run() {",
 			"  return { results: { 'skill': { label: 'ts' } } };",
@@ -125,7 +125,7 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 		].join('\n'),
 	);
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.js'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.js'),
 		[
 			'export async function run() {',
 			"  return { results: { 'skill': { label: 'js' } } };",
@@ -134,7 +134,7 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 		].join('\n'),
 	);
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.mjs'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.mjs'),
 		[
 			'export async function run() {',
 			"  return { results: { 'skill': { label: 'mjs' } } };",
@@ -147,10 +147,10 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 		projectRoot: root,
 		catalog: { repositories: {} },
 		log: false,
-		plugins: [{ id: 'sample_plugin' }],
+		plugins: [{ id: 'example_user_defined_plugin' }],
 	});
 
-	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'sample_plugin.yaml'), 'utf-8')) as {
+	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'example_user_defined_plugin.yaml'), 'utf-8')) as {
 		results?: Record<string, { label?: string }>;
 	}[];
 	assert.equal(output[0].results?.skill?.label, 'mjs');
@@ -158,13 +158,13 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 
 test('runPostCollect replaces same collect_id and respects history limit', async () => {
 	const root = mkdtempSync(join(tmpdir(), 'post-collect-history-'));
-	mkdirSync(join(root, 'plugins', 'sample_plugin'), { recursive: true });
+	mkdirSync(join(root, 'plugins', 'example_user_defined_plugin'), { recursive: true });
 	mkdirSync(join(root, 'config'), { recursive: true });
 	mkdirSync(join(root, 'data'), { recursive: true });
 
 	writeFileSync(join(root, 'config', 'harbor.yaml'), 'collector:\n  history_limit: 2\n');
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.ts'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.ts'),
 		[
 			'let count = 0;',
 			'export async function run() {',
@@ -175,12 +175,38 @@ test('runPostCollect replaces same collect_id and respects history limit', async
 		].join('\n'),
 	);
 
-	await runPostCollect({ projectRoot: root, collectId: 'collect-1', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
-	await runPostCollect({ projectRoot: root, collectId: 'collect-1', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
-	await runPostCollect({ projectRoot: root, collectId: 'collect-2', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
-	await runPostCollect({ projectRoot: root, collectId: 'collect-3', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-1',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-1',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-2',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-3',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
 
-	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'sample_plugin.yaml'), 'utf-8')) as {
+	const output = yamlLoad(
+		readFileSync(join(root, 'data', 'plugins', 'example_user_defined_plugin.yaml'), 'utf-8'),
+	) as {
 		collect_id?: string;
 		results?: Record<string, { label?: string }>;
 	}[];
@@ -275,8 +301,114 @@ test('runPostCollect passes built-in config and stores unknown result when promp
 	const output = yamlLoad(
 		readFileSync(join(root, 'data', 'plugins', 'builtin.audit-promptfoo-security.yaml'), 'utf-8'),
 	) as {
+		sub_artifacts?: string[];
 		results?: Record<string, { label?: string; raw?: string }>;
 	}[];
+	assert.deepEqual(output[0].sub_artifacts, ['report.html']);
 	assert.equal(output[0].results?.['github.com/example/demo/skills/example/SKILL.md']?.label, 'Unknown');
 	assert.match(output[0].results?.['github.com/example/demo/skills/example/SKILL.md']?.raw ?? '', /model is not configured/i);
+});
+
+test('runPostCollect runs skill-scanner for org-owned skills and stores sub artifacts', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'post-collect-skill-scanner-'));
+	mkdirSync(join(root, 'data'), { recursive: true });
+	writeSkill(root, 'github.com/example/demo', 'skills/example/SKILL.md', '# example');
+	writeSkill(root, 'github.com/community/demo', 'skills/other/SKILL.md', '# other');
+
+	const commandPath = join(root, 'mock-skill-scanner.mjs');
+	writeFileSync(
+		commandPath,
+		[
+			'#!/usr/bin/env node',
+			"import { mkdirSync, writeFileSync } from 'node:fs';",
+			"import { dirname } from 'node:path';",
+			'const args = process.argv.slice(2);',
+			"if (args[0] === '--version') { console.log('skill-scanner 2.0.4'); process.exit(0); }",
+			"if (args[0] !== 'scan') process.exit(1);",
+			'const readArg = (flag) => {',
+			'  const index = args.indexOf(flag);',
+			'  return index >= 0 ? args[index + 1] : null;',
+			'};',
+			"for (const filePath of [readArg('--output'), readArg('--output-html'), readArg('--output-sarif'), readArg('--output-json')]) {",
+			'  if (!filePath) continue;',
+			'  mkdirSync(dirname(filePath), { recursive: true });',
+			"}",
+			"writeFileSync(readArg('--output'), 'summary');",
+			"writeFileSync(readArg('--output-html'), '<html><body>ok</body></html>');",
+			"writeFileSync(readArg('--output-sarif'), JSON.stringify({ version: '2.1.0', runs: [] }));",
+			"writeFileSync(readArg('--output-json'), JSON.stringify({ is_safe: false, max_severity: 'LOW', findings_count: 2, findings: [{ description: 'First issue' }, { description: 'Second issue' }] }));",
+		].join('\n'),
+	);
+	chmodSync(commandPath, 0o755);
+
+	const catalog = {
+		repositories: {
+			'github.com/example/demo': {
+				visibility: 'public',
+				skills: {
+					'skills/example/SKILL.md': {
+						tree_sha: 'tree',
+					},
+				},
+			},
+			'github.com/community/demo': {
+				visibility: 'public',
+				skills: {
+					'skills/other/SKILL.md': {
+						tree_sha: 'tree',
+					},
+				},
+			},
+		},
+	};
+
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-skill-scanner',
+		orgName: 'example',
+		catalog,
+		log: false,
+		plugins: [{ id: 'builtin.audit-skill-scanner', config: { command: commandPath, options: '--policy strict' } }],
+	});
+
+	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'builtin.audit-skill-scanner.yaml'), 'utf-8')) as {
+		sub_artifacts?: string[];
+		results?: Record<string, { label?: string; raw?: string; findings?: string[] }>;
+	}[];
+	assert.deepEqual(output[0].sub_artifacts, ['report.html', 'report.sarif.json', 'report.json']);
+	assert.deepEqual(output[0].results?.['github.com/example/demo/skills/example/SKILL.md'], {
+		label: 'LOW',
+		raw: '2 findings, max severity LOW (scanner safe=false)',
+		findings: ['First issue', 'Second issue'],
+	});
+	assert.equal(output[0].results?.['github.com/community/demo/skills/other/SKILL.md'], undefined);
+});
+
+test('runPostCollect fails when skill-scanner CLI is unavailable', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'post-collect-skill-scanner-missing-'));
+	mkdirSync(join(root, 'data'), { recursive: true });
+	writeSkill(root, 'github.com/example/demo', 'skills/example/SKILL.md', '# example');
+
+	await assert.rejects(
+		runPostCollect({
+			projectRoot: root,
+			collectId: 'collect-skill-scanner-missing',
+			orgName: 'example',
+			catalog: {
+				repositories: {
+					'github.com/example/demo': {
+						visibility: 'public',
+						skills: {
+							'skills/example/SKILL.md': {
+								tree_sha: 'tree',
+							},
+						},
+					},
+				},
+			},
+			log: false,
+			plugins: [{ id: 'builtin.audit-skill-scanner', config: { command: 'definitely-missing-skill-scanner' } }],
+		}),
+		/skill-scanner CLI is unavailable/i,
+	);
 });

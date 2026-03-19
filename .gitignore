@@ -8,6 +8,7 @@ post-collect/dist/
 post-collect/node_modules/
 web/dist/
 web/node_modules/
+web/static/assets/
 build/
 .env
 .env.*

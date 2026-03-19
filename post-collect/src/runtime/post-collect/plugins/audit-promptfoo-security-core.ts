@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
 import type { LabelIntent, PostCollectSkillResult } from '../types.js';
+import { getPluginArtifactFsDir, getPluginArtifactPublicDir, getPluginArtifactsRoot } from './sub-artifacts.js';
 
 export const PROMPTFOO_SECURITY_PLUGIN_ID = 'builtin.audit-promptfoo-security';
 export const DEFAULT_VULNERABILITIES = [
@@ -65,20 +66,16 @@ export function parsePromptfooSecurityConfig(config: Record<string, unknown> | u
 	};
 }
 
-export function normalizeSkillKeyForPath(skillKey: string): string {
-	return skillKey.replace(/[^a-zA-Z0-9_-]+/g, '__').replace(/^_+|_+$/g, '');
-}
-
 export function buildReportPublicPath(skillKey: string): string {
-	return `plugin-reports/${PROMPTFOO_SECURITY_PLUGIN_ID}/${normalizeSkillKeyForPath(skillKey)}/index.html`;
+	return `${getPluginArtifactPublicDir(PROMPTFOO_SECURITY_PLUGIN_ID, skillKey)}/report.html`;
 }
 
 export function buildReportFsPath(projectRoot: string, skillKey: string): string {
-	return join(projectRoot, 'data', buildReportPublicPath(skillKey));
+	return join(getPluginArtifactFsDir(projectRoot, PROMPTFOO_SECURITY_PLUGIN_ID, skillKey), 'report.html');
 }
 
 export function getPluginReportsRoot(projectRoot: string): string {
-	return join(projectRoot, 'data', 'plugin-reports', PROMPTFOO_SECURITY_PLUGIN_ID);
+	return getPluginArtifactsRoot(projectRoot, PROMPTFOO_SECURITY_PLUGIN_ID);
 }
 
 export function resetPluginReports(projectRoot: string): void {
@@ -134,7 +131,6 @@ export function buildPromptfooConfig(params: {
 
 export function summarizePromptfooOutput(params: {
 	output: PromptfooOutputFile;
-	reportPath: string;
 	riskThreshold: number;
 	criticalThreshold: number;
 }): PostCollectSkillResult {
@@ -159,7 +155,6 @@ export function summarizePromptfooOutput(params: {
 		return {
 			label: 'Unknown',
 			raw: 'Promptfoo returned errors and no completed findings.',
-			report_path: params.reportPath,
 		};
 	}
 
@@ -168,7 +163,6 @@ export function summarizePromptfooOutput(params: {
 			label: 'Safe',
 			raw: 'No red-team findings were detected.',
 			findings,
-			report_path: params.reportPath,
 		};
 	}
 
@@ -180,7 +174,6 @@ export function summarizePromptfooOutput(params: {
 		raw: `${totalFindings} finding(s): ${hitPlugins.join(', ')}`,
 		findings,
 		reasons: Object.fromEntries([...reasonsByPlugin.entries()].sort(([a], [b]) => a.localeCompare(b))),
-		report_path: params.reportPath,
 	};
 }
 

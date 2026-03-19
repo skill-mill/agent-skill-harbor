@@ -70,7 +70,7 @@ export function normalizeSkillKeyForPath(skillKey: string): string {
 }
 
 export function buildReportPublicPath(skillKey: string): string {
-	return `plugin-reports/${PROMPTFOO_SECURITY_PLUGIN_ID}/${normalizeSkillKeyForPath(skillKey)}/index.html`;
+	return `assets/plugins/${PROMPTFOO_SECURITY_PLUGIN_ID}/${normalizeSkillKeyForPath(skillKey)}/report.html`;
 }
 
 export function buildReportFsPath(projectRoot: string, skillKey: string): string {
@@ -78,7 +78,7 @@ export function buildReportFsPath(projectRoot: string, skillKey: string): string
 }
 
 export function getPluginReportsRoot(projectRoot: string): string {
-	return join(projectRoot, 'data', 'plugin-reports', PROMPTFOO_SECURITY_PLUGIN_ID);
+	return join(projectRoot, 'data', 'assets', 'plugins', PROMPTFOO_SECURITY_PLUGIN_ID);
 }
 
 export function resetPluginReports(projectRoot: string): void {

@@ -70,7 +70,7 @@ export const auditPromptfooSecurityPlugin: BuiltinPostCollectPlugin = {
 				const reportPath = buildReportPublicPath(skillKey);
 				const reportFsPath = buildReportFsPath(context.project_root, skillKey);
 				const tempDir = createPromptfooTempDir();
-				const jsonOutputPath = join(tempDir, 'results.json');
+				const jsonOutputPath = join(tempDir, 'report.json');
 				const htmlOutputPath = reportFsPath;
 				const configPath = join(tempDir, 'promptfooconfig.json');
 

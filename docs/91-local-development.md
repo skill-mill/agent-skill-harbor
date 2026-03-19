@@ -91,6 +91,26 @@ node cli/dist/bin/cli.js preview
 
 Use this flow when you want to validate the full collector -> post-collect -> web pipeline from the source repository. Use `dev` when you want to inspect the live development server, and `preview` when you want to inspect the built output.
 
+### Note: `harbor dev` vs `pnpm --dir web dev`
+
+When developing from the source repository, prefer:
+
+```bash
+node cli/dist/bin/cli.js dev
+```
+
+instead of:
+
+```bash
+pnpm --dir web dev
+```
+
+The wrapper-based `harbor dev` path stages `data/assets/` into `web/static/assets/` before starting Vite so plugin secondary artifacts are available during development and prerendering. Running Vite directly from `web/` skips that staging step and can lead to missing or stale asset links.
+
+TODO:
+
+- Consider making `pnpm --dir web dev` a fully supported path by moving asset staging into the web package's own dev workflow instead of relying on the wrapper entrypoint.
+
 ### Project Structure
 
 ```

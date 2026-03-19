@@ -67,6 +67,15 @@ async function importCommand(
 	}
 }
 
+async function importLocalCommand(moduleName: string, exportName = 'runCommand'): Promise<void> {
+	const mod = await import(moduleName);
+	const run = mod[exportName];
+	if (typeof run !== 'function') {
+		throw new Error(`Missing exported function: ${exportName} from ${moduleName}`);
+	}
+	await run(process.argv.slice(3));
+}
+
 const extracted = extractProjectRoot(process.argv.slice(2));
 process.argv = [process.argv[0] ?? 'node', process.argv[1] ?? 'harbor', ...extracted.argv];
 if (extracted.projectRoot) {
@@ -77,10 +86,10 @@ const command = process.argv[2];
 
 switch (command) {
 	case 'init':
-		await import('../src/cli/commands/init.js');
+		await importLocalCommand('../src/cli/commands/init.js');
 		break;
 	case 'gen':
-		await import('../src/cli/commands/gen.js');
+		await importLocalCommand('../src/cli/commands/gen.js');
 		break;
 	case 'collect':
 		await importCommand('agent-skill-harbor-collector/collect', 'agent-skill-harbor-collector');
