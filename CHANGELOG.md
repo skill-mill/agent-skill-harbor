@@ -12,11 +12,16 @@
 - Moved `builtin.audit-promptfoo-security` secondary report links to the new `sub_artifacts` convention and aligned plugin detail rendering around artifact file names
 - Updated built-in plugin docs, init template examples, and package READMEs to document `skill-scanner`, secondary artifact conventions, and Python CLI requirements
 - Removed the older `builtin.audit-static` built-in plugin now that `builtin.audit-skill-scanner` covers the security-audit role more clearly
+- Changed secondary artifact storage from `data/plugin-reports/` to `data/assets/plugins/`, copied `data/assets/` into the web output during build, and documented the `harbor dev` staging path for source-repo development
+- Renamed the example user-defined plugin scaffold to `example_user_defined_plugin`, changed its suggested short label to `Example`, and made its demo labels neutral (`Ex01` / `Ex02`)
+- Ordered plugin labels in filters and stats by `label_intents` key order, expanded stats trend charts to support up to 7 labels, and refined marker shapes for higher-cardinality plugins
+- Added counts to skill list filter options and included plugin secondary artifact links in generated GitHub issue bodies for skill detail pages
 
 ### Fixed
 
 - Excluded `docs/samples/` from workspace Prettier checks so local sample outputs do not fail repository formatting checks
 - Fixed implicit `any` types in `web/src/lib/components/StarsBackground.svelte` so `web check` passes again
+- Fixed plugin output YAML folding so long `collect_id` values no longer break latest-result resolution in the web UI
 
 ## [cli 0.13.0] / [collector 0.13.0] / [post-collect 0.13.0] / [web 0.13.0] - 2026-03-19
 

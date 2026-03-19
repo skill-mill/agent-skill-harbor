@@ -12,11 +12,16 @@
 - `builtin.audit-promptfoo-security` の副成果物リンク表現を新しい `sub_artifacts` 規約へ移行し、plugin 詳細画面の表示を副成果物ファイル名ベースに揃えた
 - built-in plugin のドキュメント、init template の設定例、package README を更新し、`skill-scanner`、副成果物規約、Python CLI 前提条件を明記した
 - `builtin.audit-skill-scanner` でセキュリティ監査の役割をより明確に担えるようになったため、旧 `builtin.audit-static` built-in plugin を削除した
+- 副成果物の配置先を `data/plugin-reports/` から `data/assets/plugins/` へ変更し、`harbor build` で `data/assets/` 全体を Web 出力へコピーするようにした。source repo 開発時の `harbor dev` staging 経路も明記した
+- 例示用 user-defined plugin の雛形を `example_user_defined_plugin` に改名し、推奨 `short_label` を `Example` に変更した。デモ用ラベルも中立な `Ex01` / `Ex02` に置き換えた
+- filter と stats における plugin label の並び順を `label_intents` のキー順優先に変更し、stats の trend chart を最大 7 ラベルまで描画できるようにした。marker shape も高ラベル数向けに調整した
+- Skills 一覧の filter 選択肢に件数表示を追加し、skill detail から GitHub issue を作成するときに plugin 副成果物リンクも本文へ含めるようにした
 
 ### 修正
 
 - `docs/samples/` を workspace の Prettier 対象から外し、ローカルのサンプル出力が repository 全体の format check を壊さないようにした
 - `web/src/lib/components/StarsBackground.svelte` の implicit `any` を修正し、`web check` が再び通るようにした
+- plugin 出力 YAML の折り返しで長い `collect_id` が壊れ、Web UI が最新結果を解決できなくなる不具合を修正した
 
 ## [cli 0.13.0] / [collector 0.13.0] / [post-collect 0.13.0] / [web 0.13.0] - 2026-03-19
 
