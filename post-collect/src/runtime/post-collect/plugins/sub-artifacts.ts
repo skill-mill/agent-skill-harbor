@@ -5,7 +5,7 @@ export function normalizeSkillKeyForArtifactPath(skillKey: string): string {
 }
 
 export function getPluginArtifactPublicDir(pluginId: string, skillKey: string): string {
-	return `plugin-reports/${pluginId}/${normalizeSkillKeyForArtifactPath(skillKey)}`;
+	return `assets/plugins/${pluginId}/${normalizeSkillKeyForArtifactPath(skillKey)}`;
 }
 
 export function getPluginArtifactFsDir(projectRoot: string, pluginId: string, skillKey: string): string {
@@ -13,5 +13,5 @@ export function getPluginArtifactFsDir(projectRoot: string, pluginId: string, sk
 }
 
 export function getPluginArtifactsRoot(projectRoot: string, pluginId: string): string {
-	return join(projectRoot, 'data', 'plugin-reports', pluginId);
+	return join(projectRoot, 'data', 'assets', 'plugins', pluginId);
 }

@@ -5,7 +5,7 @@ import { promisify } from 'node:util';
 import type { LabelIntent, PostCollectSkillResult } from '../types.js';
 
 export const SKILL_SCANNER_PLUGIN_ID = 'builtin.audit-skill-scanner';
-export const SKILL_SCANNER_SUB_ARTIFACTS = ['index.html', 'results.sarif.json', 'results.json'] as const;
+export const SKILL_SCANNER_SUB_ARTIFACTS = ['report.html', 'report.sarif.json', 'report.json'] as const;
 
 const execFileAsync = promisify(execFile);
 
@@ -186,6 +186,9 @@ export function summarizeSkillScannerOutput(output: SkillScannerJsonOutput): Pos
 		label,
 		raw: buildSkillScannerRaw(output),
 		findings_count: findingsCount,
+		...(typeof output.max_severity === 'string' && output.max_severity.length > 0
+			? { max_severity: output.max_severity }
+			: {}),
 		...(typeof output.is_safe === 'boolean' ? { is_safe: output.is_safe } : {}),
 	};
 }

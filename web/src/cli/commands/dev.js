@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { webRoot, userRoot } from '../paths.js';
-import { getExitCode } from '../utils.js';
+import { getExitCode, stageDataAssets } from '../utils.js';
 
 const require = createRequire(import.meta.url);
 const viteCli = resolve(dirname(require.resolve('vite/package.json')), 'bin/vite.js');
@@ -12,6 +12,7 @@ export function runDevCommand() {
 	console.log(`Starting development server...`);
 	console.log(`  Project root: ${userRoot}`);
 
+	const { cleanup } = stageDataAssets(webRoot, userRoot);
 	try {
 		execFileSync(process.execPath, [viteCli, 'dev'], {
 			cwd: webRoot,
@@ -23,6 +24,8 @@ export function runDevCommand() {
 		});
 	} catch (error) {
 		process.exit(getExitCode(error));
+	} finally {
+		cleanup();
 	}
 }
 

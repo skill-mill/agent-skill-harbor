@@ -68,7 +68,7 @@ export const auditPromptfooSecurityPlugin: BuiltinPostCollectPlugin = {
 				const skillName = skillPath.replace(/\/SKILL\.md$/, '').split('/').pop() || 'skill';
 				const reportFsPath = buildReportFsPath(context.project_root, skillKey);
 				const tempDir = createPromptfooTempDir();
-				const jsonOutputPath = join(tempDir, 'results.json');
+				const jsonOutputPath = join(tempDir, 'report.json');
 				const htmlOutputPath = reportFsPath;
 				const configPath = join(tempDir, 'promptfooconfig.json');
 
@@ -125,7 +125,7 @@ export const auditPromptfooSecurityPlugin: BuiltinPostCollectPlugin = {
 		return {
 			summary: buildSummary(counts, scanned),
 			label_intents: PROMPTFOO_SECURITY_LABEL_INTENTS,
-			sub_artifacts: ['index.html'],
+			sub_artifacts: ['report.html'],
 			results,
 		};
 	},

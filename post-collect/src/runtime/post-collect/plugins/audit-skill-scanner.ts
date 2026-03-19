@@ -60,9 +60,9 @@ export const auditSkillScannerPlugin: BuiltinPostCollectPlugin = {
 				const artifactDir = getArtifactDir(skillKey);
 				const files: SkillScannerRunFiles = {
 					summaryPath: join(artifactDir, 'summary.txt'),
-					htmlPath: join(artifactDir, 'index.html'),
-					sarifPath: join(artifactDir, 'results.sarif.json'),
-					jsonPath: join(artifactDir, 'results.json'),
+					htmlPath: join(artifactDir, 'report.html'),
+					sarifPath: join(artifactDir, 'report.sarif.json'),
+					jsonPath: join(artifactDir, 'report.json'),
 				};
 				const skillDir = getSkillDir(context.project_root, skillKey);
 

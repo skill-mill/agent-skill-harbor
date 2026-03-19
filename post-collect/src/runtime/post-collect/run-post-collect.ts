@@ -156,7 +156,7 @@ function savePluginOutput(projectRoot: string, pluginId: string, collectId: stri
 	);
 	const next = [payload, ...existing];
 	const trimmed = historyLimit > 0 ? next.slice(0, historyLimit) : next;
-	writeFileSync(outputPath, yamlDump(trimmed, { lineWidth: 120, noRefs: true }));
+	writeFileSync(outputPath, yamlDump(trimmed, { lineWidth: 0, noRefs: true }));
 }
 
 export interface RunPostCollectOptions {

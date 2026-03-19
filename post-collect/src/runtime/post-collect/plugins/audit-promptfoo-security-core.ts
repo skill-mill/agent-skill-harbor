@@ -67,11 +67,11 @@ export function parsePromptfooSecurityConfig(config: Record<string, unknown> | u
 }
 
 export function buildReportPublicPath(skillKey: string): string {
-	return `${getPluginArtifactPublicDir(PROMPTFOO_SECURITY_PLUGIN_ID, skillKey)}/index.html`;
+	return `${getPluginArtifactPublicDir(PROMPTFOO_SECURITY_PLUGIN_ID, skillKey)}/report.html`;
 }
 
 export function buildReportFsPath(projectRoot: string, skillKey: string): string {
-	return join(getPluginArtifactFsDir(projectRoot, PROMPTFOO_SECURITY_PLUGIN_ID, skillKey), 'index.html');
+	return join(getPluginArtifactFsDir(projectRoot, PROMPTFOO_SECURITY_PLUGIN_ID, skillKey), 'report.html');
 }
 
 export function getPluginReportsRoot(projectRoot: string): string {

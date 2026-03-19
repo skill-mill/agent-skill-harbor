@@ -278,7 +278,7 @@ test('runPostCollect passes built-in config and stores unknown result when promp
 		sub_artifacts?: string[];
 		results?: Record<string, { label?: string; raw?: string }>;
 	}[];
-	assert.deepEqual(output[0].sub_artifacts, ['index.html']);
+	assert.deepEqual(output[0].sub_artifacts, ['report.html']);
 	assert.equal(output[0].results?.['github.com/example/demo/skills/example/SKILL.md']?.label, 'Unknown');
 	assert.match(output[0].results?.['github.com/example/demo/skills/example/SKILL.md']?.raw ?? '', /model is not configured/i);
 });
@@ -349,11 +349,12 @@ test('runPostCollect runs skill-scanner for org-owned skills and stores sub arti
 		sub_artifacts?: string[];
 		results?: Record<string, { label?: string; raw?: string; findings_count?: number; is_safe?: boolean }>;
 	}[];
-	assert.deepEqual(output[0].sub_artifacts, ['index.html', 'results.sarif.json', 'results.json']);
+	assert.deepEqual(output[0].sub_artifacts, ['report.html', 'report.sarif.json', 'report.json']);
 	assert.deepEqual(output[0].results?.['github.com/example/demo/skills/example/SKILL.md'], {
 		label: 'LOW',
 		raw: '2 findings, max severity LOW (scanner safe=false)',
 		findings_count: 2,
+		max_severity: 'LOW',
 		is_safe: false,
 	});
 	assert.equal(output[0].results?.['github.com/community/demo/skills/other/SKILL.md'], undefined);

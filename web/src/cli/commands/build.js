@@ -1,10 +1,9 @@
-import { cpSync, existsSync, rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { webRoot, userRoot } from '../paths.js';
-import { getExitCode } from '../utils.js';
+import { getExitCode, stageDataAssets } from '../utils.js';
 
 const require = createRequire(import.meta.url);
 
@@ -17,6 +16,7 @@ export function runBuildCommand(argv = process.argv.slice(3)) {
 	console.log(`  Project root: ${userRoot}`);
 	console.log(`  Output:       ${outputDir}`);
 
+	const { cleanup } = stageDataAssets(webRoot, userRoot);
 	try {
 		execFileSync(process.execPath, [viteCli, 'build'], {
 			cwd: webRoot,
@@ -28,16 +28,11 @@ export function runBuildCommand(argv = process.argv.slice(3)) {
 				...(basePath ? { BASE_PATH: basePath } : {}),
 			},
 		});
-		const reportsDir = resolve(userRoot, 'data', 'plugin-reports');
-		const buildReportsDir = resolve(outputDir, 'plugin-reports');
-		rmSync(buildReportsDir, { recursive: true, force: true });
-		if (existsSync(reportsDir)) {
-			cpSync(reportsDir, buildReportsDir, { recursive: true });
-			console.log(`  Copied plugin reports: ${buildReportsDir}`);
-		}
 		console.log(`\nBuild complete! Output in ${outputDir}`);
 	} catch (error) {
 		process.exit(getExitCode(error));
+	} finally {
+		cleanup();
 	}
 }
 

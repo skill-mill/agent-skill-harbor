@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadCatalog } from './catalog-store.js';
@@ -21,13 +22,30 @@ function parseArgs(argv: string[]): { collectId?: string } {
 	return { collectId };
 }
 
+export function resolveOrgName(projectRoot: string): string | undefined {
+	if (process.env.GH_ORG) return process.env.GH_ORG;
+	try {
+		const remoteUrl = execSync('git remote get-url origin', {
+			encoding: 'utf-8',
+			cwd: projectRoot,
+		}).trim();
+		const sshMatch = remoteUrl.match(/^git@[^:]+:([^/]+)\/([^/.]+)/);
+		if (sshMatch) return sshMatch[1];
+		const httpsMatch = remoteUrl.match(/^https?:\/\/[^/]+\/([^/]+)\/([^/.]+)/);
+		if (httpsMatch) return httpsMatch[1];
+	} catch {
+		// git command failed
+	}
+	return undefined;
+}
+
 export async function runPostCollectCli(argv: string[] = process.argv.slice(2)): Promise<void> {
 	const args = parseArgs(argv);
 	const projectRoot = getProjectRoot();
 	await runPostCollect({
 		projectRoot,
 		collectId: args.collectId ?? null,
-		orgName: process.env.GH_ORG ?? undefined,
+		orgName: resolveOrgName(projectRoot),
 		catalog: loadCatalog(projectRoot),
 		log: true,
 	});

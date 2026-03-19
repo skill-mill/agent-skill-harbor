@@ -72,7 +72,7 @@ Runs `promptfoo` red teaming against org-owned skills and summarizes the results
 Important notes:
 
 - It currently targets org-owned skills only
-- It may generate HTML reports under `data/plugin-reports/builtin.audit-promptfoo-security/`
+- It may generate HTML reports under `data/assets/plugins/builtin.audit-promptfoo-security/`
 - Harbor runs it with `PROMPTFOO_DISABLE_TELEMETRY=1` and `PROMPTFOO_DISABLE_UPDATE=1`
 - `promptfoo` can still attempt other outbound communication depending on the red-team feature set you enable
 
@@ -93,7 +93,7 @@ Important notes:
 - `options` is passed through as additional CLI flags, but Harbor reserves scan target and output flags
 - Harbor adds `--use-behavioral --use-trigger --lenient` by default
 - `--enable-meta` is not enabled by default because it requires an API key
-- It keeps `index.html`, `results.sarif.json`, and `results.json` under `data/plugin-reports/builtin.audit-skill-scanner/`
+- It keeps `report.html`, `report.sarif.json`, and `report.json` under `data/assets/plugins/builtin.audit-skill-scanner/`
 - `skill-scanner` can still attempt outbound communication indirectly via LiteLLM during CLI startup/help flows
 
 ## User-Defined Plugins
@@ -128,7 +128,7 @@ Output fields:
 
 - `summary`: human-readable summary of the plugin run
 - `label_intents`: maps each label to a visual intent used for coloring in the UI
-- `sub_artifacts`: plugin-level secondary artifact file names kept under `data/plugin-reports/<plugin-id>/<normalized-skill-key>/`
+- `sub_artifacts`: plugin-level secondary artifact file names kept under `data/assets/plugins/<plugin-id>/<normalized-skill-key>/`
 - `results`: per-skill results keyed by skill path
 
 ### `label_intents` values
@@ -158,20 +158,22 @@ Plugins may produce files other than their main YAML output as a side effect.
 
 If a plugin wants those files to be deployed with the web app, it should write them under:
 
-- `data/plugin-reports/<plugin-id>/...`
+- `data/assets/plugins/<plugin-id>/...`
+
+You can also place your own static files anywhere under `data/assets/`; Harbor copies the whole directory into the web build output.
 
 Harbor stores file names in `sub_artifacts`, but the plugin itself is still responsible for creating and updating the files using the stable path convention above.
 
-During `harbor build`, Harbor copies `data/plugin-reports/` into the web build output so those files can be linked from the UI.
+During `harbor build`, Harbor copies `data/assets/` into the web build output so those files can be linked from the UI.
 
-In generated projects, the build workflow installs only `tools/harbor/web`, but the copy rule stays the same because Harbor always reads `data/plugin-reports/` from the project root passed via `--project-root`.
+In generated projects, the build workflow installs only `tools/harbor/web`, but the copy rule stays the same because Harbor always reads `data/assets/` from the project root passed via `--project-root`.
 
 ## Web UI Behavior
 
 - Card/List/Skill detail use plugin output only when it matches the latest `collect_id`
 - Stats reads plugin output history by `collect_id`
 - `short_label` is used for filter labels and table headers when configured
-- files under `data/plugin-reports/` are copied into the web build output during `harbor build`
+- files under `data/assets/` are copied into the web build output during `harbor build`
 - skill detail pages build secondary artifact links from `plugin_id`, `skill.key`, and `sub_artifacts`
 
 ## Workflow
