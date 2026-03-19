@@ -87,6 +87,7 @@ GitHub: https://github.com/cisco-ai-defense/skill-scanner
 - `--enable-meta` は API key が必要なため既定では付けません
 - `report.html`, `report.sarif.json`, `report.json` を `data/assets/plugins/builtin.audit-skill-scanner/` 配下に保持します
 - CLI 起動時に LiteLLM 経由の外向き通信を試みることがあります
+- 生成される GitHub Actions workflow では、この plugin を有効化する前に `post_collect` job で Python と `cisco-ai-skill-scanner` を install してください
 
 ## ユーザー定義プラグイン
 

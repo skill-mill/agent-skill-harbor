@@ -83,6 +83,7 @@ Important notes:
 - `--enable-meta` is not enabled by default because it requires an API key
 - It keeps `report.html`, `report.sarif.json`, and `report.json` under `data/assets/plugins/builtin.audit-skill-scanner/`
 - `skill-scanner` can still attempt outbound communication indirectly via LiteLLM during CLI startup/help flows
+- In generated GitHub Actions workflows, install Python and `cisco-ai-skill-scanner` in the `post_collect` job before enabling this plugin
 
 ## User-Defined Plugins
 

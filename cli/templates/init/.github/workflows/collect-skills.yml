@@ -68,6 +68,12 @@ jobs:
           node-version: '24'
       - name: Install post-collect dependencies
         run: pnpm install --dir tools/harbor/post-collect
+      # Required only when using builtin.audit-skill-scanner
+      # - uses: actions/setup-python@v6
+      #   with:
+      #     python-version: '3.13'
+      # - name: Install skill-scanner
+      #   run: pip install cisco-ai-skill-scanner
 
       - name: Restore collected data artifact
         uses: actions/download-artifact@v4
