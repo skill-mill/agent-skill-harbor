@@ -195,7 +195,7 @@
 	let displayedHistory = $derived(historyExpanded ? data.collections : data.collections.slice(0, 3));
 	let pluginHistoryColumns = $derived(data.pluginHistoryColumns ?? []);
 	let pluginHistorySummaries = $derived(data.pluginHistorySummaries ?? {});
-	const trendShapes = ['circle', 'square', 'diamond', 'triangle', 'cross'] as const;
+	const trendShapes = ['circle', 'square', 'diamond', 'triangle', 'cross', 'hexagon', 'plus'] as const;
 
 	function formatDuration(sec: number): string {
 		if (sec >= 60) {
@@ -267,7 +267,7 @@
 	let pluginTrendSections = $derived.by(() =>
 		pluginHistoryColumns.map((column) => {
 			const labels = column.labels;
-			const canChart = labels.length > 0 && labels.length <= 5;
+			const canChart = labels.length > 0 && labels.length <= 7;
 			const series = canChart
 				? labels.map((label, index) => ({
 						label,

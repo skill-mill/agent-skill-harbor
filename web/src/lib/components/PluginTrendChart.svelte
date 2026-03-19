@@ -9,7 +9,7 @@
 	interface TrendSeries {
 		label: string;
 		intent: LabelIntent;
-		shape: 'circle' | 'square' | 'diamond' | 'triangle' | 'cross';
+		shape: 'circle' | 'square' | 'diamond' | 'triangle' | 'cross' | 'hexagon' | 'plus';
 		points: TrendPoint[];
 	}
 
@@ -93,6 +93,12 @@
 				return `M${x},${y - size} L${x + size},${y + size} L${x - size},${y + size} Z`;
 			case 'cross':
 				return `M${x - size},${y - size} L${x + size},${y + size} M${x + size},${y - size} L${x - size},${y + size}`;
+			case 'hexagon': {
+				const h = size * 0.9;
+				return `M${x - size},${y} L${x - size / 2},${y - h} L${x + size / 2},${y - h} L${x + size},${y} L${x + size / 2},${y + h} L${x - size / 2},${y + h} Z`;
+			}
+			case 'plus':
+				return `M${x},${y - size} L${x},${y + size} M${x - size},${y} L${x + size},${y}`;
 			default:
 				return '';
 		}
@@ -107,7 +113,7 @@
 					<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
 						{#if item.shape === 'circle'}
 							<circle cx="6" cy="6" r="3.5" fill={item.color} />
-						{:else if item.shape === 'cross'}
+						{:else if item.shape === 'cross' || item.shape === 'plus'}
 							<path d={shapePath(item.shape, 6, 6, 3)} stroke={item.color} stroke-width="1.75" stroke-linecap="round" />
 						{:else}
 							<path d={shapePath(item.shape, 6, 6, 3)} fill={item.color} />
@@ -144,7 +150,7 @@
 				{#each item.points as point}
 					{#if item.shape === 'circle'}
 						<circle cx={point.x} cy={point.y} r="4" fill={item.color} />
-					{:else if item.shape === 'cross'}
+					{:else if item.shape === 'cross' || item.shape === 'plus'}
 						<path
 							d={shapePath(item.shape, point.x, point.y)}
 							stroke={item.color}
@@ -172,7 +178,7 @@
 					{@const point = item.points[hoveredIndex]}
 					{#if item.shape === 'circle'}
 						<circle cx={point.x} cy={point.y} r="5" fill={item.color} opacity="0.9" />
-					{:else if item.shape === 'cross'}
+					{:else if item.shape === 'cross' || item.shape === 'plus'}
 						<path
 							d={shapePath(item.shape, point.x, point.y, 5)}
 							stroke={item.color}
