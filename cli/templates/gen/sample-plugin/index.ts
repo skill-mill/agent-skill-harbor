@@ -17,17 +17,17 @@ export async function run(context: {
 			const variant = index % 3;
 			if (variant === 0) {
 				results[skillKey] = {
-					label: 'Pass',
-					raw: 'This is a sample post-collect plugin result with a "Pass" label.',
+					label: 'Ex01',
+					raw: 'This is an example user-defined post-collect plugin result with an "Ex01" label.',
 				};
 			} else if (variant === 1) {
 				results[skillKey] = {
-					label: 'Review',
-					raw: 'This is a sample post-collect plugin result with a "Review" label.',
+					label: 'Ex02',
+					raw: 'This is an example user-defined post-collect plugin result with an "Ex02" label.',
 				};
 			} else {
 				results[skillKey] = {
-					raw: 'This is a sample post-collect plugin result without a label.',
+					raw: 'This is an example user-defined post-collect plugin result without a label.',
 				};
 			}
 			index += 1;
@@ -35,10 +35,10 @@ export async function run(context: {
 	}
 
 	return {
-		summary: `Generated sample output for ${Object.keys(results).length} skill(s).`,
+		summary: `Generated example output for ${Object.keys(results).length} skill(s).`,
 		label_intents: {
-			Pass: 'success' as const,
-			Review: 'warn' as const,
+			Ex01: 'success' as const,
+			Ex02: 'warn' as const,
 		},
 		results,
 	};

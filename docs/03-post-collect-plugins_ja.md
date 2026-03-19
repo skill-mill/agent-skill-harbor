@@ -106,7 +106,8 @@ plugin id には小文字英数字、`-`、`_` だけを使えます。
 harbor gen sample-plugin
 ```
 
-その後、`config/harbor.yaml` の `sample_plugin` をアンコメントしてください。
+その後、`config/harbor.yaml` の `example_user_defined_plugin` をアンコメントしてください。
+必要に応じて、そのまま plugin id や内容を実運用向けに変更してください。
 
 ## プラグイン出力
 

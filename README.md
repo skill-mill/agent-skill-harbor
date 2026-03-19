@@ -63,16 +63,16 @@ The application is managed via a CLI that supports scaffolding, data collection,
 
 When installed as a dependency, the CLI is available as `harbor` or `agent-skill-harbor`:
 
-| Command                    | Description                             |
-| -------------------------- | --------------------------------------- |
-| `harbor init [dir]`        | Scaffold a new project                  |
-| `harbor gen sample-plugin` | Generate the sample post-collect plugin |
-| `harbor collect`           | Collect skills from GitHub organization |
-| `harbor post-collect`      | Run post-collect plugins                |
-| `harbor build`             | Build the static site                   |
-| `harbor deploy <target>`   | Deploy the built catalog                |
-| `harbor dev`               | Start development server                |
-| `harbor preview`           | Preview the built site                  |
+| Command                    | Description                                           |
+| -------------------------- | ----------------------------------------------------- |
+| `harbor init [dir]`        | Scaffold a new project                                |
+| `harbor gen sample-plugin` | Generate the example user-defined post-collect plugin |
+| `harbor collect`           | Collect skills from GitHub organization               |
+| `harbor post-collect`      | Run post-collect plugins                              |
+| `harbor build`             | Build the static site                                 |
+| `harbor deploy <target>`   | Deploy the built catalog                              |
+| `harbor dev`               | Start development server                              |
+| `harbor preview`           | Preview the built site                                |
 
 ### Build options
 

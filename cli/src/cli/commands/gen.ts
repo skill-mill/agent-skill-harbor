@@ -12,11 +12,11 @@ export async function runCommand(argv = process.argv.slice(3)): Promise<void> {
 
 	try {
 		const createdPath = scaffoldSamplePlugin(packageRoot, userRoot);
-		console.log('Generated sample plugin.');
+		console.log('Generated example user-defined plugin.');
 		console.log(`  Path: ${createdPath}`);
-		console.log('  Next: uncomment `- id: sample_plugin` in config/harbor.yaml');
-	} catch (error: any) {
-		console.error(error?.message ?? String(error));
+		console.log('  Next: uncomment `- id: example_user_defined_plugin` in config/harbor.yaml');
+	} catch (error: unknown) {
+		console.error(error instanceof Error ? error.message : String(error));
 		process.exit(1);
 	}
 }

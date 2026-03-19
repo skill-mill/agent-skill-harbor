@@ -102,7 +102,8 @@ To generate the sample plugin scaffold:
 harbor gen sample-plugin
 ```
 
-Then uncomment `sample_plugin` in `config/harbor.yaml`.
+Then uncomment `example_user_defined_plugin` in `config/harbor.yaml`.
+Then rename or customize it as needed for your real plugin.
 
 ## Plugin Output
 

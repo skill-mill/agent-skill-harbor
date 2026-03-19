@@ -62,11 +62,11 @@ test('runPostCollect saves detect-drift output', async () => {
 
 test('runPostCollect loads local ts plugin with tsx', async () => {
 	const root = mkdtempSync(join(tmpdir(), 'post-collect-ts-'));
-	mkdirSync(join(root, 'plugins', 'sample_plugin'), { recursive: true });
+	mkdirSync(join(root, 'plugins', 'example_user_defined_plugin'), { recursive: true });
 	mkdirSync(join(root, 'data'), { recursive: true });
 
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.ts'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.ts'),
 		[
 			"export async function run(context) {",
 			"  return {",
@@ -96,10 +96,10 @@ test('runPostCollect loads local ts plugin with tsx', async () => {
 			},
 		},
 		log: false,
-		plugins: [{ id: 'sample_plugin' }],
+		plugins: [{ id: 'example_user_defined_plugin' }],
 	});
 
-	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'sample_plugin.yaml'), 'utf-8')) as {
+	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'example_user_defined_plugin.yaml'), 'utf-8')) as {
 		summary?: string;
 		results?: Record<string, { label?: string; raw?: string }>;
 	}[];
@@ -112,11 +112,11 @@ test('runPostCollect loads local ts plugin with tsx', async () => {
 
 test('runPostCollect prefers mjs over js and ts for local plugins', async () => {
 	const root = mkdtempSync(join(tmpdir(), 'post-collect-order-'));
-	mkdirSync(join(root, 'plugins', 'sample_plugin'), { recursive: true });
+	mkdirSync(join(root, 'plugins', 'example_user_defined_plugin'), { recursive: true });
 	mkdirSync(join(root, 'data'), { recursive: true });
 
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.ts'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.ts'),
 		[
 			"export async function run() {",
 			"  return { results: { 'skill': { label: 'ts' } } };",
@@ -125,7 +125,7 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 		].join('\n'),
 	);
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.js'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.js'),
 		[
 			'export async function run() {',
 			"  return { results: { 'skill': { label: 'js' } } };",
@@ -134,7 +134,7 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 		].join('\n'),
 	);
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.mjs'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.mjs'),
 		[
 			'export async function run() {',
 			"  return { results: { 'skill': { label: 'mjs' } } };",
@@ -147,10 +147,10 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 		projectRoot: root,
 		catalog: { repositories: {} },
 		log: false,
-		plugins: [{ id: 'sample_plugin' }],
+		plugins: [{ id: 'example_user_defined_plugin' }],
 	});
 
-	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'sample_plugin.yaml'), 'utf-8')) as {
+	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'example_user_defined_plugin.yaml'), 'utf-8')) as {
 		results?: Record<string, { label?: string }>;
 	}[];
 	assert.equal(output[0].results?.skill?.label, 'mjs');
@@ -158,13 +158,13 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 
 test('runPostCollect replaces same collect_id and respects history limit', async () => {
 	const root = mkdtempSync(join(tmpdir(), 'post-collect-history-'));
-	mkdirSync(join(root, 'plugins', 'sample_plugin'), { recursive: true });
+	mkdirSync(join(root, 'plugins', 'example_user_defined_plugin'), { recursive: true });
 	mkdirSync(join(root, 'config'), { recursive: true });
 	mkdirSync(join(root, 'data'), { recursive: true });
 
 	writeFileSync(join(root, 'config', 'harbor.yaml'), 'collector:\n  history_limit: 2\n');
 	writeFileSync(
-		join(root, 'plugins', 'sample_plugin', 'index.ts'),
+		join(root, 'plugins', 'example_user_defined_plugin', 'index.ts'),
 		[
 			'let count = 0;',
 			'export async function run() {',
@@ -175,12 +175,38 @@ test('runPostCollect replaces same collect_id and respects history limit', async
 		].join('\n'),
 	);
 
-	await runPostCollect({ projectRoot: root, collectId: 'collect-1', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
-	await runPostCollect({ projectRoot: root, collectId: 'collect-1', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
-	await runPostCollect({ projectRoot: root, collectId: 'collect-2', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
-	await runPostCollect({ projectRoot: root, collectId: 'collect-3', catalog: { repositories: {} }, log: false, plugins: [{ id: 'sample_plugin' }] });
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-1',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-1',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-2',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-3',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'example_user_defined_plugin' }],
+	});
 
-	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'sample_plugin.yaml'), 'utf-8')) as {
+	const output = yamlLoad(
+		readFileSync(join(root, 'data', 'plugins', 'example_user_defined_plugin.yaml'), 'utf-8'),
+	) as {
 		collect_id?: string;
 		results?: Record<string, { label?: string }>;
 	}[];
