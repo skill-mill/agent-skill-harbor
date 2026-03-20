@@ -82,10 +82,11 @@ pnpm dev
 1. Push to your repository
 2. Go to **Actions > CollectSkills**
 3. Click **Run workflow** to trigger the first collection
-4. `CollectSkills` installs only `tools/harbor/collector` in the collect job and `tools/harbor/post-collect` in the post-collect job
-5. `CollectSkills` runs `collect` and `post-collect` as separate jobs with `data/` artifact handoff
-6. The deploy workflow installs only `tools/harbor/web`
-7. The deploy workflow will run automatically after `CollectSkills` succeeds
+4. The generated `CollectSkills` workflow is a thin caller pinned to Harbor's published reusable workflow at `wf-v0`
+5. The reusable workflow runs `collect`, `post-collect`, and commit/push as separate jobs with `data/` artifact handoff
+6. If `builtin.audit-skill-scanner` is enabled in `config/harbor.yaml`, the reusable workflow automatically installs Python and `cisco-ai-skill-scanner` in `post_collect`
+7. The deploy workflow installs only `tools/harbor/web`
+8. The deploy workflow will run automatically after `CollectSkills` succeeds
 
 For plugin configuration and output files, see [Post-Collect Plugins](03-post-collect-plugins.md).
 
@@ -149,11 +150,10 @@ Your configuration files (`config/`, `.env`) and data (`data/`) are not affected
 ```
 ┌─────────────────────────┐
 │  CollectSkills          │
-│  - Scan org repos       │
-│  - Parse SKILL.md       │
-│  - Write YAML           │
-│  - Run post_collect     │
-│  - Update report/history│
+│  - Call reusable        │
+│    Collect workflow     │
+│  - collect              │
+│  - post_collect         │
 │  - Commit & push        │
 └────────┬────────────────┘
          │ triggers

@@ -82,10 +82,11 @@ pnpm dev
 1. リポジトリにプッシュ
 2. **Actions > CollectSkills** を開く
 3. **Run workflow** をクリックして初回収集をトリガー
-4. `CollectSkills` では collect job が `tools/harbor/collector` だけを install し、post-collect job が `tools/harbor/post-collect` だけを install します
-5. `CollectSkills` では `collect` と `post-collect` が別 job で実行され、`data/` artifact を受け渡します
-6. deploy workflow は `tools/harbor/web` だけを install します
-7. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
+4. 生成される `CollectSkills` は、Harbor が publish している reusable workflow を `wf-v0` で参照する薄い caller workflow です
+5. reusable workflow 側で `collect`、`post-collect`、commit/push が別 job として実行され、`data/` artifact を受け渡します
+6. `config/harbor.yaml` で `builtin.audit-skill-scanner` が有効なら、reusable workflow は `post_collect` job で Python と `cisco-ai-skill-scanner` を自動 install します
+7. deploy workflow は `tools/harbor/web` だけを install します
+8. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
 
 plugin の設定方法や出力ファイルについては [Post-Collect Plugins](03-post-collect-plugins_ja.md) を参照してください。
 
@@ -149,11 +150,10 @@ pnpm update agent-skill-harbor
 ```
 ┌──────────────────────────────┐
 │  CollectSkills                │
-│  - Org リポジトリをスキャン      │
-│  - SKILL.md をパース           │
-│  - YAML を書き出し             │
+│  - reusable Collect workflow  │
+│    を呼び出す                  │
+│  - collect を実行             │
 │  - post_collect を実行         │
-│  - report/history を更新       │
 │  - コミット & プッシュ          │
 └────────┬─────────────────────┘
          │ トリガー

@@ -9,6 +9,7 @@
 
 ### Changed
 
+- Replaced the generated `CollectSkills` workflow body with a thin caller that uses Harbor's published reusable workflow pinned to `wf-v0`, and made the reusable workflow auto-install `skill-scanner` only when `builtin.audit-skill-scanner` is enabled
 - Moved `builtin.audit-promptfoo-security` secondary report links to the new `sub_artifacts` convention and aligned plugin detail rendering around artifact file names
 - Updated built-in plugin docs, init template examples, and package READMEs to document `skill-scanner`, secondary artifact conventions, and Python CLI requirements
 - Removed the older `builtin.audit-static` built-in plugin now that `builtin.audit-skill-scanner` covers the security-audit role more clearly

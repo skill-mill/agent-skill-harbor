@@ -88,8 +88,8 @@ harbor build --base=/my-repo-name
 3. Enable GitHub Pages (Settings > Pages > Source: GitHub Actions)
 4. **Important:** Set Pages visibility to **Private** to restrict access to organization members only (requires GitHub Enterprise Cloud)
 5. Trigger the `CollectSkills` workflow for initial collection
-6. `CollectSkills` installs scoped dependencies from `tools/harbor/collector` and `tools/harbor/post-collect`
-7. `CollectSkills` runs `collect` and then `post-collect` as separate jobs
+6. The generated `CollectSkills` workflow is a thin caller pinned to Harbor's published reusable workflow at `wf-v0`
+7. The reusable workflow runs `collect`, `post-collect`, and commit/push as separate jobs internally
 8. The deploy workflow installs only `tools/harbor/web` and runs automatically after `CollectSkills` succeeds
 
 See [Organization Setup Guide](docs/01-organization-setup.md) for detailed instructions.

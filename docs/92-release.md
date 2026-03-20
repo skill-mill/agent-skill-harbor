@@ -13,6 +13,7 @@ This document describes the release workflow for the published packages.
 
 - Release only the package that changed.
 - If multiple packages changed, publish runtime packages before the wrapper package.
+- Publish reusable workflow changes through git tags in this repository, not through npm.
 
 Recommended order when several packages changed:
 
@@ -90,6 +91,14 @@ git tag cli-v<version>
 - Web releases use `web-vX.Y.Z`.
 - Collector releases use `collector-vX.Y.Z`.
 - Post-collect releases use `post-collect-vX.Y.Z`.
+- Reusable workflow releases use dedicated tags such as `wf-v0`, `wf-v0.14`, or `wf-v0.14.0`.
+
+## Reusable Workflow Tags
+
+- Generated `CollectSkills` workflows call `skill-mill/agent-skill-harbor/.github/workflows/collect.yml@wf-v0`.
+- Updating the reusable workflow does not require an npm publish, but it does require moving or creating the referenced workflow tag.
+- Move `wf-v0` only for non-breaking workflow changes.
+- Create a new major workflow tag only when caller compatibility expectations change materially.
 
 ## Versioning Notes
 

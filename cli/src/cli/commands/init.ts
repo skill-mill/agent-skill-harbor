@@ -156,6 +156,7 @@ function writeWorkflows(targetDir: string): void {
 	console.log('  Created .github/workflows/deploy-cloudflare-pages.yml');
 	console.log('  Created .github/workflows/deploy-github-pages.yml');
 	console.log('    - workflow name: CollectSkills');
+	console.log('    - uses Harbor reusable workflow pinned to wf-v0');
 	console.log('    - workflow name: DeployCloudflarePages');
 	console.log('    - workflow name: DeployGitHubPages');
 	console.log('    - enable workflow_run in exactly one deploy workflow');

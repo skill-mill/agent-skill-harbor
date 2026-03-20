@@ -1,0 +1,156 @@
+name: ReusableCollectSkills
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        required: false
+        type: string
+        default: '24'
+      pnpm_version:
+        required: false
+        type: string
+        default: '10'
+      python_version:
+        required: false
+        type: string
+        default: '3.13'
+    secrets:
+      GH_TOKEN:
+        required: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      collect_id: ${{ steps.collect.outputs.collect_id }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ inputs.pnpm_version }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: Install collector dependencies
+        run: pnpm install --dir tools/harbor/collector
+
+      - name: Collect skills from org repositories
+        id: collect
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_ORG: ${{ vars.GH_ORG || github.repository_owner }}
+        run: pnpm --dir tools/harbor/collector exec harbor collect --project-root "$GITHUB_WORKSPACE"
+
+      - name: Upload collect data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: harbor-data-collected
+          path: data
+          retention-days: 1
+
+  post_collect:
+    runs-on: ubuntu-24.04
+    needs: collect
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Detect skill-scanner runtime requirement
+        id: detect_skill_scanner
+        run: |
+          if yq -e 'any(.post_collect.plugins[]?; .id == "builtin.audit-skill-scanner")' config/harbor.yaml > /dev/null 2>&1; then
+            echo "install_skill_scanner_runtime=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "install_skill_scanner_runtime=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ inputs.pnpm_version }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - uses: actions/setup-python@v6
+        if: ${{ steps.detect_skill_scanner.outputs.install_skill_scanner_runtime == 'true' }}
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install skill-scanner
+        if: ${{ steps.detect_skill_scanner.outputs.install_skill_scanner_runtime == 'true' }}
+        run: pip install cisco-ai-skill-scanner
+
+      - name: Install post-collect dependencies
+        run: pnpm install --dir tools/harbor/post-collect
+
+      - name: Restore collected data artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: harbor-data-collected
+          path: .harbor-artifacts/collected
+
+      - name: Restore collected data directory
+        run: |
+          rm -rf data
+          if [ -d ".harbor-artifacts/collected/data" ]; then
+            mv .harbor-artifacts/collected/data ./data
+          else
+            mkdir -p data
+            cp -R .harbor-artifacts/collected/. ./data/
+          fi
+
+      - name: Run post-collect plugins
+        env:
+          GH_ORG: ${{ vars.GH_ORG || github.repository_owner }}
+        run: pnpm --dir tools/harbor/post-collect exec harbor post-collect --project-root "$GITHUB_WORKSPACE" --collect-id "${{ needs.collect.outputs.collect_id }}"
+
+      - name: Upload final data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: harbor-data-final
+          path: data
+          retention-days: 1
+
+  commit:
+    runs-on: ubuntu-24.04
+    needs: post_collect
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Restore final data artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: harbor-data-final
+          path: .harbor-artifacts/final
+
+      - name: Restore final data directory
+        run: |
+          rm -rf data
+          if [ -d ".harbor-artifacts/final/data" ]; then
+            mv .harbor-artifacts/final/data ./data
+          else
+            mkdir -p data
+            cp -R .harbor-artifacts/final/. ./data/
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update skill catalog data"
+            git push
+          fi

@@ -13,6 +13,7 @@
 
 - 変更が入った package だけを release します。
 - 複数 package を release する場合は、runtime package を wrapper package より先に publish します。
+- reusable workflow の変更は npm ではなく、この repository の git tag で publish します。
 
 複数 package をまとめて release する場合の推奨順:
 
@@ -90,6 +91,14 @@ git tag cli-v<version>
 - Web release の tag は `web-vX.Y.Z` を使います。
 - Collector release の tag は `collector-vX.Y.Z` を使います。
 - Post-collect release の tag は `post-collect-vX.Y.Z` を使います。
+- reusable workflow の tag には、`wf-v0`、`wf-v0.14`、`wf-v0.14.0` のような専用 tag を使います。
+
+## Reusable Workflow Tag
+
+- 生成される `CollectSkills` workflow は `skill-mill/agent-skill-harbor/.github/workflows/collect.yml@wf-v0` を呼び出します。
+- reusable workflow の更新は npm publish 不要ですが、参照されている workflow tag の更新または新規作成が必要です。
+- `wf-v0` は後方互換を保てる範囲の変更だけで動かすようにします。
+- caller 側との互換性期待が大きく変わる場合だけ、新しい major workflow tag を作ります。
 
 ## バージョニング方針
 

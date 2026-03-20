@@ -87,8 +87,8 @@ harbor build --base=/my-repo-name
 3. GitHub Pages を有効化（Settings > Pages > Source: GitHub Actions）
 4. **重要:** Pages の Visibility を **Private** に設定し、Organization メンバーのみにアクセスを制限（GitHub Enterprise Cloud が必要）
 5. `CollectSkills` ワークフローを手動トリガーして初回収集を実行
-6. `CollectSkills` は `tools/harbor/collector` と `tools/harbor/post-collect` から必要な依存だけを install します
-7. `CollectSkills` では `collect` と `post-collect` を別 job で順に実行します
+6. 生成される `CollectSkills` は、Harbor が publish している reusable workflow を `wf-v0` で参照する薄い caller workflow です
+7. reusable workflow 側で `collect`、`post-collect`、commit/push が別 job として実行されます
 8. deploy workflow は `tools/harbor/web` だけを install し、`CollectSkills` 成功後に自動実行されます
 
 詳細は [組織セットアップガイド](docs/01-organization-setup_ja.md) を参照してください。

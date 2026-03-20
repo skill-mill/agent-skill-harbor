@@ -83,6 +83,7 @@ Important notes:
 - `--enable-meta` is not enabled by default because it requires an API key
 - It keeps `report.html`, `report.sarif.json`, and `report.json` under `data/assets/plugins/builtin.audit-skill-scanner/`
 - `skill-scanner` can still attempt outbound communication indirectly via LiteLLM during CLI startup/help flows
+- In generated GitHub Actions workflows, Harbor's reusable collect workflow auto-detects this plugin from `config/harbor.yaml` and installs Python plus `cisco-ai-skill-scanner` in `post_collect`
 
 ## User-Defined Plugins
 
@@ -167,14 +168,12 @@ In generated projects, the build workflow installs only `tools/harbor/web`, but 
 
 ## Workflow
 
-The generated `CollectSkills` workflow installs scoped dependencies from:
+The generated `CollectSkills` workflow is a thin caller pinned to Harbor's published reusable workflow (`wf-v0`).
 
-- `tools/harbor/collector`
-- `tools/harbor/post-collect`
+Inside that reusable workflow, Harbor:
 
-Then it runs:
+1. installs `tools/harbor/collector` and runs `collect`
+2. installs `tools/harbor/post-collect` and runs `post-collect --collect-id ...`
+3. commits updated `data/` back to the repository
 
-1. `collect`
-2. `post-collect --collect-id ...`
-
-This keeps collection and post-collection processing separate and rerunnable, and it avoids installing heavy post-collect dependencies in the collect job.
+This keeps collection and post-collection processing separate and rerunnable while shrinking generated workflow YAML in user projects.
