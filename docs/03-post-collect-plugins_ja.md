@@ -101,13 +101,13 @@ GitHub: https://github.com/cisco-ai-defense/skill-scanner
 
 plugin id には小文字英数字、`-`、`_` だけを使えます。
 
-サンプル plugin を生成するには:
+例示用 plugin を生成するには:
 
 ```bash
-harbor gen sample-plugin
+harbor gen example-user-defined-plugin
 ```
 
-その後、`config/harbor.yaml` の `example_user_defined_plugin` をアンコメントしてください。
+その後、`config/harbor.yaml` の `example-user-defined-plugin` をアンコメントしてください。
 必要に応じて、そのまま plugin id や内容を実運用向けに変更してください。
 
 ## プラグイン出力

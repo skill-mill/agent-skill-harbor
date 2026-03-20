@@ -52,7 +52,7 @@ node cli/dist/bin/cli.js post-collect
 ```
 
 ユーザー定義 plugin は `plugins/<id>/index.mjs`、次に `index.js`、最後に `index.ts` の順で解決されます。
-例示用 user-defined plugin の雛形は `harbor gen sample-plugin` で生成できます。
+例示用 user-defined plugin の雛形は `harbor gen example-user-defined-plugin` で生成できます。
 
 製品全体の概要やドキュメントは、リポジトリの README を参照してください。
 

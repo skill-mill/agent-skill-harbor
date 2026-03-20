@@ -97,13 +97,13 @@ Search order is `mjs`, then `js`, then `ts`.
 
 Plugin ids must use lowercase letters, numbers, `-`, and `_`.
 
-To generate the sample plugin scaffold:
+To generate the example plugin scaffold:
 
 ```bash
-harbor gen sample-plugin
+harbor gen example-user-defined-plugin
 ```
 
-Then uncomment `example_user_defined_plugin` in `config/harbor.yaml`.
+Then uncomment `example-user-defined-plugin` in `config/harbor.yaml`.
 Then rename or customize it as needed for your real plugin.
 
 ## Plugin Output

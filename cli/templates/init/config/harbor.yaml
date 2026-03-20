@@ -30,9 +30,9 @@ post_collect:
   #       risk_threshold: 1
   #       critical_threshold: 3
 
-  #   - id: example_user_defined_plugin
+  #   - id: example-user-defined-plugin
   #     short_label: Example
-  # Generate the sample plugin first: harbor gen sample-plugin
+  # Generate the example plugin first: harbor gen example-user-defined-plugin
   # Then uncomment the line above.
 
 catalog:
