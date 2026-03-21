@@ -4,6 +4,7 @@
 	import PluginLabelBadge from './PluginLabelBadge.svelte';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
+	import { isSkillNew } from '$lib/utils/skills';
 	import Building2 from '@lucide/svelte/icons/building-2';
 	import Globe from '@lucide/svelte/icons/globe';
 
@@ -15,11 +16,7 @@
 
 	let { skill, freshPeriodDays = 0, origin }: Props = $props();
 
-	let isNew = $derived(
-		freshPeriodDays > 0 &&
-			!!skill.registered_at &&
-			Date.now() - new Date(skill.registered_at).getTime() < freshPeriodDays * 86_400_000,
-	);
+	let isNew = $derived(isSkillNew(skill, freshPeriodDays));
 
 	let visibilityStyle = $derived(
 		skill.visibility === 'public'

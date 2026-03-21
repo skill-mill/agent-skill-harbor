@@ -196,10 +196,6 @@ export function summarizeSkillScannerOutput(output: SkillScannerJsonOutput): Pos
 	};
 }
 
-export function buildUnknownSkillScannerResult(raw: string): PostCollectSkillResult {
-	return { label: 'unknown', raw };
-}
-
 export function readSkillScannerJsonOutput(jsonPath: string): SkillScannerJsonOutput {
 	try {
 		return JSON.parse(readFileSync(jsonPath, 'utf-8')) as SkillScannerJsonOutput;

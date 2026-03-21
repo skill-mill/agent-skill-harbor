@@ -63,6 +63,7 @@ test('collectFromResolvedFrom queues lock-derived origin repos', () => {
 
 	assert.deepEqual(refs, [
 		{
+			platform: 'github.com',
 			owner: 'example',
 			repo: 'origin',
 			repoKey: 'github.com/example/origin',

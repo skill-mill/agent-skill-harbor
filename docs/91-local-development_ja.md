@@ -107,9 +107,9 @@ pnpm --dir packages/web dev
 
 wrapper 経由の `harbor dev` は、Vite 起動前に `data/assets/` を `packages/web/static/assets/` へ staging するため、plugin の副成果物が開発中や prerender 中にも見えるようになります。`packages/web/` から直接 Vite を起動するとこの staging を通らないため、asset リンクが欠けたり stale なまま残ったりすることがあります。
 
-TODO:
+現状の制約:
 
-- wrapper ではなく web package 側の dev workflow に asset staging を寄せて、`pnpm --dir packages/web dev` も正式にサポートできるようにする
+- `pnpm --dir packages/web dev` はまだ正式サポートではありません。asset staging が Harbor の wrapper 側にあるためで、将来的には web package 側へ寄せる余地があります。
 
 ### プロジェクト構成
 

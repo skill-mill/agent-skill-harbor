@@ -107,9 +107,9 @@ pnpm --dir packages/web dev
 
 The wrapper-based `harbor dev` path stages `data/assets/` into `packages/web/static/assets/` before starting Vite so plugin secondary artifacts are available during development and prerendering. Running Vite directly from `packages/web/` skips that staging step and can lead to missing or stale asset links.
 
-TODO:
+Current limitation:
 
-- Consider making `pnpm --dir packages/web dev` a fully supported path by moving asset staging into the web package's own dev workflow instead of relying on the wrapper entrypoint.
+- `pnpm --dir packages/web dev` is still not a supported development path because asset staging currently lives in the Harbor wrapper entrypoint. Moving that staging into the web package itself remains a future improvement.
 
 ### Project Structure
 

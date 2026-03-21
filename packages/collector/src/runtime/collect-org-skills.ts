@@ -82,13 +82,6 @@ export interface CollectOptions {
 	force?: boolean;
 }
 
-interface ParsedFromRef {
-	owner: string;
-	repo: string;
-	repoKey: string;
-	sha: string | null;
-}
-
 interface ParsedResolvedFrom {
 	platform: string;
 	owner: string;
@@ -363,19 +356,6 @@ function normalizeRepoKey(platform: string, owner: string, repo: string): string
 	return `${platform}/${owner}/${repo}`;
 }
 
-function parseFromRepoRef(platform: string, from: unknown): ParsedFromRef | null {
-	if (typeof from !== 'string') return null;
-	const trimmed = from.trim();
-	const match = trimmed.match(/^([^/\s]+)\/([^@\s]+)(?:@(.+))?$/);
-	if (!match) return null;
-	return {
-		owner: match[1],
-		repo: match[2],
-		repoKey: normalizeRepoKey(platform, match[1], match[2]),
-		sha: match[3] ?? null,
-	};
-}
-
 function parseResolvedFromRef(from: string): ParsedResolvedFrom | null {
 	const trimmed = from.trim();
 	const match = trimmed.match(/^([^/\s]+)\/([^/\s]+)\/([^@\s]+)(?:@(.+))?$/);
@@ -400,20 +380,13 @@ export function collectFromResolvedFrom(
 	resolvedFrom: string | undefined,
 	seenRepoKeys: Set<string>,
 	queuedRepoKeys: Set<string>,
-): ParsedFromRef[] {
+): ParsedResolvedFrom[] {
 	if (!resolvedFrom) return [];
 	const parsed = parseResolvedFromRef(resolvedFrom);
 	if (!parsed || parsed.platform !== platform) return [];
 	if (seenRepoKeys.has(parsed.repoKey) || queuedRepoKeys.has(parsed.repoKey)) return [];
 	queuedRepoKeys.add(parsed.repoKey);
-	return [
-		{
-			owner: parsed.owner,
-			repo: parsed.repo,
-			repoKey: parsed.repoKey,
-			sha: parsed.sha,
-		},
-	];
+	return [parsed];
 }
 
 function resolveSkillResolvedFrom(
@@ -426,10 +399,6 @@ function resolveSkillResolvedFrom(
 		normalizeResolvedFromFrontmatter(frontmatter._from, platform) ??
 		normalizeResolvedFromSkillsLock(resolveSkillLookupName(frontmatter, skillPath), lockEntries, platform)
 	);
-}
-
-function resolveSkillIdentity(frontmatter: Record<string, unknown>, skillPath: string): string | null {
-	return resolveSkillLookupName(frontmatter, skillPath);
 }
 
 async function loadProjectSkillsLock(
@@ -490,7 +459,7 @@ async function collectRepoSkills(
 	platform: string,
 	target: RepoTarget,
 	catalog: CatalogYaml,
-	fromRefs: ParsedFromRef[],
+	fromRefs: ParsedResolvedFrom[],
 	seenRepoKeys: Set<string>,
 	queuedRepoKeys: Set<string>,
 	counts: {
@@ -756,7 +725,7 @@ export async function runCollectOrgSkills(options: CollectOptions = {}): Promise
 	};
 	const seenRepoKeys = new Set<string>();
 	const queuedExternalRepoKeys = new Set<string>();
-	const fromRefs: ParsedFromRef[] = [];
+	const fromRefs: ParsedResolvedFrom[] = [];
 	const keepRepoKeys = new Set<string>();
 
 	for (const repo of repos) {

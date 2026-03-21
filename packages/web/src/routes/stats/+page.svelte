@@ -57,17 +57,31 @@
 		updateUrl();
 	}
 
-	let ownerFilter = $derived(ownerFilterValue !== '__all__' ? ownerFilterValue : null);
+	function parseOwnerFilterValue(value: string): 'org' | 'community' | null {
+		if (value === 'org' || value === 'community') return value;
+		return null;
+	}
+
+	let ownerFilter = $derived(parseOwnerFilterValue(ownerFilterValue));
+
+	function matchesOwnerFilter(isOrgOwned: boolean, filter: 'org' | 'community' | null): boolean {
+		if (!filter) return true;
+		return filter === 'org' ? isOrgOwned : !isOrgOwned;
+	}
+
+	function sumOwnerValues(org: number, community: number, filter: 'org' | 'community' | null): number {
+		if (filter === 'org') return org;
+		if (filter === 'community') return community;
+		return org + community;
+	}
 
 	// Filtered data
 	let filteredSkills = $derived.by(() => {
-		if (!ownerFilter) return data.skills;
-		return data.skills.filter((s) => (ownerFilter === 'org' ? s.isOrgOwned : !s.isOrgOwned));
+		return data.skills.filter((skill) => matchesOwnerFilter(skill.isOrgOwned, ownerFilter));
 	});
 
 	let filteredRepos = $derived.by(() => {
-		if (!ownerFilter) return data.repos;
-		return data.repos.filter((r) => (ownerFilter === 'org' ? r.isOrgOwned : !r.isOrgOwned));
+		return data.repos.filter((repo) => matchesOwnerFilter(repo.isOrgOwned, ownerFilter));
 	});
 
 	let latest = $derived(data.collections[0] ?? null);
@@ -77,47 +91,34 @@
 	let totalSkills = $derived(filteredSkills.length);
 	let totalRepos = $derived.by(() => {
 		if (!latest) return filteredRepos.length;
-		if (ownerFilter === 'org') return latest.statistics.org.repos;
-		if (ownerFilter === 'community') return latest.statistics.community.repos;
-		return latest.statistics.org.repos + latest.statistics.community.repos;
+		return sumOwnerValues(latest.statistics.org.repos, latest.statistics.community.repos, ownerFilter);
 	});
 	let reposWithSkills = $derived.by(() => {
 		if (!latest) return filteredRepos.filter((r) => r.skillCount > 0).length;
-		if (ownerFilter === 'org') return latest.statistics.org.repos_with_skills;
-		if (ownerFilter === 'community') return latest.statistics.community.repos_with_skills;
-		return latest.statistics.org.repos_with_skills + latest.statistics.community.repos_with_skills;
+		return sumOwnerValues(
+			latest.statistics.org.repos_with_skills,
+			latest.statistics.community.repos_with_skills,
+			ownerFilter,
+		);
 	});
 	let repoAdoptionPct = $derived(totalRepos > 0 ? Math.round((reposWithSkills / totalRepos) * 100) : 0);
 	let totalFiles = $derived.by(() => {
 		if (!latest) return 0;
-		if (ownerFilter === 'org') return latest.statistics.org.files;
-		if (ownerFilter === 'community') return latest.statistics.community.files;
-		return latest.statistics.org.files + latest.statistics.community.files;
+		return sumOwnerValues(latest.statistics.org.files, latest.statistics.community.files, ownerFilter);
 	});
 	let skillChange = $derived.by(() => {
 		if (!previous) return undefined;
-		const prevSkills =
-			ownerFilter === 'org'
-				? previous.statistics.org.skills
-				: ownerFilter === 'community'
-					? previous.statistics.community.skills
-					: previous.statistics.org.skills + previous.statistics.community.skills;
+		const prevSkills = sumOwnerValues(previous.statistics.org.skills, previous.statistics.community.skills, ownerFilter);
 		return totalSkills - prevSkills;
 	});
 	let repoChange = $derived.by(() => {
 		if (!previous) return undefined;
-		const prevReposWithSkills =
-			ownerFilter === 'org'
-				? previous.statistics.org.repos_with_skills
-				: ownerFilter === 'community'
-					? previous.statistics.community.repos_with_skills
-					: previous.statistics.org.repos_with_skills + previous.statistics.community.repos_with_skills;
-		const prevRepos =
-			ownerFilter === 'org'
-				? previous.statistics.org.repos
-				: ownerFilter === 'community'
-					? previous.statistics.community.repos
-					: previous.statistics.org.repos + previous.statistics.community.repos;
+		const prevReposWithSkills = sumOwnerValues(
+			previous.statistics.org.repos_with_skills,
+			previous.statistics.community.repos_with_skills,
+			ownerFilter,
+		);
+		const prevRepos = sumOwnerValues(previous.statistics.org.repos, previous.statistics.community.repos, ownerFilter);
 		const prevPct = prevRepos > 0 ? Math.round((prevReposWithSkills / prevRepos) * 100) : 0;
 		return repoAdoptionPct - prevPct;
 	});
@@ -133,12 +134,7 @@
 		const reversed = [...data.collections].reverse();
 		return reversed.map((c) => {
 			const d = new Date(c.collecting.collected_at);
-			const value =
-				ownerFilter === 'org'
-					? c.statistics.org.skills
-					: ownerFilter === 'community'
-						? c.statistics.community.skills
-						: c.statistics.org.skills + c.statistics.community.skills;
+			const value = sumOwnerValues(c.statistics.org.skills, c.statistics.community.skills, ownerFilter);
 			return { label: `${d.getMonth() + 1}/${d.getDate()}`, value };
 		});
 	});
@@ -147,18 +143,12 @@
 	let adoptionTrendData = $derived.by(() => {
 		const reversed = [...data.collections].reverse();
 		return reversed.map((c) => {
-			const repos =
-				ownerFilter === 'org'
-					? c.statistics.org.repos
-					: ownerFilter === 'community'
-						? c.statistics.community.repos
-						: c.statistics.org.repos + c.statistics.community.repos;
-			const withSkills =
-				ownerFilter === 'org'
-					? c.statistics.org.repos_with_skills
-					: ownerFilter === 'community'
-						? c.statistics.community.repos_with_skills
-						: c.statistics.org.repos_with_skills + c.statistics.community.repos_with_skills;
+			const repos = sumOwnerValues(c.statistics.org.repos, c.statistics.community.repos, ownerFilter);
+			const withSkills = sumOwnerValues(
+				c.statistics.org.repos_with_skills,
+				c.statistics.community.repos_with_skills,
+				ownerFilter,
+			);
 			return { label: '', value: repos > 0 ? Math.round((withSkills / repos) * 100) : 0 };
 		});
 	});

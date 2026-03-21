@@ -2,7 +2,6 @@ import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 import type { BuiltinPostCollectPlugin, PostCollectPluginResult } from '../types.js';
 import {
-	buildUnknownSkillScannerResult,
 	cleanupSkillScannerSummary,
 	ensureSkillScannerAvailable,
 	parseSkillScannerConfig,
@@ -14,21 +13,8 @@ import {
 	summarizeSkillScannerOutput,
 	type SkillScannerRunFiles,
 } from './audit-skill-scanner-core.js';
+import { buildUnknownResult, getSkillDirPath, isOrgOwnedSkill } from './plugin-utils.js';
 import { getPluginArtifactFsDir, getPluginArtifactsRoot } from './sub-artifacts.js';
-
-function isOrgOwnedSkill(skillKey: string, orgName: string | undefined): boolean {
-	if (!orgName) return false;
-	const parts = skillKey.split('/');
-	return parts.length >= 4 && parts[1] === orgName;
-}
-
-function getSkillDir(projectRoot: string, skillKey: string): string {
-	const parts = skillKey.split('/');
-	const [platform, owner, repo, ...skillPathParts] = parts;
-	const skillPath = skillPathParts.join('/');
-	const skillDir = skillPath === 'SKILL.md' ? '' : skillPath.replace(/\/SKILL\.md$/, '');
-	return join(projectRoot, 'data', 'skills', platform, owner, repo, skillDir);
-}
 
 function buildSummary(counts: Record<string, number>, scanned: number): string {
 	return `${scanned} skill(s) scanned (${counts.safe} safe, ${counts.INFO} info, ${counts.LOW} low, ${counts.MEDIUM} medium, ${counts.HIGH} high, ${counts.CRITICAL} critical, ${counts.unknown} unknown)`;
@@ -64,7 +50,12 @@ export const auditSkillScannerPlugin: BuiltinPostCollectPlugin = {
 					sarifPath: join(artifactDir, 'report.sarif.json'),
 					jsonPath: join(artifactDir, 'report.json'),
 				};
-				const skillDir = getSkillDir(context.project_root, skillKey);
+				const skillDir = getSkillDirPath(context.project_root, skillKey);
+				if (!skillDir) {
+					results[skillKey] = buildUnknownResult('Skill directory could not be resolved.', 'unknown');
+					counts.unknown += 1;
+					continue;
+				}
 
 				try {
 					await runSkillScannerScan(config.command, skillDir, files, config.options);
@@ -78,8 +69,9 @@ export const auditSkillScannerPlugin: BuiltinPostCollectPlugin = {
 					}
 				} catch (error) {
 					rmSync(artifactDir, { recursive: true, force: true });
-					results[skillKey] = buildUnknownSkillScannerResult(
+					results[skillKey] = buildUnknownResult(
 						error instanceof Error ? `skill-scanner execution failed: ${error.message}` : 'skill-scanner execution failed.',
+						'unknown',
 					);
 					counts.unknown += 1;
 				} finally {

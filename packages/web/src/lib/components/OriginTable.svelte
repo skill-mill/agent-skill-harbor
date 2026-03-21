@@ -5,6 +5,7 @@
 	import GovernanceBadge from './GovernanceBadge.svelte';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
+	import { isSkillNew } from '$lib/utils/skills';
 
 	interface Props {
 		groups: OriginGroup[];
@@ -24,12 +25,9 @@
 	}
 
 	function isNew(skill: FlatSkillEntry): boolean {
-		return (
-			freshPeriodDays > 0 &&
-			!!skill.registered_at &&
-			Date.now() - new Date(skill.registered_at).getTime() < freshPeriodDays * 86_400_000
-		);
+		return isSkillNew(skill, freshPeriodDays);
 	}
+
 </script>
 
 {#if groups.length === 0}

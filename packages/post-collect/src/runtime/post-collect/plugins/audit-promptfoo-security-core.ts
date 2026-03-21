@@ -177,10 +177,6 @@ export function summarizePromptfooOutput(params: {
 	};
 }
 
-export function buildUnknownResult(raw: string): PostCollectSkillResult {
-	return { label: 'Unknown', raw };
-}
-
 export function buildSummary(counts: Record<'Safe' | 'Risk' | 'Critical' | 'Unknown', number>, scanned: number): string {
 	return `${scanned} skill(s) scanned (${counts.Safe} safe, ${counts.Risk} risk, ${counts.Critical} critical, ${counts.Unknown} unknown)`;
 }

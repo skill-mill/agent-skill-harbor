@@ -1,11 +1,10 @@
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import type { BuiltinPostCollectPlugin, PostCollectPluginResult } from '../types.js';
 import {
 	buildPromptfooConfig,
 	buildReportFsPath,
 	buildSummary,
-	buildUnknownResult,
 	createPromptfooTempDir,
 	parsePromptfooSecurityConfig,
 	PROMPTFOO_SECURITY_LABEL_INTENTS,
@@ -15,25 +14,7 @@ import {
 	withPromptfooSafeEnv,
 	writePromptfooConfigFile,
 } from './audit-promptfoo-security-core.js';
-
-function readSkillBody(projectRoot: string, skillKey: string): string | null {
-	const parts = skillKey.split('/');
-	if (parts.length < 5) return null;
-	const [platform, owner, repo, ...skillPathParts] = parts;
-	const skillPath = skillPathParts.join('/');
-	const skillFilePath = join(projectRoot, 'data', 'skills', platform, owner, repo, skillPath);
-	try {
-		return readFileSync(skillFilePath, 'utf-8');
-	} catch {
-		return null;
-	}
-}
-
-function isOrgOwnedSkill(skillKey: string, orgName: string | undefined): boolean {
-	if (!orgName) return false;
-	const parts = skillKey.split('/');
-	return parts.length >= 4 && parts[1] === orgName;
-}
+import { buildUnknownResult, isOrgOwnedSkill, readSkillBody } from './plugin-utils.js';
 
 export const auditPromptfooSecurityPlugin: BuiltinPostCollectPlugin = {
 	id: 'builtin.audit-promptfoo-security',

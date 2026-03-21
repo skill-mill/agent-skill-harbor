@@ -5,6 +5,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
+	import { isSkillNew } from '$lib/utils/skills';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 
@@ -82,11 +83,7 @@
 	]);
 
 	function isNew(skill: FlatSkillEntry): boolean {
-		return (
-			freshPeriodDays > 0 &&
-			!!skill.registered_at &&
-			Date.now() - new Date(skill.registered_at).getTime() < freshPeriodDays * 86_400_000
-		);
+		return isSkillNew(skill, freshPeriodDays);
 	}
 
 	function getPluginLabel(skill: FlatSkillEntry, pluginId: string): { label: string; intent: LabelIntent } | null {
