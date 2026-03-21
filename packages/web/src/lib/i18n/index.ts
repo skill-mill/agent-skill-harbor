@@ -1,12 +1,22 @@
-import { derived, writable } from 'svelte/store';
+import { derived } from 'svelte/store';
 import en from './en.json';
 import ja from './ja.json';
+import { createPersistentStore } from '$lib/stores/persistent';
 
 export type Locale = 'en' | 'ja';
 
 const messages: Record<Locale, Record<string, unknown>> = { en, ja };
 
-export const locale = writable<Locale>('en');
+export const locale = createPersistentStore<Locale>({
+	key: 'locale',
+	defaultValue: 'en',
+	parse(stored): Locale {
+		return stored === 'ja' ? 'ja' : 'en';
+	},
+	onChange(loc): void {
+		document.documentElement.lang = loc;
+	},
+});
 
 function resolve(obj: unknown, path: string): string | undefined {
 	const keys = path.split('.');
@@ -39,15 +49,5 @@ export const t = derived(locale, ($locale) => {
 	};
 });
 
-export function setLocale(loc: Locale): void {
-	localStorage.setItem('locale', loc);
-	document.documentElement.lang = loc;
-	locale.set(loc);
-}
-
-export function initLocale(): void {
-	const stored = localStorage.getItem('locale');
-	const loc: Locale = stored === 'ja' ? 'ja' : 'en';
-	locale.set(loc);
-	document.documentElement.lang = loc;
-}
+export const setLocale = locale.set;
+export const initLocale = locale.init;
