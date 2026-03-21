@@ -4,11 +4,12 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
-	import * as Select from '$lib/components/ui/select';
+	import OwnerFilterSelect from '$lib/components/OwnerFilter.svelte';
 	import ViewTabs from '$lib/components/ViewTabs.svelte';
 	import { t } from '$lib/i18n';
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import type { GraphNodeAttrs, SkillNodeAttrs, RepoNodeAttrs } from '$lib/utils/graph';
+	import type { OrgOwnership } from '$lib/utils/filter';
 	import { getResolvedFromRepoLabel } from '$lib/utils/resolved-from';
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
@@ -25,7 +26,7 @@
 	let { data }: Props = $props();
 
 	let searchQuery = $state('');
-	let ownerFilterValue = $state('__all__');
+	let ownerFilterValue = $state<'__all__' | OrgOwnership>('__all__');
 	let graphRef:
 		| { zoomIn: () => void; zoomOut: () => void; zoomReset: () => void; getCanvasDataURL: () => string | null }
 		| undefined = $state();
@@ -41,6 +42,15 @@
 	});
 
 	let ownerFilter = $derived(ownerFilterValue !== '__all__' ? ownerFilterValue : null);
+	let ownerOptionCounts = $derived.by(() => {
+		let org = 0;
+		let community = 0;
+		for (const skill of data.skills) {
+			if (skill.isOrgOwned) org++;
+			else community++;
+		}
+		return { org, community };
+	});
 
 	let filteredSkills = $derived.by(() => {
 		if (!ownerFilter) return data.skills;
@@ -57,7 +67,7 @@
 	}
 
 	function onOwnerFilterChange(value: string | undefined) {
-		ownerFilterValue = value ?? '__all__';
+		ownerFilterValue = (value ?? '__all__') as '__all__' | OrgOwnership;
 		updateUrl(searchQuery);
 	}
 
@@ -147,8 +157,11 @@
 		<div
 			class="pointer-events-none absolute left-3 right-3 top-3 z-10 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
 		>
-			<!-- Search + Filter (left) -->
-			<div class="pointer-events-auto flex flex-wrap items-center gap-2">
+			<!-- Search + Filter + Tabs (left) -->
+			<div class="pointer-events-auto flex flex-col gap-2">
+				<div class="self-start rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/80">
+					<ViewTabs activeView="graph" showBottomBorder={false} />
+				</div>
 				<div class="relative">
 					<Search class="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
 					<input
@@ -171,28 +184,16 @@
 						</button>
 					{/if}
 				</div>
-				<Select.Root type="single" value={ownerFilterValue} onValueChange={onOwnerFilterChange}>
-					<Select.Trigger
-						size="sm"
-						class="h-8 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-sm backdrop-blur-sm {ownerFilter
-							? 'border-blue-300 bg-blue-100/90 text-blue-800 dark:border-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
-							: 'border-gray-200 bg-white/80 text-gray-600 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-400'}"
-					>
-						{ownerFilter ? $t(`common.orgOwnership.${ownerFilter}`) : $t('filter.allOwner')}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="__all__" label={$t('filter.all')} />
-						<Select.Item value="org" label={$t('common.orgOwnership.org')} />
-						<Select.Item value="community" label={$t('common.orgOwnership.community')} />
-					</Select.Content>
-				</Select.Root>
-			</div>
-
-			<!-- Tabs (center) -->
-			<div
-				class="pointer-events-auto self-start rounded-lg border border-gray-200 bg-white/80 shadow-sm backdrop-blur-sm sm:self-auto dark:border-gray-700 dark:bg-gray-900/80"
-			>
-				<ViewTabs activeView="graph" />
+				<OwnerFilterSelect
+					value={ownerFilterValue}
+					onValueChange={onOwnerFilterChange}
+					allLabel={$t('filter.all')}
+					orgLabel={`${$t('common.orgOwnership.org')} (${ownerOptionCounts.org})`}
+					communityLabel={`${$t('common.orgOwnership.community')} (${ownerOptionCounts.community})`}
+					triggerClass="h-8 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-sm backdrop-blur-sm {ownerFilter
+						? 'border-blue-300 bg-blue-100/90 text-blue-800 dark:border-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
+						: 'border-gray-200 bg-white/80 text-gray-600 dark:border-gray-700 dark:bg-gray-900/80 dark:text-gray-400'}"
+				/>
 			</div>
 
 			<!-- Controls (right) -->

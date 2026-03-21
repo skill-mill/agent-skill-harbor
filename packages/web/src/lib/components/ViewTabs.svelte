@@ -15,9 +15,10 @@
 	interface Props {
 		activeView: ViewMode;
 		onchange?: (view: ViewMode) => void;
+		showBottomBorder?: boolean;
 	}
 
-	let { activeView, onchange }: Props = $props();
+	let { activeView, onchange, showBottomBorder = true }: Props = $props();
 	const { transition: viewTransition } = setupViewTransition();
 
 	const tabs: { key: ViewMode; icon: 'grid' | 'list' | 'graph' | 'stats' }[] = [
@@ -73,22 +74,25 @@
 </script>
 
 <div
-	class="flex flex-wrap gap-x-1 gap-y-2 border-b border-gray-200 dark:border-gray-700"
+	class="relative inline-flex w-fit flex-wrap gap-x-1 gap-y-2"
 	role="tablist"
 	use:viewTransition={{
 		name: VIEW_TABS_TRANSITION_NAME,
 		applyImmediately: true,
 	}}
 >
+	{#if showBottomBorder}
+		<span class="absolute bottom-0 left-1 right-1 h-px bg-gray-200 dark:bg-gray-700"></span>
+	{/if}
 	{#each tabs as tab (tab.key)}
 		{@const isActive = activeView === tab.key}
 		<button
 			role="tab"
 			aria-selected={isActive}
 			onclick={() => handleTabClick(tab.key)}
-			class="inline-flex min-w-fit items-center gap-1.5 whitespace-nowrap border-b-2 px-2.5 py-2 text-sm font-medium transition-colors sm:px-4 {isActive
-				? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-				: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300'}"
+			class="relative inline-flex min-w-fit items-center gap-1.5 whitespace-nowrap px-2.5 py-2 text-sm font-medium transition-colors sm:px-4 {isActive
+				? 'text-blue-600 dark:text-blue-400'
+				: 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}"
 		>
 			{#if tab.icon === 'grid'}
 				<Grid2x2 class="h-4 w-4" />
@@ -100,6 +104,9 @@
 				<BarChart3 class="h-4 w-4" />
 			{/if}
 			{$t(`viewTabs.${tab.key}`)}
+			{#if isActive}
+				<span class="absolute bottom-0 left-1 right-1 h-0.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
+			{/if}
 		</button>
 	{/each}
 </div>

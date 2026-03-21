@@ -7,8 +7,8 @@
 	import PluginTrendChart from '$lib/components/PluginTrendChart.svelte';
 	import TrendChart from '$lib/components/TrendChart.svelte';
 	import ViewTabs from '$lib/components/ViewTabs.svelte';
+	import OwnerFilterSelect from '$lib/components/OwnerFilter.svelte';
 	import GovernanceBadge from '$lib/components/GovernanceBadge.svelte';
-	import * as Select from '$lib/components/ui/select';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import type {
 		CollectionEntry,
@@ -19,6 +19,7 @@
 		UsagePolicy,
 	} from '$lib/types';
 	import { t, locale } from '$lib/i18n';
+	import type { OrgOwnership } from '$lib/utils/filter';
 	import {
 		buildAdoptionTrendData,
 		buildSkillTrendData,
@@ -49,7 +50,7 @@
 	let { data }: Props = $props();
 
 	// Filters
-	let ownerFilterValue = $state('__all__');
+	let ownerFilterValue = $state<'__all__' | OrgOwnership>('__all__');
 	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
 		const owner = params.get('owner');
@@ -69,11 +70,20 @@
 	}
 
 	function onOwnerFilterChange(value: string | undefined) {
-		ownerFilterValue = value ?? '__all__';
+		ownerFilterValue = (value ?? '__all__') as '__all__' | OrgOwnership;
 		updateUrl();
 	}
 
 	let ownerFilter = $derived(parseOwnerFilterValue(ownerFilterValue));
+	let ownerOptionCounts = $derived.by(() => {
+		let org = 0;
+		let community = 0;
+		for (const skill of data.skills) {
+			if (skill.isOrgOwned) org++;
+			else community++;
+		}
+		return { org, community };
+	});
 
 	// Filtered data
 	let filteredSkills = $derived.by(() => {
@@ -261,28 +271,21 @@
 </svelte:head>
 
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-	<div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+	<div class="mb-6">
 		<ViewTabs activeView="stats" />
-		<div class="flex items-center gap-3">
-			<span class="text-sm font-medium text-gray-700 dark:text-gray-300">{$t('filter.label')}</span>
+	</div>
 
-			<!-- Owner select -->
-			<Select.Root type="single" value={ownerFilterValue} onValueChange={onOwnerFilterChange}>
-				<Select.Trigger
-					size="sm"
-					class="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {ownerFilter
-						? 'border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-						: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
-				>
-					{ownerFilter ? $t(`common.orgOwnership.${ownerFilter}`) : $t('filter.allOwner')}
-				</Select.Trigger>
-				<Select.Content>
-					<Select.Item value="__all__" label={$t('filter.all')} />
-					<Select.Item value="org" label={$t('common.orgOwnership.org')} />
-					<Select.Item value="community" label={$t('common.orgOwnership.community')} />
-				</Select.Content>
-			</Select.Root>
-		</div>
+	<div class="mb-6 flex items-center gap-3">
+		<OwnerFilterSelect
+			value={ownerFilterValue}
+			onValueChange={onOwnerFilterChange}
+			allLabel={$t('filter.all')}
+			orgLabel={`${$t('common.orgOwnership.org')} (${ownerOptionCounts.org})`}
+			communityLabel={`${$t('common.orgOwnership.community')} (${ownerOptionCounts.community})`}
+			triggerClass="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {ownerFilter
+				? 'border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+				: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
+		/>
 	</div>
 
 	<!-- KPI Cards -->

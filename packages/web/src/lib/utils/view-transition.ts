@@ -9,3 +9,4 @@ export function getSkillTitleTransitionName(skillKey: string): string {
 }
 
 export const VIEW_TABS_TRANSITION_NAME = 'view-tabs';
+export const OWNER_FILTER_TRANSITION_NAME = 'owner-filter';

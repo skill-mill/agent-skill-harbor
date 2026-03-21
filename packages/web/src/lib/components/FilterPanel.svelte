@@ -2,6 +2,7 @@
 	import type { LabelIntent, PluginFilterOption, UsagePolicy, Visibility } from '$lib/types';
 	import { PLUGIN_NO_LABEL_VALUE, type FilterState, type OrgOwnership, type OriginPresence } from '$lib/utils/filter';
 	import { t } from '$lib/i18n';
+	import OwnerFilter from '$lib/components/OwnerFilter.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Select from '$lib/components/ui/select';
 
@@ -66,10 +67,6 @@
 		{ value: 'internal', labelKey: 'common.visibility.internal' },
 	];
 
-	const orgOwnershipOptions: { value: OrgOwnership; labelKey: string }[] = [
-		{ value: 'org', labelKey: 'common.orgOwnership.org' },
-		{ value: 'community', labelKey: 'common.orgOwnership.community' },
-	];
 	const originOptions: { value: OriginPresence; labelKey: string }[] = [
 		{ value: 'yes', labelKey: 'filter.originYes' },
 		{ value: 'no', labelKey: 'filter.originNo' },
@@ -113,7 +110,7 @@
 
 	let statusValue = $derived(filters.status ?? '__all__');
 	let visibilityValue = $derived(filters.visibility ?? '__all__');
-	let orgOwnershipValue = $derived(filters.orgOwnership ?? '__all__');
+	let orgOwnershipValue = $derived<'__all__' | OrgOwnership>(filters.orgOwnership ?? '__all__');
 	let originValue = $derived(filters.hasOrigin ?? '__all__');
 	let hasActiveFilters = $derived(
 		filters.status !== null ||
@@ -155,27 +152,17 @@
 </script>
 
 <div class="flex flex-wrap items-center gap-3">
-	<span class="text-sm font-medium text-gray-700 dark:text-gray-300">{$t('filter.label')}</span>
-
 	<!-- Org ownership select -->
-	<Select.Root type="single" value={orgOwnershipValue} onValueChange={onOrgOwnershipChange}>
-		<Select.Trigger
-			size="sm"
-			class="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {filters.orgOwnership
-				? 'border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-				: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
-		>
-			{filters.orgOwnership
-				? $t(orgOwnershipOptions.find((o) => o.value === filters.orgOwnership)?.labelKey ?? '')
-				: $t('filter.allOwner')}
-		</Select.Trigger>
-		<Select.Content>
-			<Select.Item value="__all__" label={$t('filter.all')} />
-			{#each orgOwnershipOptions as opt}
-				<Select.Item value={opt.value} label={withCount($t(opt.labelKey), optionCounts.orgOwnership[opt.value])} />
-			{/each}
-		</Select.Content>
-	</Select.Root>
+	<OwnerFilter
+		value={orgOwnershipValue}
+		onValueChange={onOrgOwnershipChange}
+		allLabel={$t('filter.all')}
+		orgLabel={withCount($t('common.orgOwnership.org'), optionCounts.orgOwnership.org)}
+		communityLabel={withCount($t('common.orgOwnership.community'), optionCounts.orgOwnership.community)}
+		triggerClass="h-7 rounded-full border px-3 py-1 text-xs font-medium shadow-none {filters.orgOwnership
+			? 'border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+			: 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'}"
+	/>
 
 	<Select.Root type="single" value={originValue} onValueChange={onOriginChange}>
 		<Select.Trigger
