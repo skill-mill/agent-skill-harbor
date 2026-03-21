@@ -34,9 +34,9 @@ Recommended order when several packages changed:
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir web verify
-pnpm --dir web build
-cd web
+pnpm --dir packages/web verify
+pnpm --dir packages/web build
+cd packages/web
 # npm pack  # Only when changing files/README/package contents
 npm publish --access public
 cd ..
@@ -47,11 +47,11 @@ git tag web-v<version>
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir collector lint:check
-pnpm --dir collector check
-pnpm --dir collector test
-pnpm --dir collector build
-cd collector
+pnpm --dir packages/collector lint:check
+pnpm --dir packages/collector check
+pnpm --dir packages/collector test
+pnpm --dir packages/collector build
+cd packages/collector
 npm publish --access public
 cd ..
 git tag collector-v<version>
@@ -61,11 +61,11 @@ git tag collector-v<version>
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir post-collect lint:check
-pnpm --dir post-collect check
-pnpm --dir post-collect test
-pnpm --dir post-collect build
-cd post-collect
+pnpm --dir packages/post-collect lint:check
+pnpm --dir packages/post-collect check
+pnpm --dir packages/post-collect test
+pnpm --dir packages/post-collect build
+cd packages/post-collect
 npm publish --access public
 cd ..
 git tag post-collect-v<version>
@@ -75,10 +75,10 @@ git tag post-collect-v<version>
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir cli verify
-pnpm --dir cli build
-node cli/dist/bin/cli.js build
-cd cli
+pnpm --dir packages/cli verify
+pnpm --dir packages/cli build
+node packages/cli/dist/bin/cli.js build
+cd packages/cli
 # npm pack  # Only when changing files/bin/templates/README
 npm publish --access public
 cd ..
@@ -110,14 +110,14 @@ git tag cli-v<version>
 
 ## Versioning Notes
 
-- `cli/package.json`, `collector/package.json`, `post-collect/package.json`, and `web/package.json` version independently.
-- `cli/templates/init/package.template.json` and `cli/templates/init/tools/harbor/*/package.template.json` must stay aligned with the package versions you intend to publish.
+- `packages/cli/package.json`, `packages/collector/package.json`, `packages/post-collect/package.json`, and `packages/web/package.json` version independently.
+- `packages/cli/templates/init/package.template.json` and `packages/cli/templates/init/tools/harbor/*/package.template.json` must stay aligned with the package versions you intend to publish.
 
 ## Notes
 
-- Web runtime dependencies belong in `web/package.json`.
-- Wrapper-only runtime dependencies belong in `cli/package.json`.
-- Collect-only runtime dependencies belong in `collector/package.json`.
-- Post-collect-only runtime dependencies belong in `post-collect/package.json`.
+- Web runtime dependencies belong in `packages/web/package.json`.
+- Wrapper-only runtime dependencies belong in `packages/cli/package.json`.
+- Collect-only runtime dependencies belong in `packages/collector/package.json`.
+- Post-collect-only runtime dependencies belong in `packages/post-collect/package.json`.
 - In this workspace, `pnpm publish` did not behave reliably for per-package releases, so the current workaround is to run `npm publish` directly from each package directory.
 - The Vite chunk-size warning is currently expected. A manual chunking experiment showed that most of the remaining weight comes from `three`, so we are not keeping extra chunk-splitting config unless we decide to optimize the graph implementation more deeply.

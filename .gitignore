@@ -3,9 +3,9 @@ agent-skill-harbor-*.tgz
 build/
 dist/
 node_modules/
-*/dist/
-*/node_modules/
-web/static/assets/
+packages/*/dist/
+packages/*/node_modules/
+packages/web/static/assets/
 
 # Environments
 .env
@@ -19,8 +19,8 @@ web/static/assets/
 /plugins/
 
 # SvelteKit
-web/.svelte-kit/
-web/build/
+packages/web/.svelte-kit/
+packages/web/build/
 
 # OS
 .DS_Store

@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { defineConfig, searchForWorkspaceRoot } from 'vite';
 
 const require = createRequire(import.meta.url);
-const projectRoot = realpathSync(process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..'));
+const projectRoot = realpathSync(process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..', '..'));
 const webPackageRoot = realpathSync(resolve(import.meta.dirname));
 const svelteKitRoot = realpathSync(dirname(require.resolve('@sveltejs/kit/package.json')));
 const viteRoot = realpathSync(dirname(require.resolve('vite/package.json')));

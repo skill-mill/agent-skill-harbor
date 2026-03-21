@@ -1,9 +1,8 @@
-import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadCatalog } from './catalog-store.js';
 import { runPostCollect } from './post-collect/run-post-collect.js';
 
-const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..', '..');
+const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || process.cwd();
 
 function parseArgs(argv: string[]): { collectId?: string } {
 	let collectId: string | undefined;

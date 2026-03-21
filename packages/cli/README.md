@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/cli/README.md">en</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/cli/README_ja.md">ja</a></p>
+<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/cli/README.md">en</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/cli/README_ja.md">ja</a></p>
 
 # agent-skill-harbor
 
@@ -23,32 +23,32 @@ pnpm dev
 `pnpm collect` above is a script in the generated Skill Harbor project. In this repository, build the workspace packages first and then run the wrapper:
 
 ```bash
-pnpm --dir collector build
-pnpm --dir post-collect build
-pnpm --dir cli build
-node cli/dist/bin/cli.js collect
+pnpm --dir packages/collector build
+pnpm --dir packages/post-collect build
+pnpm --dir packages/cli build
+node packages/cli/dist/bin/cli.js collect
 ```
 
 For local web checks in this repository:
 
 ```bash
-pnpm --dir web build
-node cli/dist/bin/cli.js build
-node cli/dist/bin/cli.js preview
+pnpm --dir packages/web build
+node packages/cli/dist/bin/cli.js build
+node packages/cli/dist/bin/cli.js preview
 ```
 
 The generated project installs runtime packages separately under `tools/harbor/*` so GitHub collection jobs do not need to install heavier `post-collect` dependencies.
 
 ## Runtime Packages
 
-- [`agent-skill-harbor-collector`](https://github.com/skill-mill/agent-skill-harbor/blob/main/collector/README.md)
-- [`agent-skill-harbor-post-collect`](https://github.com/skill-mill/agent-skill-harbor/blob/main/post-collect/README.md)
-- [`agent-skill-harbor-web`](https://github.com/skill-mill/agent-skill-harbor/blob/main/web/README.md)
+- [`agent-skill-harbor-collector`](https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/collector/README.md)
+- [`agent-skill-harbor-post-collect`](https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/post-collect/README.md)
+- [`agent-skill-harbor-web`](https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/web/README.md)
 
 To run `post-collect` directly in this repository:
 
 ```bash
-node cli/dist/bin/cli.js post-collect
+node packages/cli/dist/bin/cli.js post-collect
 ```
 
 User-defined plugins are resolved from `plugins/<id>/index.mjs`, then `index.js`, then `index.ts`.

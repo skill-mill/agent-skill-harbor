@@ -2,7 +2,7 @@
  * Set up local development environment for source repo contributors.
  *
  * Steps:
- *   1. cli/templates/init/.env.example → .env
+ *   1. packages/cli/templates/init/.env.example → .env
  *   2. Download demo repo archive
  *   3. Copy demo repo config/, data/, guide/ → project root
  */
@@ -18,7 +18,7 @@ const DEMO_ARCHIVE_URL = `https://codeload.github.com/${DEMO_OWNER}/${DEMO_REPO}
 const DEMO_COPY_DIRS = ['config', 'data', 'guide'] as const;
 
 const projectRoot = resolve(import.meta.dirname, '..');
-const templatesDir = join(projectRoot, 'cli', 'templates', 'init');
+const templatesDir = join(projectRoot, 'packages', 'cli', 'templates', 'init');
 
 function logStep(message: string) {
 	console.log(`  ${message}`);
@@ -56,7 +56,7 @@ console.log('\nSetting up local development environment...\n');
 
 if (!existsSync(join(projectRoot, '.env'))) {
 	copyFileSync(join(templatesDir, '.env.example'), join(projectRoot, '.env'));
-	logStep('Created .env from cli/templates/init/.env.example');
+	logStep('Created .env from packages/cli/templates/init/.env.example');
 } else {
 	logStep('Skipped .env (already exists)');
 }
@@ -88,8 +88,8 @@ try {
 
 console.log(
 	'\nDone! Edit .env (uncomment and set GH_TOKEN, GH_ORG) and run from the repository root:\n' +
-		'  pnpm --dir cli build\n' +
-		'  GH_TOKEN=$(gh auth token) node cli/dist/bin/cli.js collect\n' +
-		'  node cli/dist/bin/cli.js post-collect --collect-id <collect_id>\n' +
-		'  tsx cli/bin/cli.ts dev\n',
+		'  pnpm --dir packages/cli build\n' +
+		'  GH_TOKEN=$(gh auth token) node packages/cli/dist/bin/cli.js collect\n' +
+		'  node packages/cli/dist/bin/cli.js post-collect --collect-id <collect_id>\n' +
+		'  tsx packages/cli/bin/cli.ts dev\n',
 );

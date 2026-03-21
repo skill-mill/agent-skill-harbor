@@ -3,7 +3,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { resolve } from 'node:path';
 
 const dev = process.argv.includes('dev');
-const projectRoot = process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..');
+const projectRoot = process.env.SKILL_HARBOR_ROOT || resolve(import.meta.dirname, '..', '..');
 const outputDir = process.env.SKILL_HARBOR_OUTPUT_DIR || 'build';
 
 /** @type {import('@sveltejs/kit').Config} */

@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import { load as yamlLoad } from 'js-yaml';
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
@@ -25,7 +25,6 @@ import {
 	type ProjectSkillsLockEntry,
 } from './resolved-from.js';
 
-const PROJECT_ROOT = process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..', '..');
 interface SettingsConfig {
 	collector?: {
 		exclude_forks?: boolean;
@@ -36,7 +35,11 @@ interface SettingsConfig {
 	};
 }
 
-function loadSettings(projectRoot = PROJECT_ROOT): SettingsConfig {
+function getProjectRoot(): string {
+	return process.env.SKILL_HARBOR_ROOT || process.cwd();
+}
+
+function loadSettings(projectRoot = getProjectRoot()): SettingsConfig {
 	const settingsPath = join(projectRoot, 'config', 'harbor.yaml');
 	if (!existsSync(settingsPath)) {
 		return {};
@@ -72,7 +75,11 @@ interface RepoTarget {
 	html_url: string;
 	visibility: string;
 	fork: boolean;
-	source: 'org' | 'from' | 'extra';
+	source: 'org' | 'origin' | 'extra';
+}
+
+export interface CollectOptions {
+	force?: boolean;
 }
 
 interface ParsedFromRef {
@@ -106,8 +113,8 @@ function countFilesRecursive(dir: string): number {
 	return count;
 }
 
-function computeStatistics(catalog: CatalogYaml, org: string): { org: CategoryStats; community: CategoryStats } {
-	const skillsDir = join(PROJECT_ROOT, 'data', 'skills');
+function computeStatistics(projectRoot: string, catalog: CatalogYaml, org: string): { org: CategoryStats; community: CategoryStats } {
+	const skillsDir = join(projectRoot, 'data', 'skills');
 	const stats = {
 		org: { repos: 0, repos_with_skills: 0, skills: 0, files: 0 },
 		community: { repos: 0, repos_with_skills: 0, skills: 0, files: 0 },
@@ -134,6 +141,23 @@ function saveFile(repoDir: string, filePath: string, content: string): void {
 		mkdirSync(dir, { recursive: true });
 	}
 	writeFileSync(fullPath, content);
+}
+
+function getRepoDir(projectRoot: string, repoKey: string): string {
+	return join(projectRoot, 'data', 'skills', repoKey);
+}
+
+function pruneStaleCollectedRepos(projectRoot: string, catalog: CatalogYaml, keepRepoKeys: Set<string>): number {
+	let pruned = 0;
+
+	for (const repoKey of Object.keys(catalog.repositories)) {
+		if (keepRepoKeys.has(repoKey)) continue;
+		delete catalog.repositories[repoKey];
+		rmSync(getRepoDir(projectRoot, repoKey), { recursive: true, force: true });
+		pruned += 1;
+	}
+
+	return pruned;
 }
 
 function parseFrontmatter(content: string): Record<string, unknown> {
@@ -435,7 +459,7 @@ async function fetchRepoTarget(
 	platform: string,
 	owner: string,
 	repo: string,
-	source: 'from' | 'extra' = 'from',
+	source: 'origin' | 'extra' = 'origin',
 ): Promise<RepoTarget | null> {
 	const label = source === 'extra' ? 'included_extra_repos' : 'resolved_from';
 	try {
@@ -462,6 +486,7 @@ async function fetchRepoTarget(
 
 async function collectRepoSkills(
 	octokit: Octokit,
+	projectRoot: string,
 	platform: string,
 	target: RepoTarget,
 	catalog: CatalogYaml,
@@ -476,6 +501,7 @@ async function collectRepoSkills(
 		skippedSkillCount: number;
 	},
 	collectFromRefs: boolean,
+	force: boolean,
 ): Promise<void> {
 	const repoKey = normalizeRepoKey(platform, target.owner, target.repo);
 	const existingRepo = catalog.repositories[repoKey];
@@ -493,8 +519,8 @@ async function collectRepoSkills(
 	);
 	const headSha = branchData.commit.sha;
 
-	const repoDir = join(PROJECT_ROOT, 'data', 'skills', platform, target.owner, target.repo);
-	if (existingRepo?.repo_sha === headSha) {
+	const repoDir = getRepoDir(projectRoot, repoKey);
+	if (!force && existingRepo?.repo_sha === headSha) {
 		const needsResolvedFromBackfill = Object.values(existingRepo.skills).some((skill) => !skill.resolved_from);
 		const { entries: cachedLockEntries } = await loadProjectSkillsLock(
 			octokit,
@@ -558,7 +584,7 @@ async function collectRepoSkills(
 
 	for (const skill of discoveredSkills) {
 		const existingSkill = existingRepo?.skills?.[skill.skillPath];
-		if (skill.treeSha && existingSkill?.tree_sha === skill.treeSha) {
+		if (!force && skill.treeSha && existingSkill?.tree_sha === skill.treeSha) {
 			const frontmatter = readFrontmatterFromSavedSkill(repoDir, skill.skillPath);
 			const resolvedFrom = resolveSkillResolvedFrom(frontmatter, skill.skillPath, lockEntries, platform);
 			newSkills[skill.skillPath] = existingSkill;
@@ -579,7 +605,7 @@ async function collectRepoSkills(
 				const content = await fetchFileContent(octokit, target.owner, target.repo, filePath);
 				saveFile(repoDir, filePath, content);
 				counts.collectedFileCount++;
-				console.log(`  [collected:${target.source}] ${target.owner}/${target.repo} -> ${filePath}`);
+			console.log(`  [collected:${target.source}] ${target.owner}/${target.repo} -> ${filePath}`);
 				if (filePath === skill.skillPath) {
 					collectedFrontmatter = parseFrontmatter(content);
 				}
@@ -623,7 +649,7 @@ function detectOrgRepo(): { org: string | null; repo: string | null } {
 	try {
 		const remoteUrl = execSync('git remote get-url origin', {
 			encoding: 'utf-8',
-			cwd: PROJECT_ROOT,
+			cwd: getProjectRoot(),
 		}).trim();
 		const sshMatch = remoteUrl.match(/^git@[^:]+:([^/]+)\/([^/.]+)/);
 		if (sshMatch) {
@@ -643,7 +669,9 @@ function detectOrgRepo(): { org: string | null; repo: string | null } {
 	return { org, repo };
 }
 
-export async function runCollectOrgSkills(): Promise<void> {
+export async function runCollectOrgSkills(options: CollectOptions = {}): Promise<void> {
+	const projectRoot = getProjectRoot();
+	const force = options.force ?? false;
 	const token = process.env.GH_TOKEN;
 	const { org, repo: selfRepo } = detectOrgRepo();
 
@@ -657,14 +685,17 @@ export async function runCollectOrgSkills(): Promise<void> {
 	const startTime = Date.now();
 	const octokit = new Octokit({ auth: token });
 	const platform = 'github.com';
-	const catalog = loadCatalog(PROJECT_ROOT);
+	const catalog = loadCatalog(projectRoot);
 
 	console.log(`Collecting skills from organization: ${org}`);
 	if (selfRepo) {
 		console.log(`Excluding self repository: ${org}/${selfRepo}`);
 	}
+	if (force) {
+		console.log(`Force mode: enabled`);
+	}
 
-	const settings = loadSettings(PROJECT_ROOT);
+	const settings = loadSettings(projectRoot);
 	const excludeForks = settings.collector?.exclude_forks ?? false;
 	const excludeRepos = new Set(settings.collector?.excluded_repos ?? []);
 	const includeOriginRepos = settings.collector?.include_origin_repos ?? true;
@@ -710,8 +741,8 @@ export async function runCollectOrgSkills(): Promise<void> {
 		excludeForks && 'forks excluded',
 		excludeRepos.size > 0 && `${excludeRepos.size} repo(s) excluded`,
 	].filter(Boolean);
-	join(', ');
-	console.log(`Found ${repos.length} repositories${filters ? ` (${filters})` : ''}`);
+	const filterSummary = filters.join(', ');
+	console.log(`Found ${repos.length} repositories${filterSummary ? ` (${filterSummary})` : ''}`);
 	if (includeOriginRepos) {
 		console.log(`Following public origin repositories: enabled`);
 	}
@@ -726,13 +757,16 @@ export async function runCollectOrgSkills(): Promise<void> {
 	const seenRepoKeys = new Set<string>();
 	const queuedExternalRepoKeys = new Set<string>();
 	const fromRefs: ParsedFromRef[] = [];
+	const keepRepoKeys = new Set<string>();
 
 	for (const repo of repos) {
 		try {
 			const repoKey = normalizeRepoKey(platform, repo.owner, repo.repo);
 			seenRepoKeys.add(repoKey);
+			keepRepoKeys.add(repoKey);
 			await collectRepoSkills(
 				octokit,
+				projectRoot,
 				platform,
 				repo,
 				catalog,
@@ -741,6 +775,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 				queuedExternalRepoKeys,
 				counts,
 				includeOriginRepos,
+				force,
 			);
 		} catch (error) {
 			console.error(`  [error] ${repo.owner}/${repo.repo}: ${formatApiError(error)}`);
@@ -763,9 +798,11 @@ export async function runCollectOrgSkills(): Promise<void> {
 		extraRepoCount++;
 		const target = await fetchRepoTarget(octokit, platform, parsed.owner, parsed.repo, 'extra');
 		if (!target) continue;
+		keepRepoKeys.add(repoKey);
 		try {
 			await collectRepoSkills(
 				octokit,
+				projectRoot,
 				platform,
 				target,
 				catalog,
@@ -774,6 +811,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 				queuedExternalRepoKeys,
 				counts,
 				includeOriginRepos,
+				force,
 			);
 		} catch (error) {
 			console.error(`  [error] ${target.owner}/${target.repo}: ${formatApiError(error)}`);
@@ -788,9 +826,11 @@ export async function runCollectOrgSkills(): Promise<void> {
 			fromRepoCount++;
 			const target = await fetchRepoTarget(octokit, platform, fromRef.owner, fromRef.repo);
 			if (!target) continue;
+			keepRepoKeys.add(fromRef.repoKey);
 			try {
 				await collectRepoSkills(
 					octokit,
+					projectRoot,
 					platform,
 					target,
 					catalog,
@@ -799,6 +839,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 					queuedExternalRepoKeys,
 					counts,
 					false,
+					force,
 				);
 			} catch (error) {
 				console.error(`  [error] ${target.owner}/${target.repo}: ${formatApiError(error)}`);
@@ -807,12 +848,13 @@ export async function runCollectOrgSkills(): Promise<void> {
 	}
 
 	const durationSec = Math.round((Date.now() - startTime) / 1000);
+	const prunedRepoCount = pruneStaleCollectedRepos(projectRoot, catalog, keepRepoKeys);
 	const totalRepos = repos.length + extraRepoCount + fromRepoCount;
 	const totalSkills = counts.collectedCount + counts.skippedSkillCount;
 
-	saveCatalog(catalog, PROJECT_ROOT);
+	saveCatalog(catalog, projectRoot);
 
-	const statistics = computeStatistics(catalog, org);
+	const statistics = computeStatistics(projectRoot, catalog, org);
 	const historyEntry: CollectEntry = createCollectEntry({
 		collecting: {
 			collected_at: new Date().toISOString(),
@@ -821,7 +863,7 @@ export async function runCollectOrgSkills(): Promise<void> {
 		statistics,
 	});
 	const historyLimit = settings.collector?.history_limit ?? 50;
-	prependCollectEntry(PROJECT_ROOT, historyEntry, historyLimit);
+	prependCollectEntry(projectRoot, historyEntry, historyLimit);
 	console.log(`  collect_id: ${historyEntry.collect_id}`);
 	if (process.env.GITHUB_OUTPUT && historyEntry.collect_id) {
 		writeFileSync(process.env.GITHUB_OUTPUT, `collect_id=${historyEntry.collect_id}\n`, { flag: 'a' });
@@ -831,13 +873,16 @@ export async function runCollectOrgSkills(): Promise<void> {
 	console.log(
 		`  Repos:  ${totalRepos} total, ${counts.collectedRepoCount} collected, ${counts.skippedRepoCount} unchanged` +
 			(extraRepoCount > 0 ? `, ${extraRepoCount} via included_extra_repos` : '') +
-			(fromRepoCount > 0 ? `, ${fromRepoCount} via _from` : ''),
+			(fromRepoCount > 0 ? `, ${fromRepoCount} via resolved_from` : ''),
 	);
 	console.log(
 		`  Skills: ${totalSkills} total, ${counts.collectedCount} collected, ${counts.skippedSkillCount} unchanged`,
 	);
 	console.log(`  Files:  ${counts.collectedFileCount} collected`);
 	console.log(`  Time:   ${durationSec}s`);
+	if (prunedRepoCount > 0) {
+		console.log(`  Pruned: ${prunedRepoCount} stale repo(s)`);
+	}
 
 	console.log(`\n--- Statistics ---`);
 	console.log(

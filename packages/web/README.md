@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/web/README.md">en</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/web/README_ja.md">ja</a></p>
+<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/web/README.md">en</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/web/README_ja.md">ja</a></p>
 
 # agent-skill-harbor-web
 

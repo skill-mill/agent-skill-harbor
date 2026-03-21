@@ -11,5 +11,5 @@
 		"resolveJsonModule": true
 	},
 	"include": ["scripts/**/*.ts"],
-	"exclude": ["node_modules", "web"]
+	"exclude": ["node_modules", "packages/web"]
 }

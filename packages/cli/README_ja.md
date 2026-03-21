@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/cli/README.md">en</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/cli/README_ja.md">ja</a></p>
+<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/cli/README.md">en</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/cli/README_ja.md">ja</a></p>
 
 # agent-skill-harbor
 
@@ -23,32 +23,32 @@ pnpm dev
 上の `pnpm collect` は、`init` で生成された Skill Harbor プロジェクト側のスクリプトです。このリポジトリ自身で確認する場合は、まず workspace package を build してから wrapper を実行します。
 
 ```bash
-pnpm --dir collector build
-pnpm --dir post-collect build
-pnpm --dir cli build
-node cli/dist/bin/cli.js collect
+pnpm --dir packages/collector build
+pnpm --dir packages/post-collect build
+pnpm --dir packages/cli build
+node packages/cli/dist/bin/cli.js collect
 ```
 
 Web のローカル確認は次を使います。
 
 ```bash
-pnpm --dir web build
-node cli/dist/bin/cli.js build
-node cli/dist/bin/cli.js preview
+pnpm --dir packages/web build
+node packages/cli/dist/bin/cli.js build
+node packages/cli/dist/bin/cli.js preview
 ```
 
 生成されたプロジェクトでは `tools/harbor/*` 配下でランタイム package を別々に install し、GitHub collection job が重い `post-collect` 依存を入れなくて済むようにしています。
 
 ## ランタイムパッケージ
 
-- [`agent-skill-harbor-collector`](https://github.com/skill-mill/agent-skill-harbor/blob/main/collector/README_ja.md)
-- [`agent-skill-harbor-post-collect`](https://github.com/skill-mill/agent-skill-harbor/blob/main/post-collect/README_ja.md)
-- [`agent-skill-harbor-web`](https://github.com/skill-mill/agent-skill-harbor/blob/main/web/README_ja.md)
+- [`agent-skill-harbor-collector`](https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/collector/README_ja.md)
+- [`agent-skill-harbor-post-collect`](https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/post-collect/README_ja.md)
+- [`agent-skill-harbor-web`](https://github.com/skill-mill/agent-skill-harbor/blob/main/packages/web/README_ja.md)
 
 このリポジトリで `post-collect` を単独で試す場合は次を使います。
 
 ```bash
-node cli/dist/bin/cli.js post-collect
+node packages/cli/dist/bin/cli.js post-collect
 ```
 
 ユーザー定義 plugin は `plugins/<id>/index.mjs`、次に `index.js`、最後に `index.ts` の順で解決されます。

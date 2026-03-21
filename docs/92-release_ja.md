@@ -34,9 +34,9 @@
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir web verify
-pnpm --dir web build
-cd web
+pnpm --dir packages/web verify
+pnpm --dir packages/web build
+cd packages/web
 # npm pack  # `files` / README / package 構成を変更したときのみ
 npm publish --access public
 cd ..
@@ -47,11 +47,11 @@ git tag web-v<version>
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir collector lint:check
-pnpm --dir collector check
-pnpm --dir collector test
-pnpm --dir collector build
-cd collector
+pnpm --dir packages/collector lint:check
+pnpm --dir packages/collector check
+pnpm --dir packages/collector test
+pnpm --dir packages/collector build
+cd packages/collector
 npm publish --access public
 cd ..
 git tag collector-v<version>
@@ -61,11 +61,11 @@ git tag collector-v<version>
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir post-collect lint:check
-pnpm --dir post-collect check
-pnpm --dir post-collect test
-pnpm --dir post-collect build
-cd post-collect
+pnpm --dir packages/post-collect lint:check
+pnpm --dir packages/post-collect check
+pnpm --dir packages/post-collect test
+pnpm --dir packages/post-collect build
+cd packages/post-collect
 npm publish --access public
 cd ..
 git tag post-collect-v<version>
@@ -75,10 +75,10 @@ git tag post-collect-v<version>
 
 ```bash
 pnpm install --no-frozen-lockfile
-pnpm --dir cli verify
-pnpm --dir cli build
-node cli/dist/bin/cli.js build
-cd cli
+pnpm --dir packages/cli verify
+pnpm --dir packages/cli build
+node packages/cli/dist/bin/cli.js build
+cd packages/cli
 # npm pack  # `files` / bin / templates / README を変更したときのみ
 npm publish --access public
 cd ..
@@ -110,14 +110,14 @@ git tag cli-v<version>
 
 ## バージョニング方針
 
-- `cli/package.json`、`collector/package.json`、`post-collect/package.json`、`web/package.json` は独立して version を管理します。
-- `cli/templates/init/package.template.json` と `cli/templates/init/tools/harbor/*/package.template.json` は、publish したい package version と整合するよう保ちます。
+- `packages/cli/package.json`、`packages/collector/package.json`、`packages/post-collect/package.json`、`packages/web/package.json` は独立して version を管理します。
+- `packages/cli/templates/init/package.template.json` と `packages/cli/templates/init/tools/harbor/*/package.template.json` は、publish したい package version と整合するよう保ちます。
 
 ## 補足
 
-- Web の実行時依存は `web/package.json` に置きます。
-- wrapper 専用の実行時依存は `cli/package.json` に置きます。
-- collect 専用の実行時依存は `collector/package.json` に置きます。
-- post-collect 専用の実行時依存は `post-collect/package.json` に置きます。
+- Web の実行時依存は `packages/web/package.json` に置きます。
+- wrapper 専用の実行時依存は `packages/cli/package.json` に置きます。
+- collect 専用の実行時依存は `packages/collector/package.json` に置きます。
+- post-collect 専用の実行時依存は `packages/post-collect/package.json` に置きます。
 - この workspace では package ごとの release に対して `pnpm publish` が安定して動かなかったため、現時点では各 package directory に移動して `npm publish` を直接実行するワークアラウンドを採用します。
 - Vite の chunk size warning は現状では既知のものとして扱います。手動で chunk を分ける検証により、残っている重さの主因は `three` だと分かったため、graph 実装をさらに深く最適化しない限り、追加の chunk 分割設定は常用しません。

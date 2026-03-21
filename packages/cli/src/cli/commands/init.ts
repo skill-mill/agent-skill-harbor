@@ -31,7 +31,7 @@ const packageRange = `>=${cliPackageJson.version} <1`;
 function getPeerDependencyRange(packageName: string): string {
 	const range = cliPackageJson.peerDependencies?.[packageName];
 	if (!range) {
-		throw new Error(`Missing peer dependency version for ${packageName} in cli/package.json`);
+		throw new Error(`Missing peer dependency version for ${packageName} in packages/cli/package.json`);
 	}
 	return range;
 }

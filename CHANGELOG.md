@@ -96,13 +96,13 @@
 
 ### Changed
 
-- Tightened the root workspace formatter to repository-level shared files only, leaving package-local formatting to `cli/` and `web/`
+- Tightened the root workspace formatter to repository-level shared files only, leaving package-local formatting to `packages/cli/` and `packages/web/`
 
 ## [cli 0.10.1] / [web 0.9.1] - 2026-03-14
 
 ### Changed
 
-- Added package-local `format`, `format:check`, `lint`, `lint:check`, and `verify` workflows so `cli/` and `web/` can be checked and fixed independently from the workspace root
+- Added package-local `format`, `format:check`, `lint`, `lint:check`, and `verify` workflows so `packages/cli/` and `packages/web/` can be checked and fixed independently from the workspace root
 - Updated release docs to use package-specific `verify` steps, optional `pack` guidance, and package-specific git tags (`cli-vX.Y.Z`, `web-vX.Y.Z`)
 - Refined package-local formatting targets and fixed small CLI/web source issues uncovered by the new static checks
 - Updated contributor docs and README notes to match the independent-package release workflow
@@ -124,8 +124,8 @@
 
 ### Changed
 
-- Moved the published CLI package into `cli/` so the repository now has symmetric `cli/` and `web/` package roots
-- Reduced the root workspace scripts to repository-level maintenance tasks and updated contributor docs to run package-local commands from `cli/` and `web/`
+- Moved the published CLI package into `packages/cli/` so the repository now has symmetric `packages/cli/` and `packages/web/` package roots
+- Reduced the root workspace scripts to repository-level maintenance tasks and updated contributor docs to run package-local commands from `packages/cli/` and `packages/web/`
 - Renamed the CLI package build script to `build` and simplified version hooks so the init template stays a checked placeholder instead of a synced output
 
 ## [0.8.7] - 2026-03-14

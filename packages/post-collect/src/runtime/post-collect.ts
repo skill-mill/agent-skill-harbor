@@ -1,11 +1,10 @@
 import { execSync } from 'node:child_process';
-import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadCatalog } from './catalog-store.js';
 import { runPostCollect } from './post-collect/run-post-collect.js';
 
 function getProjectRoot(): string {
-	return process.env.SKILL_HARBOR_ROOT || join(import.meta.dirname, '..', '..');
+	return process.env.SKILL_HARBOR_ROOT || process.cwd();
 }
 
 function parseArgs(argv: string[]): { collectId?: string } {
