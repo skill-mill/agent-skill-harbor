@@ -310,13 +310,26 @@
 		container.addEventListener('mousemove', handleMouseMove);
 		container.addEventListener('mousedown', handleMouseDown);
 
-		// Ambient rain drops
-		const rainInterval = setInterval(() => {
-			const dpr = getDpr();
-			const x = Math.random() * canvas.width;
-			const y = Math.random() * canvas.height;
-			drop(x, y, dropRadius * 0.6 * dpr, 0.03 + Math.random() * 0.02);
-		}, 1200);
+		let animationId: number | null = null;
+		let rainInterval: ReturnType<typeof setInterval> | null = null;
+		let isActive = false;
+
+		function startRain() {
+			if (rainInterval !== null) return;
+			rainInterval = setInterval(() => {
+				if (document.hidden) return;
+				const dpr = getDpr();
+				const x = Math.random() * canvas.width;
+				const y = Math.random() * canvas.height;
+				drop(x, y, dropRadius * 0.6 * dpr, 0.03 + Math.random() * 0.02);
+			}, 1200);
+		}
+
+		function stopRain() {
+			if (rainInterval === null) return;
+			clearInterval(rainInterval);
+			rainInterval = null;
+		}
 
 		// Resize handling
 		function resize() {
@@ -331,10 +344,9 @@
 		window.addEventListener('resize', resize);
 		resize();
 
-		// Main render loop
-		let animationId: number;
-
 		function frame() {
+			if (!isActive) return;
+
 			// Update background texture on theme change
 			if (prevIsLight !== isLight) {
 				prevIsLight = isLight;
@@ -379,13 +391,38 @@
 			animationId = requestAnimationFrame(frame);
 		}
 
+		function startAnimation() {
+			if (isActive) return;
+			isActive = true;
+			startRain();
+			animationId = requestAnimationFrame(frame);
+		}
+
+		function stopAnimation() {
+			isActive = false;
+			stopRain();
+			if (animationId !== null) {
+				cancelAnimationFrame(animationId);
+				animationId = null;
+			}
+		}
+
+		function handleVisibilityChange() {
+			if (document.hidden) {
+				stopAnimation();
+				return;
+			}
+			startAnimation();
+		}
+
 		gl.clearColor(0, 0, 0, 0);
-		animationId = requestAnimationFrame(frame);
+		startAnimation();
+		document.addEventListener('visibilitychange', handleVisibilityChange);
 
 		return () => {
 			themeObserver.disconnect();
-			cancelAnimationFrame(animationId);
-			clearInterval(rainInterval);
+			document.removeEventListener('visibilitychange', handleVisibilityChange);
+			stopAnimation();
 			window.removeEventListener('resize', resize);
 			container.removeEventListener('mousemove', handleMouseMove);
 			container.removeEventListener('mousedown', handleMouseDown);
