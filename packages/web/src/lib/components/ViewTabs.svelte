@@ -3,6 +3,8 @@
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { t } from '$lib/i18n';
+	import { VIEW_TABS_TRANSITION_NAME } from '$lib/utils/view-transition';
+	import { setupViewTransition } from 'sveltekit-view-transition';
 	import Grid2x2 from '@lucide/svelte/icons/grid-2x2';
 	import List from '@lucide/svelte/icons/list';
 	import Network from '@lucide/svelte/icons/network';
@@ -16,6 +18,7 @@
 	}
 
 	let { activeView, onchange }: Props = $props();
+	const { transition: viewTransition } = setupViewTransition();
 
 	const tabs: { key: ViewMode; icon: 'grid' | 'list' | 'graph' | 'stats' }[] = [
 		{ key: 'stats', icon: 'stats' },
@@ -69,7 +72,14 @@
 	}
 </script>
 
-<div class="flex flex-wrap gap-x-1 gap-y-2 border-b border-gray-200 dark:border-gray-700" role="tablist">
+<div
+	class="flex flex-wrap gap-x-1 gap-y-2 border-b border-gray-200 dark:border-gray-700"
+	role="tablist"
+	use:viewTransition={{
+		name: VIEW_TABS_TRANSITION_NAME,
+		applyImmediately: true,
+	}}
+>
 	{#each tabs as tab (tab.key)}
 		{@const isActive = activeView === tab.key}
 		<button

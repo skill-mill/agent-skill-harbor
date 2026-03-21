@@ -7,3 +7,5 @@ export function getSkillTitleTransitionName(skillKey: string): string {
 
 	return `skill-title-${normalized || 'unknown'}`;
 }
+
+export const VIEW_TABS_TRANSITION_NAME = 'view-tabs';
