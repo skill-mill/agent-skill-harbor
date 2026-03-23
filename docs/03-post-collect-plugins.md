@@ -97,14 +97,26 @@ Search order is `mjs`, then `js`, then `ts`.
 
 Plugin ids must use lowercase letters, numbers, `-`, and `_`.
 
+If a plugin needs extra runtime dependencies, add `plugins/<id>/package.json`.
+The generated reusable collect workflow detects `plugins/*/package.json` during the `post_collect` job and installs each plugin directory automatically.
+
 To generate the example plugin scaffold:
 
 ```bash
 harbor gen example-user-defined-plugin
+harbor gen notify-slack
 ```
 
-Then uncomment `example-user-defined-plugin` in `config/harbor.yaml`.
-Then rename or customize it as needed for your real plugin.
+Then uncomment the matching plugin entry in `config/harbor.yaml`.
+`notify-slack` also generates `plugins/notify-slack/package.json`, so before local use run:
+
+```bash
+pnpm install --dir plugins/notify-slack
+# or
+npm install --prefix plugins/notify-slack
+```
+
+Then update the generated files as needed for your real plugin.
 
 ## Plugin Output
 
@@ -173,7 +185,9 @@ The generated `CollectSkills` workflow is a thin caller pinned to Harbor's publi
 Inside that reusable workflow, Harbor:
 
 1. installs `tools/harbor/collector` and runs `collect`
-2. installs `tools/harbor/post-collect` and runs `post-collect --collect-id ...`
-3. commits updated `data/` back to the repository
+2. installs `tools/harbor/post-collect`
+3. installs `plugins/*/package.json` when present
+4. runs `post-collect --collect-id ...`
+5. commits updated `data/` back to the repository
 
 This keeps collection and post-collection processing separate and rerunnable while shrinking generated workflow YAML in user projects.

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { chmodSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 import { tmpdir } from 'node:os';
@@ -52,9 +53,11 @@ test('runPostCollect saves detect-drift output', async () => {
 
 	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'builtin.detect-drift.yaml'), 'utf-8')) as {
 		collect_id?: string;
+		persist?: boolean;
 		results: Record<string, { label?: string }>;
 	}[];
 	assert.equal(output[0].collect_id, 'collect-1');
+	assert.equal(output[0].persist, undefined);
 	assert.equal(output[0].results['github.com/example/copy/skills/tooling/SKILL.md']?.label, 'In sync');
 });
 
@@ -98,9 +101,11 @@ test('runPostCollect loads local ts plugin with tsx', async () => {
 	});
 
 	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'example-user-defined-plugin.yaml'), 'utf-8')) as {
+		persist?: boolean;
 		summary?: string;
 		results?: Record<string, { label?: string; raw?: string }>;
 	}[];
+	assert.equal(output[0].persist, undefined);
 	assert.equal(output[0].summary, 'checked 1 repo(s)');
 	assert.deepEqual(output[0].results?.['github.com/example/demo/tools/SKILL.md'], {
 		label: 'Reviewed',
@@ -137,6 +142,87 @@ test('runPostCollect prefers mjs over js and ts for local plugins', async () => 
 		results?: Record<string, { label?: string }>;
 	}[];
 	assert.equal(output[0].results?.skill?.label, 'mjs');
+});
+
+test('runPostCollect resolves dependencies from plugin-local node_modules', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'post-collect-plugin-node-modules-'));
+	const pluginDir = join(root, 'plugins', 'notify-slack');
+	const jsYamlDir = join(pluginDir, 'node_modules', 'js-yaml');
+	mkdirSync(jsYamlDir, { recursive: true });
+	mkdirSync(join(root, 'data'), { recursive: true });
+
+	writeFileSync(
+		join(pluginDir, 'index.ts'),
+		[
+			"import { load } from 'js-yaml';",
+			'export async function run() {',
+			"  const parsed = load('message: plugin-local dependency');",
+			"  return { summary: parsed.message };",
+			'}',
+			'',
+		].join('\n'),
+	);
+	writeFileSync(
+		join(jsYamlDir, 'package.json'),
+		JSON.stringify(
+			{
+				name: 'js-yaml',
+				type: 'module',
+				exports: './index.js',
+			},
+			null,
+			2,
+		),
+	);
+	writeFileSync(
+		join(jsYamlDir, 'index.js'),
+		[
+			'export function load(source) {',
+			"  const [key, value] = String(source).split(':');",
+			'  return { [key.trim()]: value.trim() };',
+			'}',
+			'',
+		].join('\n'),
+	);
+
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-plugin-deps',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'notify-slack' }],
+	});
+
+	const output = yamlLoad(readFileSync(join(root, 'data', 'plugins', 'notify-slack.yaml'), 'utf-8')) as {
+		summary?: string;
+	}[];
+	assert.equal(output[0].summary, 'plugin-local dependency');
+});
+
+test('runPostCollect skips saving plugin output when persist is false', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'post-collect-no-persist-'));
+	mkdirSync(join(root, 'plugins', 'notify-slack'), { recursive: true });
+	mkdirSync(join(root, 'data'), { recursive: true });
+
+	writeFileSync(
+		join(root, 'plugins', 'notify-slack', 'index.ts'),
+		[
+			'export async function run() {',
+			'  return { persist: false, summary: "do not save me" };',
+			'}',
+			'',
+		].join('\n'),
+	);
+
+	await runPostCollect({
+		projectRoot: root,
+		collectId: 'collect-no-persist',
+		catalog: { repositories: {} },
+		log: false,
+		plugins: [{ id: 'notify-slack' }],
+	});
+
+	assert.equal(existsSync(join(root, 'data', 'plugins', 'notify-slack.yaml')), false);
 });
 
 test('runPostCollect replaces same collect_id and respects history limit', async () => {
@@ -239,7 +325,46 @@ test('runPostCollect logs plugin start, built-in summary and saved path', async 
 	assert.match(logs.join('\n'), /detect-drift: scanning collected skills for origin drift/);
 	assert.match(logs.join('\n'), /detect-drift: checked 0 skill\(s\) \(0 in sync, 0 drifted, 0 unknown\)/);
 	assert.match(logs.join('\n'), /builtin\.detect-drift \(done\)/);
+	assert.match(logs.join('\n'), /summary: 0 skill\(s\) checked for drift\./);
 	assert.match(logs.join('\n'), /saved: .*builtin\.detect-drift\.yaml/);
+});
+
+test('runPostCollect logs summary even when persist is false', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'post-collect-no-persist-log-'));
+	mkdirSync(join(root, 'plugins', 'notify-slack'), { recursive: true });
+	mkdirSync(join(root, 'data'), { recursive: true });
+
+	writeFileSync(
+		join(root, 'plugins', 'notify-slack', 'index.ts'),
+		[
+			'export async function run() {',
+			'  return { persist: false, summary: "notification sent" };',
+			'}',
+			'',
+		].join('\n'),
+	);
+
+	const logs: string[] = [];
+	const originalLog = console.log;
+	console.log = (...args: unknown[]) => {
+		logs.push(args.map((arg) => String(arg)).join(' '));
+	};
+
+	try {
+		await runPostCollect({
+			projectRoot: root,
+			collectId: 'collect-no-persist-log',
+			catalog: { repositories: {} },
+			log: true,
+			plugins: [{ id: 'notify-slack' }],
+		});
+	} finally {
+		console.log = originalLog;
+	}
+
+	assert.match(logs.join('\n'), /notify-slack \(done\)/);
+	assert.match(logs.join('\n'), /summary: notification sent/);
+	assert.match(logs.join('\n'), /persist: false \(skipped saving plugin output\)/);
 });
 
 test('runPostCollect passes built-in config and stores unknown result when promptfoo model is missing', async () => {

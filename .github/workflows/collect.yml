@@ -91,6 +91,21 @@ jobs:
       - name: Install post-collect dependencies
         run: pnpm install --dir tools/harbor/post-collect
 
+      - name: Install user-defined plugin dependencies
+        shell: bash
+        run: |
+          shopt -s nullglob
+          plugin_package_found=false
+          for package_json in plugins/*/package.json; do
+            plugin_dir="$(dirname "$package_json")"
+            plugin_package_found=true
+            echo "Installing plugin dependencies in $plugin_dir"
+            pnpm install --dir "$plugin_dir"
+          done
+          if [ "$plugin_package_found" = false ]; then
+            echo "No user-defined plugin package.json files found"
+          fi
+
       - name: Restore collected data artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:

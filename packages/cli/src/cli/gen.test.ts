@@ -3,16 +3,16 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import test from 'node:test';
-import { scaffoldExampleUserDefinedPlugin } from './gen.js';
+import { getGenTemplate, listGenTemplateIds, scaffoldPlugin } from './gen.js';
 
-test('scaffoldExampleUserDefinedPlugin creates plugins/example-user-defined-plugin from template', () => {
+test('scaffoldPlugin creates plugins/example-user-defined-plugin from template', () => {
 	const root = mkdtempSync(join(tmpdir(), 'harbor-gen-'));
 	const packageRoot = mkdtempSync(join(tmpdir(), 'harbor-pkg-'));
 	const templateDir = join(packageRoot, 'templates', 'gen', 'example-user-defined-plugin');
 	mkdirSync(templateDir, { recursive: true });
 	writeFileSync(join(templateDir, 'index.ts'), 'export const sample = true;\n');
 
-	const targetDir = scaffoldExampleUserDefinedPlugin(packageRoot, root);
+	const targetDir = scaffoldPlugin(packageRoot, root, 'example-user-defined-plugin');
 
 	assert.equal(targetDir, join(root, 'plugins', 'example-user-defined-plugin'));
 	assert.equal(existsSync(join(root, 'plugins', 'example-user-defined-plugin', 'index.ts')), true);
@@ -22,7 +22,22 @@ test('scaffoldExampleUserDefinedPlugin creates plugins/example-user-defined-plug
 	);
 });
 
-test('scaffoldExampleUserDefinedPlugin rejects existing target', () => {
+test('scaffoldPlugin creates notify-slack package files from template', () => {
+	const root = mkdtempSync(join(tmpdir(), 'harbor-gen-notify-'));
+	const packageRoot = mkdtempSync(join(tmpdir(), 'harbor-pkg-notify-'));
+	const templateDir = join(packageRoot, 'templates', 'gen', 'notify-slack');
+	mkdirSync(templateDir, { recursive: true });
+	writeFileSync(join(templateDir, 'index.ts'), 'export const notify = true;\n');
+	writeFileSync(join(templateDir, 'package.json'), '{ "dependencies": { "js-yaml": "^4.1.0" } }\n');
+
+	const targetDir = scaffoldPlugin(packageRoot, root, 'notify-slack');
+
+	assert.equal(targetDir, join(root, 'plugins', 'notify-slack'));
+	assert.equal(readFileSync(join(targetDir, 'index.ts'), 'utf-8'), 'export const notify = true;\n');
+	assert.equal(readFileSync(join(targetDir, 'package.json'), 'utf-8'), '{ "dependencies": { "js-yaml": "^4.1.0" } }\n');
+});
+
+test('scaffoldPlugin rejects existing target', () => {
 	const root = mkdtempSync(join(tmpdir(), 'harbor-gen-existing-'));
 	const packageRoot = mkdtempSync(join(tmpdir(), 'harbor-pkg-existing-'));
 	const templateDir = join(packageRoot, 'templates', 'gen', 'example-user-defined-plugin');
@@ -30,5 +45,10 @@ test('scaffoldExampleUserDefinedPlugin rejects existing target', () => {
 	mkdirSync(templateDir, { recursive: true });
 	mkdirSync(targetDir, { recursive: true });
 
-	assert.throws(() => scaffoldExampleUserDefinedPlugin(packageRoot, root), /Target already exists/);
+	assert.throws(() => scaffoldPlugin(packageRoot, root, 'example-user-defined-plugin'), /Target already exists/);
+});
+
+test('gen template registry exposes supported plugin templates', () => {
+	assert.deepEqual(listGenTemplateIds(), ['example-user-defined-plugin', 'notify-slack']);
+	assert.equal(getGenTemplate('notify-slack')?.generatedLabel, 'notify-slack plugin');
 });

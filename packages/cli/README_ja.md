@@ -52,7 +52,11 @@ node packages/cli/dist/bin/cli.js post-collect
 ```
 
 ユーザー定義 plugin は `plugins/<id>/index.mjs`、次に `index.js`、最後に `index.ts` の順で解決されます。
-例示用 user-defined plugin の雛形は `harbor gen example-user-defined-plugin` で生成できます。
+追加依存が必要な場合は `plugins/<id>/package.json` を置けます。
+雛形は次で生成できます。
+
+- `harbor gen example-user-defined-plugin`
+- `harbor gen notify-slack`
 
 製品全体の概要やドキュメントは、リポジトリの README を参照してください。
 

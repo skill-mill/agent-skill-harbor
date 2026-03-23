@@ -35,6 +35,16 @@ post_collect:
   # Generate the example plugin first: harbor gen example-user-defined-plugin
   # Then uncomment the line above.
 
+  #   - id: notify-slack
+  #     short_label: Slack
+  #     config:
+  #       webhook_url: https://hooks.slack.com/services/...
+  #       disable_send: false
+  #       use_debug_message: false
+  # Generate the Slack notifier first: harbor gen notify-slack
+  # Then run `pnpm install --dir plugins/notify-slack` (or `npm install --prefix plugins/notify-slack`)
+  # and uncomment the block above.
+
 catalog:
   skill:
     fresh_period_days: 30 # 0 = disable "New" badge

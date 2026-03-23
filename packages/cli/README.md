@@ -52,7 +52,11 @@ node packages/cli/dist/bin/cli.js post-collect
 ```
 
 User-defined plugins are resolved from `plugins/<id>/index.mjs`, then `index.js`, then `index.ts`.
-Generate the example user-defined plugin scaffold with `harbor gen example-user-defined-plugin`.
+If a plugin needs its own runtime dependencies, add `plugins/<id>/package.json`.
+Available scaffolds:
+
+- `harbor gen example-user-defined-plugin`
+- `harbor gen notify-slack`
 
 For the full product overview and documentation, see the repository README:
 

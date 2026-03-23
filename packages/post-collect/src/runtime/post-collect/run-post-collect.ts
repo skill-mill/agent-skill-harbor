@@ -78,6 +78,7 @@ function validateIntent(intent: string | undefined): LabelIntent {
 
 function normalizePluginResult(result: PostCollectPluginResult | null | undefined): PostCollectPluginResult {
 	const next: PostCollectPluginResult = {};
+	if (result?.persist === false) next.persist = false;
 	if (result?.summary) next.summary = String(result.summary);
 	if (result?.label_intents) {
 		next.label_intents = Object.fromEntries(
@@ -152,10 +153,11 @@ function savePluginOutput(
 	const outputPath = getPluginOutputPath(projectRoot, pluginId);
 	const historyLimit = loadHistoryLimit(projectRoot);
 	mkdirSync(dirname(outputPath), { recursive: true });
+	const { persist: _persist, ...savedResult } = result;
 	const payload: SavedPluginOutputEntry = {
 		generated_at: new Date().toISOString(),
 		...(collectId ? { collect_id: collectId } : {}),
-		...result,
+		...savedResult,
 	};
 	const existing = loadPluginOutputHistory(projectRoot, pluginId).filter(
 		(entry) => !(collectId && entry.collect_id === collectId),
@@ -212,10 +214,20 @@ export async function runPostCollect(options: RunPostCollectOptions): Promise<vo
 			? await builtIn.run(context)
 			: await (await loadUserPlugin(options.projectRoot, plugin.id)).run(context);
 		const normalizedResult = normalizePluginResult(result);
-		savePluginOutput(options.projectRoot, plugin.id, options.collectId ?? null, normalizedResult);
+		const shouldPersist = normalizedResult.persist !== false;
+		if (shouldPersist) {
+			savePluginOutput(options.projectRoot, plugin.id, options.collectId ?? null, normalizedResult);
+		}
 		if (log) {
 			console.log(`     ${plugin.id} (done)`);
-			console.log(`     saved: ${outputPath}`);
+			if (normalizedResult.summary) {
+				console.log(`     summary: ${normalizedResult.summary}`);
+			}
+			if (shouldPersist) {
+				console.log(`     saved: ${outputPath}`);
+			} else {
+				console.log('     persist: false (skipped saving plugin output)');
+			}
 		}
 	}
 }
