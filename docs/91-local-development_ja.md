@@ -1,157 +1,108 @@
 # ローカル開発
 
-## ユーザー向け（npm パッケージ）
+## 生成プロジェクト側
 
-`npx agent-skill-harbor init` でプロジェクトを作成した場合:
+`harbor init` 後は次を実行します。
 
 ```bash
 pnpm install
-pnpm dev          # 開発サーバーの起動
-pnpm collect      # 組織からスキルを収集
-pnpm build        # 静的サイトをビルド
-pnpm preview      # ビルド結果をプレビュー
+pnpm install --dir collector
+
+pnpm collect
+pnpm post-collect
+pnpm dev
+pnpm build
+pnpm preview
 ```
 
-これらのスクリプトは内部的に `harbor` CLI を呼び出します。
+各 script の実体:
 
-## コントリビューター向け（ソースから）
+- `pnpm collect` → `pnpm --dir collector exec harbor-collector collect --project-root .`
+- `pnpm post-collect` → `pnpm --dir collector exec harbor-collector post-collect --project-root .`
+- `pnpm dev` / `pnpm build` / `pnpm preview` → root の `harbor` コマンド
 
-### 前提条件
+## コントリビューター向け
+
+### 前提
 
 - Node.js 24+
 - pnpm 10+
 
-### はじめに
+### 開始手順
 
 ```bash
 git clone https://github.com/skill-mill/agent-skill-harbor.git
 cd agent-skill-harbor
+
 pnpm install
-pnpm setup:dev    # .env を作成し、demo repo の config/data/guide を取得
-# .env を編集: GH_TOKEN, GH_ORG のコメントを外して設定
-pnpm --dir packages/collector build
-pnpm --dir packages/post-collect build
-pnpm --dir packages/cli build
-pnpm --dir packages/web build
-node packages/cli/dist/bin/cli.js dev
+pnpm --dir collector install
+pnpm setup:dev
+
+pnpm build:cli
+pnpm --dir collector build
+node dist/bin/cli.js dev
 ```
 
 開発サーバーは `http://localhost:5173` で起動します。
 
-`pnpm setup:dev` は以下をプロジェクトルートに用意します（生成物はすべて gitignore 対象）:
+`pnpm setup:dev` は repo root を demo project として整えます。
 
-1. `packages/cli/templates/init/.env.example` → `.env`
-2. GitHub から `skill-mill/agent-skill-harbor-demo` の archive を取得
-3. demo repo の `config/` → `config/`
-4. demo repo の `data/` → `data/`
-5. demo repo の `guide/` → `guide/`
+1. `templates/init/.env.example` を `.env.example` と `.env` にコピー
+2. demo 用の `config/`, `data/`, `guide/` を取得
 
-このコマンドの実行にはネットワークアクセスが必要です。
-
-### コマンド
+### よく使うコマンド
 
 ```bash
-node packages/cli/dist/bin/cli.js dev       # 開発サーバーの起動
-node packages/cli/dist/bin/cli.js build     # CLI 経由でカタログサイトをビルド
-node packages/cli/dist/bin/cli.js preview   # ビルド結果のプレビュー
-pnpm --dir packages/web verify         # web package の format/lint/check/test
-pnpm format       # Prettier でフォーマット
-pnpm --dir packages/collector verify   # packages/collector/ の検査一式
-pnpm --dir packages/post-collect verify # packages/post-collect/ の検査一式
-pnpm --dir packages/cli verify         # packages/cli/ の検査一式
-pnpm --dir packages/web build          # packages/web/ を変更した後に再ビルド
-GH_TOKEN=$(gh auth token) node packages/cli/dist/bin/cli.js collect
-node packages/cli/dist/bin/cli.js post-collect --collect-id <collect_id>
-pnpm setup:dev                # ローカルの demo config/data/guide を更新
+pnpm verify
+pnpm --dir collector verify
+
+pnpm build
+pnpm build:cli
+pnpm --dir collector build
+
+node dist/bin/cli.js dev
+node dist/bin/cli.js build
+node dist/bin/cli.js preview
+
+GH_TOKEN=$(gh auth token) pnpm --dir collector exec harbor-collector collect --project-root .
+pnpm --dir collector exec harbor-collector post-collect --project-root . --collect-id <collect_id>
 ```
 
-demo データには `data/collects.yaml`、`data/skills.yaml`、sample plugin の出力が含まれます。
+### 構成
 
-source リポジトリでビルド済み CLI を実行する場合は、`config/`、`data/`、`guide/` を正しく参照させるため、リポジトリルートで実行してください。
-
-### 典型的な動作確認フロー
-
-```bash
-cd /Users/fumi/ws/hobby/agent-skill-harbor
-pnpm install
-pnpm setup:dev
-pnpm --dir packages/shared-internal verify
-pnpm --dir packages/collector verify
-pnpm --dir packages/post-collect verify
-pnpm --dir packages/cli verify
-pnpm --dir packages/web build
-
-GH_TOKEN=$(gh auth token) node packages/cli/dist/bin/cli.js collect --force
-grep -m1 '^  collect_id:' data/collects.yaml
-node packages/cli/dist/bin/cli.js post-collect --collect-id <collect_id>
-node packages/cli/dist/bin/cli.js build
-node packages/cli/dist/bin/cli.js dev
-node packages/cli/dist/bin/cli.js preview
+```text
+agent-skill-harbor/
+├── bin/                  # harbor CLI entrypoint
+├── src/                  # CLI + web source
+├── collector/            # collector + post-collect package
+│   ├── bin/
+│   ├── src/
+│   └── plugins/
+├── templates/            # init/setup templates
+├── static/
+├── guide/
+├── docs/
+├── config/
+└── data/
 ```
 
-source repository 上で collector -> post-collect -> web まで一連の動作確認を行うなら、この手順が最も分かりやすいです。ライブな開発サーバーを見たいときは `dev`、ビルド済み成果物を確認したいときは `preview` を使ってください。
+### 設計メモ
 
-### 注意: `harbor dev` と `pnpm --dir packages/web dev`
+- root package (`agent-skill-harbor`) が CLI + web を持つ
+- `collector/` package (`agent-skill-harbor-collector`) が collect + post-collect を持つ
+- optional plugin manifest は `collector/plugins/<plugin-id>/`
+- collector core と optional plugin dependency は別 install surface
+- `builtin.notify-slack` は collector core に含まれる
 
-source repository から開発する場合は、次を使ってください。
+### workflow で collect と post_collect を分ける理由
 
-```bash
-node packages/cli/dist/bin/cli.js dev
-```
+reusable workflow は引き続き 2 jobs です。
 
-次ではなく:
+- `collect`
+- `post_collect`
 
-```bash
-pnpm --dir packages/web dev
-```
+理由:
 
-wrapper 経由の `harbor dev` は、Vite 起動前に `data/assets/` を `packages/web/static/assets/` へ staging するため、plugin の副成果物が開発中や prerender 中にも見えるようになります。`packages/web/` から直接 Vite を起動するとこの staging を通らないため、asset リンクが欠けたり stale なまま残ったりすることがあります。
-
-現状の制約:
-
-- `pnpm --dir packages/web dev` はまだ正式サポートではありません。asset staging が Harbor の wrapper 側にあるためで、将来的には web package 側へ寄せる余地があります。
-
-### プロジェクト構成
-
-```
-├── packages/collector/             # 公開 collect runtime package
-├── packages/cli/
-│   ├── bin/              # 薄い harbor wrapper
-│   ├── src/cli/          # init/gen と command dispatch
-│   └── templates/        # wrapper package に同梱されるプロジェクトテンプレート
-├── packages/post-collect/         # 公開 post-collect runtime package
-├── packages/shared-internal/     # 非公開の内部共有ユーティリティ
-├── scripts/              # 開発用スクリプト (setup-dev, collect)
-├── packages/web/         # SvelteKit フロントエンドアプリケーション
-│   ├── src/cli/          # build/dev/preview/deploy command entrypoints
-│   ├── src/lib/server/   # サーバーサイドデータ読み込み (catalog, docs)
-│   ├── src/routes/       # ページ (カタログ, スキル詳細, グラフ, ドキュメント)
-│   └── src/lib/i18n/     # 国際化 (en, ja)
-├── guide/                # setup:dev で取得する demo guide コンテンツ
-├── config/               # 設定ファイル（gitignore 対象、setup:dev で作成）
-├── data/                 # 収集データ（gitignore 対象、setup:dev で作成）
-└── docs/                 # ドキュメント
-```
-
-### 主要アーキテクチャ
-
-- **`SKILL_HARBOR_ROOT` 環境変数**: データ・config・ドキュメントの読み取り先を制御。CLI 使用時はユーザーのプロジェクトディレクトリに自動設定。開発時はリポジトリルートにフォールバック。
-- **`packages/web/vite.config.ts`**: `SKILL_HARBOR_ROOT` からコンパイル時定数 `__PROJECT_ROOT__` を注入。
-- **`packages/web/src/lib/server/catalog.ts`**: プリレンダリング時に `data/skills.yaml` と `data/skills/` を読み込み。
-- **`adapter-static`**: すべてのページはビルド時にプリレンダリングされ、静的 HTML として配信。サーバーランタイム不要。
-
-### パッケージ構成
-
-- **`agent-skill-harbor`**: `packages/cli/` を root に持つ公開 wrapper package。`harbor` 実行ファイル、`init`、`gen`、templates、command dispatch を含みます。
-- **`agent-skill-harbor-collector`**: `packages/collector/` を root に持つ公開 collect runtime package。
-- **`agent-skill-harbor-post-collect`**: `packages/post-collect/` を root に持つ公開 post-collect runtime package。`promptfoo` など重い依存はここに閉じ込めます。
-- **`agent-skill-harbor-web`**: `packages/web/` を root に持つ公開 SvelteKit Web package。`build`、`dev`、`preview`、`deploy` もここが担当します。
-- **`agent-skill-harbor-shared-internal`**: `packages/shared-internal/` を root に持つ非公開の内部パッケージ。`collector` と `post-collect` が共有するユーティリティ（`catalog-store`、`resolved-from`）を提供します。npm には publish されません。
-- **install surface の分離**: 生成プロジェクトは `tools/harbor/collector`、`tools/harbor/post-collect`、`tools/harbor/web` を持ち、workflow ごとに必要な依存だけを install します。
-- **依存の管理責務**: Web UI と SvelteKit の依存は `packages/web/package.json`、collect 専用依存は `packages/collector/package.json`、post-collect 専用依存は `packages/post-collect/package.json`、wrapper 専用依存は `packages/cli/package.json` に置きます。ルート `package.json` は workspace 管理専用です。
-
-### リリース補足
-
-- 変更が入った package だけを release します。
-- 複数 package を release する場合は `agent-skill-harbor-web`、`agent-skill-harbor-collector`、`agent-skill-harbor-post-collect`、`agent-skill-harbor` の順を推奨します。
-- 詳細なリリース手順は [92-release_ja.md](92-release_ja.md) を参照してください。
+- artifact 境界を明確にする
+- post-collect だけ rerun しやすくする
+- GitHub 収集権限と optional plugin dependency のセキュリティ境界を保つ

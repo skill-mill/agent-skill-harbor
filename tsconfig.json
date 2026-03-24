@@ -1,15 +1,14 @@
 {
+	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ESNext",
-		"moduleResolution": "bundler",
+		"allowJs": true,
+		"checkJs": true,
 		"esModuleInterop": true,
-		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"outDir": "dist",
-		"rootDir": "scripts",
-		"resolveJsonModule": true
-	},
-	"include": ["scripts/**/*.ts"],
-	"exclude": ["node_modules", "packages/web"]
+		"sourceMap": true,
+		"strict": true,
+		"moduleResolution": "bundler"
+	}
 }

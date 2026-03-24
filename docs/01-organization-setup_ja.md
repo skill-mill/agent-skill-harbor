@@ -1,166 +1,126 @@
 # 組織セットアップ
 
-組織に Agent Skill Harbor をデプロイする手順を説明します。
+このガイドでは、Agent Skill Harbor を組織向けに立ち上げて運用する手順を説明します。
 
-## 前提条件
+## 前提
 
-- GitHub Enterprise Cloud（Web UI を GitHub Pages に Private でホストする場合のみ）
 - Node.js 24+
 - pnpm 10+（または npm）
+- 収集対象リポジトリを読める GitHub token
+- GitHub Pages を private で使う場合は GitHub Enterprise Cloud
 
-## ステップ 1: プロジェクトの作成
+## 1. プロジェクトを生成
 
 ```bash
 npx agent-skill-harbor init my-skill-harbor
 cd my-skill-harbor
 ```
 
-設定ファイル、GitHub Actions ワークフロー、`agent-skill-harbor` に依存する `package.json` を含むプロジェクトが生成されます。
+これで次が作られます。
 
-後から Harbor の release に合わせて workflow や config の scaffold を再配布したい場合は、既存プロジェクト上で次を実行できます:
+- root `package.json`（`agent-skill-harbor`: CLI + web）
+- `collector/package.json`（`agent-skill-harbor-collector`）
+- `config/`, `data/`, `guide/`
+- GitHub Actions workflow
+
+## 2. 依存をインストール
 
 ```bash
-harbor init . --workflows
-harbor init . --config
+pnpm install
+pnpm install --dir collector
 ```
 
-このプロジェクトを組織内の**プライベート**リポジトリにプッシュします。
-
-> **別の方法:** [agent-skill-harbor リポジトリ](https://github.com/skill-mill/agent-skill-harbor) を直接クローンすることもできます。詳しくはローカル開発ガイドを参照。
-
-## ステップ 2: 環境設定
-
-`.env` を編集（`init` で生成済み、全値はデフォルトでコメントアウト）:
-
-| 変数       | 必須            | 説明                                      | デフォルト              |
-| ---------- | --------------- | ----------------------------------------- | ----------------------- |
-| `GH_TOKEN` | Yes（ローカル） | Organization の `repo` スコープを持つ PAT | —                       |
-| `GH_ORG`   | No              | GitHub Organization 名                    | git remote から自動検出 |
-| `GH_REPO`  | No              | このリポジトリ名（収集から除外）          | git remote から自動検出 |
-
-## ステップ 3: GitHub シークレットと変数の設定
-
-リポジトリの **Settings > Secrets and variables > Actions** を開きます。
-
-### リポジトリ変数
-
-| 変数     | 必須 | 説明                   | 例       |
-| -------- | ---- | ---------------------- | -------- |
-| `GH_ORG` | No   | GitHub Organization 名 | `my-org` |
-
-### リポジトリシークレット
-
-| シークレット | 必須 | 説明                                                                                       |
-| ------------ | ---- | ------------------------------------------------------------------------------------------ |
-| `GH_TOKEN`   | Yes  | Organization 内リポジトリの `repo` スコープを持つ PAT（classic）または GitHub App トークン |
-
-トークンには、SKILL.md ファイルをスキャンするために Organization 内の全リポジトリへの読み取りアクセスが必要です。
-
-## ステップ 4: GitHub Pages の有効化
-
-1. **Settings > Pages** を開く
-2. **Source** を **GitHub Actions** に設定
-3. **Visibility** を **Private** に設定し、Organization メンバーのみにアクセスを制限する
-
-> **警告:** Pages の Visibility を Private に設定しないと、カタログページ（収集されたすべてのスキルデータを含む）がインターネット上の誰からでもアクセス可能になります。GitHub Pages の Private 設定には **GitHub Enterprise Cloud** プランが必要です。
-
-## ステップ 5: インストールと実行
+npm の場合:
 
 ```bash
-# 依存関係のインストール
-pnpm install
+npm install
+npm install --prefix collector
+```
 
-# 組織からスキルを収集
+## 3. `.env` を設定
+
+必要に応じて `.env` を編集します。
+
+| 変数       | 必須             | 説明                           |
+| ---------- | ---------------- | ------------------------------ |
+| `GH_TOKEN` | ローカル時は必須 | ローカル collect 用 token      |
+| `GH_ORG`   | 任意             | GitHub Organization 名         |
+| `GH_REPO`  | 任意             | 必要なら除外したいこの repo 名 |
+
+## 4. GitHub Actions を設定
+
+リポジトリ設定で次を追加します。
+
+### Secrets
+
+| Secret     | 必須 | 説明                         |
+| ---------- | ---- | ---------------------------- |
+| `GH_TOKEN` | Yes  | 収集対象 repo を読める token |
+
+### Variables
+
+| Variable | 必須 | 説明                   |
+| -------- | ---- | ---------------------- |
+| `GH_ORG` | 任意 | GitHub Organization 名 |
+
+## 5. Pages を有効化
+
+GitHub Pages の場合:
+
+1. **Settings > Pages**
+2. **Source** を **GitHub Actions**
+3. org 内限定にしたい場合は **Visibility** を **Private**
+
+Cloudflare Pages を使う場合は、Cloudflare 用 secrets を設定し、生成済み workflow を使います。
+
+## 6. 一度ローカルで実行
+
+```bash
 pnpm collect
-
-# ローカルで確認
 pnpm dev
 ```
 
-## ステップ 6: 初回デプロイ
-
-1. リポジトリにプッシュ
-2. **Actions > CollectSkills** を開く
-3. **Run workflow** をクリックして初回収集をトリガー
-4. 生成される `CollectSkills` は、Harbor が publish している reusable workflow を `wf-v0` で参照する薄い caller workflow です
-5. reusable workflow 側で `collect`、`post-collect`、commit/push が別 job として実行され、`data/` artifact を受け渡します
-6. `config/harbor.yaml` で `builtin.audit-skill-scanner` が有効なら、reusable workflow は `post_collect` job で Python と `cisco-ai-skill-scanner` を自動 install します
-7. deploy workflow は `tools/harbor/web` だけを install します
-8. `CollectSkills` 成功後、デプロイワークフローが自動実行されます
-
-plugin の設定方法や出力ファイルについては [Post-Collect Plugins](03-post-collect-plugins_ja.md) を参照してください。
-
-## ステップ 7: ガバナンスポリシーの設定
-
-`config/governance.yaml` を編集して、組織のスキルポリシーを定義します:
-
-```yaml
-policies:
-  github.com/your-org/your-repo/.claude/skills/your-skill/SKILL.md:
-    usage_policy: recommended # recommended | discouraged | prohibited | none
-    note: 'このステータスの理由'
-```
-
-変更をコミット・プッシュすると、デプロイワークフローが自動的に Web UI を再ビルドします。
-
-## ステップ 8: 公開スキルの追加 (オプション)
-
-Claude Code のスラッシュコマンドで公開スキルを追加できます:
-
-```
-/manage-skill add owner/repo
-```
-
-## Cloudflare Pages へのデプロイ（代替）
-
-GitHub Pages の代わりに Cloudflare Pages にデプロイできます。GitHub Enterprise Cloud なしで Basic 認証を利用したい場合に便利です。
-
-### 1. シークレットの設定
-
-GitHub リポジトリの **Settings > Secrets and variables > Actions** に以下を追加します:
-
-| シークレット                    | 必須 | 説明                                         |
-| ------------------------------- | ---- | -------------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`          | Yes  | Pages 編集権限を持つ Cloudflare API トークン |
-| `CLOUDFLARE_ACCOUNT_ID`         | Yes  | Cloudflare アカウント ID                     |
-| `CLOUDFLARE_PAGES_PROJECT_NAME` | Yes  | Cloudflare Pages プロジェクト名              |
-
-### 2. Basic 認証の設定（任意）
-
-Cloudflare Pages プロジェクト設定の環境変数に `CLOUDFLARE_PW_<USERNAME>` を1つ以上設定すると、カタログを Basic 認証で保護できます。
-
-### 3. デプロイワークフローの切り替え
-
-`.github/workflows/` 内の `DeployCloudflarePages` で `workflow_run` を有効化し、`DeployGitHubPages` 側は無効化します。どちらのデプロイワークフローも `CollectSkills` を起点にし、有効にするデプロイワークフローは1つだけにしてください。
-
-> **注意:** `DeployCloudflarePages` は production のみをデプロイし、手動実行も `main` のみを許可します。
-
-## バージョンアップグレード
-
-Agent Skill Harbor は npm パッケージとしてインストールされるため、アップグレードは簡単です:
+`pnpm collect` の実体は:
 
 ```bash
-pnpm update agent-skill-harbor
+pnpm --dir collector exec harbor-collector collect --project-root .
 ```
 
-設定ファイル（`config/`, `.env`）とデータ（`data/`）はパッケージの更新に影響されません。
+です。
 
-## ワークフロー概要
+## 7. 初回 workflow 実行
 
+プロジェクトを push したら `CollectSkills` を実行します。
+
+生成される caller workflow は `wf-v0` の Harbor reusable workflow を参照します。
+
+reusable workflow の中では:
+
+1. `collect` job で collector core を install して収集
+2. `post_collect` job で collect artifact を復元
+3. `post_collect` で再度 collector core を install
+4. `post_collect` で有効な optional plugin manifest だけ追加 install
+5. 最終的な `data/` を commit
+
+この境界は意図的です。
+
+- `collect` は `GH_TOKEN` を使う
+- `promptfoo` のような重い optional dependency は `post_collect` にだけ入る
+
+## 8. optional plugin を有効化
+
+組み込み plugin は `config/harbor.yaml` で有効化します。
+
+plugin によっては `collector/plugins/<plugin-id>/` に runtime file も必要です。
+
+例:
+
+```bash
+harbor setup builtin.audit-promptfoo-security
+harbor setup builtin.audit-skill-scanner
+harbor setup example-user-defined-plugin
 ```
-┌──────────────────────────────┐
-│  CollectSkills                │
-│  - reusable Collect workflow  │
-│    を呼び出す                  │
-│  - collect を実行             │
-│  - post_collect を実行         │
-│  - コミット & プッシュ          │
-└────────┬─────────────────────┘
-         │ トリガー
-         ▼
-┌──────────────────────────────┐
-│  DeployGitHubPages           │
-│  - SvelteKit をビルド          │
-│  - GitHub Pages にデプロイ     │
-└──────────────────────────────┘
-```
+
+`setup` 後に `config/harbor.yaml` の該当項目をアンコメントし、必要なら生成された runtime file 側も install してください。
+
+詳細は [Post-Collect Plugins](03-post-collect-plugins_ja.md) を参照してください。

@@ -1,20 +1,27 @@
 # Local Development
 
-## For Users (npm package)
+## For Generated Projects
 
-If you created your project via `npx agent-skill-harbor init`:
+After `harbor init`:
 
 ```bash
 pnpm install
-pnpm dev          # Start development server
-pnpm collect      # Collect skills from your org
-pnpm build        # Build static site
-pnpm preview      # Preview built site
+pnpm install --dir collector
+
+pnpm collect
+pnpm post-collect
+pnpm dev
+pnpm build
+pnpm preview
 ```
 
-These scripts call the `harbor` CLI under the hood.
+These scripts expand to:
 
-## For Contributors (from source)
+- `pnpm collect` → `pnpm --dir collector exec harbor-collector collect --project-root .`
+- `pnpm post-collect` → `pnpm --dir collector exec harbor-collector post-collect --project-root .`
+- `pnpm dev` / `pnpm build` / `pnpm preview` → root `harbor` commands
+
+## For Contributors
 
 ### Prerequisites
 
@@ -26,132 +33,76 @@ These scripts call the `harbor` CLI under the hood.
 ```bash
 git clone https://github.com/skill-mill/agent-skill-harbor.git
 cd agent-skill-harbor
+
 pnpm install
-pnpm setup:dev    # Create .env and pull demo config/data/guide
-# Edit .env: uncomment and set GH_TOKEN, GH_ORG
-pnpm --dir packages/collector build
-pnpm --dir packages/post-collect build
-pnpm --dir packages/cli build
-pnpm --dir packages/web build
-node packages/cli/dist/bin/cli.js dev
-```
-
-The development server will start at `http://localhost:5173`.
-
-`pnpm setup:dev` prepares the project root as follows (all generated folders are gitignored):
-
-1. `packages/cli/templates/init/.env.example` → `.env`
-2. Download the `skill-mill/agent-skill-harbor-demo` archive from GitHub
-3. Copy `config/` from the demo repo → `config/`
-4. Copy `data/` from the demo repo → `data/`
-5. Copy `guide/` from the demo repo → `guide/`
-
-This command requires network access.
-
-### Commands
-
-```bash
-node packages/cli/dist/bin/cli.js dev       # Start development server
-node packages/cli/dist/bin/cli.js build     # Build the catalog site via CLI
-node packages/cli/dist/bin/cli.js preview   # Preview built site
-pnpm --dir packages/web verify         # Format check, lint, type check, and tests for web
-pnpm format       # Format all files with Prettier
-pnpm --dir packages/collector verify   # Run package checks for packages/collector/
-pnpm --dir packages/post-collect verify # Run package checks for packages/post-collect/
-pnpm --dir packages/cli verify         # Run package checks for packages/cli/
-pnpm --dir packages/web build          # Rebuild web package after changing packages/web/
-GH_TOKEN=$(gh auth token) node packages/cli/dist/bin/cli.js collect
-node packages/cli/dist/bin/cli.js post-collect --collect-id <collect_id>
-pnpm setup:dev                # Refresh local demo config/data/guide
-```
-
-The demo data includes `data/collects.yaml`, `data/skills.yaml`, and sample plugin outputs from the demo repository.
-
-When running the built CLI from the source repository, execute it from the repository root so `config/`, `data/`, and `guide/` resolve correctly.
-
-### Typical Verification Flow
-
-```bash
-cd /Users/fumi/ws/hobby/agent-skill-harbor
-pnpm install
+pnpm --dir collector install
 pnpm setup:dev
-pnpm --dir packages/shared-internal verify
-pnpm --dir packages/collector verify
-pnpm --dir packages/post-collect verify
-pnpm --dir packages/cli verify
-pnpm --dir packages/web build
 
-GH_TOKEN=$(gh auth token) node packages/cli/dist/bin/cli.js collect --force
-grep -m1 '^  collect_id:' data/collects.yaml
-node packages/cli/dist/bin/cli.js post-collect --collect-id <collect_id>
-node packages/cli/dist/bin/cli.js build
-node packages/cli/dist/bin/cli.js dev
-node packages/cli/dist/bin/cli.js preview
+pnpm build:cli
+pnpm --dir collector build
+node dist/bin/cli.js dev
 ```
 
-Use this flow when you want to validate the full collector -> post-collect -> web pipeline from the source repository. Use `dev` when you want to inspect the live development server, and `preview` when you want to inspect the built output.
+The development server starts at `http://localhost:5173`.
 
-### Note: `harbor dev` vs `pnpm --dir packages/web dev`
+`pnpm setup:dev` prepares the repository root as a demo project by:
 
-When developing from the source repository, prefer:
+1. copying `templates/init/.env.example` to `.env.example` and `.env`
+2. downloading demo `config/`, `data/`, and `guide/`
+
+### Useful Commands
 
 ```bash
-node packages/cli/dist/bin/cli.js dev
+pnpm verify
+pnpm --dir collector verify
+
+pnpm build
+pnpm build:cli
+pnpm --dir collector build
+
+node dist/bin/cli.js dev
+node dist/bin/cli.js build
+node dist/bin/cli.js preview
+
+GH_TOKEN=$(gh auth token) pnpm --dir collector exec harbor-collector collect --project-root .
+pnpm --dir collector exec harbor-collector post-collect --project-root . --collect-id <collect_id>
 ```
 
-instead of:
+### Layout
 
-```bash
-pnpm --dir packages/web dev
+```text
+agent-skill-harbor/
+├── bin/                  # harbor CLI entrypoint
+├── src/                  # CLI + web sources
+├── collector/            # collector + post-collect package
+│   ├── bin/
+│   ├── src/
+│   └── plugins/
+├── templates/            # init/setup templates
+├── static/
+├── guide/
+├── docs/
+├── config/
+└── data/
 ```
 
-The wrapper-based `harbor dev` path stages `data/assets/` into `packages/web/static/assets/` before starting Vite so plugin secondary artifacts are available during development and prerendering. Running Vite directly from `packages/web/` skips that staging step and can lead to missing or stale asset links.
+### Architecture Notes
 
-Current limitation:
+- root package (`agent-skill-harbor`) owns CLI + web
+- `collector/` package (`agent-skill-harbor-collector`) owns collect + post-collect
+- optional plugin manifests live under `collector/plugins/<plugin-id>/`
+- collector core and optional plugin dependencies remain separate install surfaces
+- built-in `notify-slack` is part of collector core
 
-- `pnpm --dir packages/web dev` is still not a supported development path because asset staging currently lives in the Harbor wrapper entrypoint. Moving that staging into the web package itself remains a future improvement.
+### Why `collect` and `post_collect` stay separate in workflows
 
-### Project Structure
+The reusable workflow still uses two jobs:
 
-```
-├── packages/collector/             # Published collect runtime package
-├── packages/cli/
-│   ├── bin/              # Thin harbor wrapper
-│   ├── src/cli/          # init/gen and command dispatch
-│   └── templates/        # Project scaffold templates bundled into the wrapper package
-├── packages/post-collect/         # Published post-collect runtime package
-├── packages/shared-internal/     # Private shared utilities (not published)
-├── scripts/              # Development scripts (setup-dev, collect)
-├── packages/web/         # SvelteKit frontend application
-│   ├── src/cli/          # build/dev/preview/deploy command entrypoints
-│   ├── src/lib/server/   # Server-side data loading (catalog, docs)
-│   ├── src/routes/       # Pages (catalog, skill detail, graph, docs)
-│   └── src/lib/i18n/     # Internationalization (en, ja)
-├── guide/                # Demo guide content pulled by setup:dev
-├── config/               # Human-managed settings (gitignored, created by setup:dev)
-├── data/                 # Machine-generated skill data (gitignored, created by setup:dev)
-└── docs/                 # Documentation
-```
+- `collect`
+- `post_collect`
 
-### Key Architecture
+This is intentional for:
 
-- **`SKILL_HARBOR_ROOT` environment variable**: Controls where data/config/docs are read from. When using the CLI, this is automatically set to the user's project directory. For development, it falls back to the repository root.
-- **`packages/web/vite.config.ts`**: Injects `__PROJECT_ROOT__` as a compile-time constant from `SKILL_HARBOR_ROOT`.
-- **`packages/web/src/lib/server/catalog.ts`**: Reads `data/skills.yaml` and `data/skills/` at build time for prerendering.
-- **`adapter-static`**: All pages are prerendered to static HTML at build time. No server runtime needed.
-
-### Package Layout
-
-- **`agent-skill-harbor`**: Thin published wrapper package rooted at `packages/cli/`. It provides the `harbor` executable, `init`, `gen`, templates, and command dispatch.
-- **`agent-skill-harbor-collector`**: Published collect runtime package rooted at `packages/collector/`.
-- **`agent-skill-harbor-post-collect`**: Published post-collect runtime package rooted at `packages/post-collect/`. Heavy dependencies such as `promptfoo` live here.
-- **`agent-skill-harbor-web`**: Published SvelteKit web package rooted at `packages/web/`. It also owns `build`, `dev`, `preview`, and `deploy`.
-- **`agent-skill-harbor-shared-internal`**: Private internal package rooted at `packages/shared-internal/`. Contains shared utilities (`catalog-store`, `resolved-from`) used by both `collector` and `post-collect`. Not published to npm.
-- **Install surface split**: Generated projects keep `tools/harbor/collector`, `tools/harbor/post-collect`, and `tools/harbor/web` so workflows can install only the dependencies they need.
-- **Dependency ownership**: Web UI and SvelteKit dependencies belong in `packages/web/package.json`. Collect-only runtime dependencies belong in `packages/collector/package.json`. Post-collect-only runtime dependencies belong in `packages/post-collect/package.json`. Wrapper-only runtime dependencies belong in `packages/cli/package.json`. The root `package.json` is workspace-only.
-
-### Release Notes
-
-- Release only the package that changed.
-- If both packages are released together, publish `agent-skill-harbor-web` first and `agent-skill-harbor` second.
-- For the detailed release workflow, see [92-release.md](92-release.md).
+- artifact boundary
+- easier reruns of post-collect only
+- clearer security separation between GitHub collection and optional plugin dependencies

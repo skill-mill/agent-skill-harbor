@@ -1,25 +1,110 @@
 {
-	"name": "agent-skill-harbor-workspace",
-	"private": true,
+	"name": "agent-skill-harbor",
+	"version": "0.14.3",
 	"type": "module",
+	"description": "Skill governance for companies. Skill discovery for teams.",
+	"keywords": [
+		"agent",
+		"skill",
+		"agent-skills",
+		"skill-management",
+		"governance",
+		"claude",
+		"skill-md",
+		"github",
+		"cli",
+		"sveltekit"
+	],
+	"license": "MIT",
 	"packageManager": "pnpm@10.32.1",
+	"engines": {
+		"node": ">=24"
+	},
+	"bin": {
+		"harbor": "./dist/bin/cli.js",
+		"agent-skill-harbor": "./dist/bin/cli.js"
+	},
+	"files": [
+		"dist/",
+		"templates/",
+		"guide/",
+		"src/",
+		"static/.nojekyll",
+		"svelte.config.js",
+		"tsconfig.json",
+		"tsconfig.cli.json",
+		"vite.config.ts",
+		"components.json"
+	],
+	"exports": {
+		"./build": "./dist/src/cli/commands/build.js",
+		"./deploy": "./dist/src/cli/commands/deploy.js",
+		"./dev": "./dist/src/cli/commands/dev.js",
+		"./preview": "./dist/src/cli/commands/preview.js"
+	},
 	"scripts": {
 		"setup:dev": "tsx scripts/setup-dev.ts",
-		"format": "prettier --write \"docs/**/*.md\" \"*.{json,md,yaml,yml}\"",
-		"format:check": "prettier --check \"docs/**/*.md\" \"*.{json,md,yaml,yml}\"",
+		"dev": "node --import tsx src/cli/commands/dev.ts",
+		"build": "node --import tsx src/cli/commands/build.ts",
+		"preview": "node --import tsx src/cli/commands/preview.ts",
+		"build:cli": "tsup",
+		"format:raw": "prettier \"bin/**/*.{js,ts}\" \"shared/**/*.{js,ts}\" \"src/**/*.{js,ts,svelte}\" \"scripts/**/*.{js,ts}\" \"guide/**/*.md\" \"docs/**/*.md\" \"*.{js,ts,json,md,yaml,yml}\"",
+		"format": "pnpm run -s format:raw --write",
+		"format:check": "pnpm run -s format:raw --check",
+		"lint:fix": "eslint --fix .",
+		"lint": "eslint .",
+		"typecheck": "tsc --noEmit -p tsconfig.cli.json && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"test": "node --import tsx --test \"src/cli/**/*.test.ts\"",
+		"verify": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test",
+		"fix": "pnpm run format && pnpm run lint:fix && pnpm run typecheck && pnpm run test",
 		"actions:pin": "sh scripts/pin-workflow-actions.sh",
 		"actions:check": "sh scripts/pin-workflow-actions.sh --diff"
 	},
+	"harborCollectorRange": ">=0.14.3 <1",
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"esbuild"
 		]
 	},
+	"dependencies": {
+		"3d-force-graph": "1.79.1",
+		"@jis3r/icons": "2.7.0",
+		"@lucide/svelte": "^0.561.0",
+		"@sveltejs/adapter-static": "^3.0.8",
+		"@sveltejs/kit": "^2.16.0",
+		"@sveltejs/vite-plugin-svelte": "^5.0.0",
+		"@tailwindcss/typography": "0.5.19",
+		"@tailwindcss/vite": "^4.0.0",
+		"bits-ui": "2.16.2",
+		"clsx": "2.1.1",
+		"fuse.js": "^7.1.0",
+		"github-slugger": "^2.0.0",
+		"gray-matter": "^4.0.3",
+		"isomorphic-dompurify": "3.0.0",
+		"js-yaml": "^4.1.0",
+		"marked": "17.0.3",
+		"svelte": "^5.0.0",
+		"tailwind-merge": "3.5.0",
+		"tailwindcss": "^4.0.0",
+		"three": "0.183.2",
+		"tw-animate-css": "1.4.0",
+		"vite": "^6.0.0",
+		"zod": "4.3.6"
+	},
 	"devDependencies": {
+		"@types/js-yaml": "^4.0.9",
+		"@types/node": "^22.15.0",
+		"@types/three": "0.183.1",
 		"actions-up": "1.12.0",
+		"eslint": "^9.18.0",
+		"eslint-plugin-svelte": "^3.0.0",
 		"prettier": "3.8.1",
 		"prettier-plugin-svelte": "3.5.1",
+		"svelte-check": "^4.0.0",
+		"sveltekit-view-transition": "0.5.3",
+		"tsup": "8.5.1",
 		"tsx": "^4.19.0",
-		"typescript": "^5.7.0"
+		"typescript": "^5.7.0",
+		"typescript-eslint": "^8.20.0"
 	}
 }

@@ -38,14 +38,14 @@ jobs:
           node-version: ${{ inputs.node_version }}
 
       - name: Install collector dependencies
-        run: pnpm install --dir tools/harbor/collector
+        run: pnpm install --dir collector
 
       - name: Collect skills from org repositories
         id: collect
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_ORG: ${{ vars.GH_ORG || github.repository_owner }}
-        run: pnpm --dir tools/harbor/collector exec harbor collect --project-root "$GITHUB_WORKSPACE"
+        run: pnpm --dir collector exec harbor-collector collect --project-root "$GITHUB_WORKSPACE"
 
       - name: Upload collect data artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -62,15 +62,6 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Detect skill-scanner runtime requirement
-        id: detect_skill_scanner
-        run: |
-          if yq -e 'any(.post_collect.plugins[]?; .id == "builtin.audit-skill-scanner")' config/harbor.yaml > /dev/null 2>&1; then
-            echo "install_skill_scanner_runtime=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "install_skill_scanner_runtime=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
         with:
           version: ${{ inputs.pnpm_version }}
@@ -79,32 +70,50 @@ jobs:
         with:
           node-version: ${{ inputs.node_version }}
 
+      - name: Install collector dependencies
+        run: pnpm install --dir collector
+
+      - name: Detect enabled plugin manifests
+        id: detect_plugin_manifests
+        shell: bash
+        run: |
+          manifest_info="$(pnpm --dir collector exec harbor-collector detect-enabled-plugin-manifests --project-root "$GITHUB_WORKSPACE" --output .harbor-enabled-post-collect-plugins)"
+          has_python="$(printf '%s' "$manifest_info" | node -e "const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8')); process.stdout.write(input.hasPython ? 'true' : 'false');")"
+          echo "has_python=${has_python:-false}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-        if: ${{ steps.detect_skill_scanner.outputs.install_skill_scanner_runtime == 'true' }}
+        if: ${{ steps.detect_plugin_manifests.outputs.has_python == 'true' }}
         with:
           python-version: ${{ inputs.python_version }}
 
-      - name: Install skill-scanner
-        if: ${{ steps.detect_skill_scanner.outputs.install_skill_scanner_runtime == 'true' }}
-        run: pip install cisco-ai-skill-scanner
-
-      - name: Install post-collect dependencies
-        run: pnpm install --dir tools/harbor/post-collect
-
-      - name: Install user-defined plugin dependencies
+      - name: Install enabled Node plugin dependencies
         shell: bash
         run: |
-          shopt -s nullglob
-          plugin_package_found=false
-          for package_json in plugins/*/package.json; do
-            plugin_dir="$(dirname "$package_json")"
-            plugin_package_found=true
-            echo "Installing plugin dependencies in $plugin_dir"
-            pnpm install --dir "$plugin_dir"
-          done
-          if [ "$plugin_package_found" = false ]; then
-            echo "No user-defined plugin package.json files found"
+          if [ ! -f .harbor-enabled-post-collect-plugins ]; then
+            echo "No enabled post-collect plugins found"
+            exit 0
           fi
+          while IFS= read -r plugin_id; do
+            [ -n "$plugin_id" ] || continue
+            plugin_dir="collector/plugins/$plugin_id"
+            if [ -f "$plugin_dir/package.json" ]; then
+              echo "Installing Node plugin dependencies in $plugin_dir"
+              pnpm install --dir "$plugin_dir"
+            fi
+          done < .harbor-enabled-post-collect-plugins
+
+      - name: Install enabled Python plugin dependencies
+        if: ${{ steps.detect_plugin_manifests.outputs.has_python == 'true' }}
+        shell: bash
+        run: |
+          while IFS= read -r plugin_id; do
+            [ -n "$plugin_id" ] || continue
+            plugin_dir="collector/plugins/$plugin_id"
+            if [ -f "$plugin_dir/requirements.txt" ]; then
+              echo "Installing Python requirements in $plugin_dir"
+              pip install -r "$plugin_dir/requirements.txt"
+            fi
+          done < .harbor-enabled-post-collect-plugins
 
       - name: Restore collected data artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -125,7 +134,7 @@ jobs:
       - name: Run post-collect plugins
         env:
           GH_ORG: ${{ vars.GH_ORG || github.repository_owner }}
-        run: pnpm --dir tools/harbor/post-collect exec harbor post-collect --project-root "$GITHUB_WORKSPACE" --collect-id "${{ needs.collect.outputs.collect_id }}"
+        run: pnpm --dir collector exec harbor-collector post-collect --project-root "$GITHUB_WORKSPACE" --collect-id "${{ needs.collect.outputs.collect_id }}"
 
       - name: Upload final data artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

@@ -5,30 +5,15 @@
 > Skill Governance for companies.  
 > Skill Discovery for teams.
 
-組織とチームのための Skill 管理ツール。
-
-## スクリーンショット
-
-|                                                             カードビュー                                                              |                                                             リストビュー                                                              |
-| :-----------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------: |
-| ![カードビュー](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-card.png) | ![リストビュー](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-list.png) |
-
-### 統計ビュー
-
-![統計ビュー](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-stats.png)
-
-### グラフビュー
-
-![グラフビュー](https://raw.githubusercontent.com/skill-mill/agent-skill-harbor/main/docs/img/agent-skill-harbor-screenshot-graph.gif)
+Agent Skill Harbor は、GitHub Organization 内の Agent Skill (`SKILL.md`) を収集し、社内向けのカタログとして公開するためのツールです。
 
 ## 概要
 
-Agent Skill Harbor は、GitHub Organization 内の全リポジトリから Agent Skill (SKILL.md) をカタログ化し、組織内でブラウズ可能なカタログを公開します。
-
-- ガバナンス — 禁止したいスキル、推奨したいスキルをチームにアピール可能
-- スキル・トレーサビリティ — 外部からインストールしたスキルも含め、すべてのスキルの出所・来歴を追跡可能
-- Serverless/DB-less — GitHub Actions でクローリング、データは Git に YAML/JSON として保存、GitHub Pages または Cloudflare Pages でホスティング
-- 運用負荷なし/コスト最適 — 常時稼働リソースがないのでメンテナンスが楽で安価
+- ガバナンス: 推奨・非推奨・禁止スキルを明示できる
+- 来歴追跡: コピー元や導入元を追跡できる
+- Git ネイティブ: 収集結果は `data/` に YAML/JSON で保存し、Git に commit する
+- バックエンド不要: カタログ UI は prerender 済みの静的 Web アプリ
+- ワークフロー向き: collect と post-collect を別 job で実行する
 
 デモサイト:
 
@@ -36,101 +21,124 @@ Agent Skill Harbor は、GitHub Organization 内の全リポジトリから Agen
 
 ## クイックスタート
 
-### npm パッケージ（推奨）
-
 ```bash
-# 新しいプロジェクトをスキャフォールド
 npx agent-skill-harbor init my-skill-harbor
 cd my-skill-harbor
 
-# .env を編集: GH_TOKEN と GH_ORG のコメントを外して設定
-# または gh CLI を利用: GH_TOKEN=$(gh auth token) pnpm collect
-
-# 依存関係のインストール
 pnpm install
+pnpm install --dir collector
 
-# 組織からスキルを収集
+# 必要なら .env で GH_TOKEN / GH_ORG を設定
 pnpm collect
-
-# 開発サーバーの起動
 pnpm dev
 ```
 
+`pnpm install` は root package (`agent-skill-harbor`) を入れます。  
+`pnpm install --dir collector` は `pnpm collect` / `pnpm post-collect` に必要な collector runtime を入れます。
+
 ## CLI コマンド
 
-初期構築・データ収集・ビルド・デプロイをサポートする CLI でアプリケーションを管理・操作します。本番環境では、すべての CLI コマンドは GitHub Actions から実行されます。
+インストール後のメイン CLI は `harbor` または `agent-skill-harbor` として利用できます。
 
-依存パッケージとしてインストール後、`harbor` または `agent-skill-harbor` として利用可能：
+| コマンド                   | 説明                                 |
+| -------------------------- | ------------------------------------ |
+| `harbor init [dir]`        | 新しいプロジェクトを生成             |
+| `harbor setup <plugin-id>` | 任意 plugin 用の runtime file を生成 |
+| `harbor build`             | 静的カタログをビルド                 |
+| `harbor deploy <target>`   | カタログをデプロイ                   |
+| `harbor dev`               | 開発サーバーを起動                   |
+| `harbor preview`           | ビルド結果をプレビュー               |
 
-| コマンド                                 | 説明                                             |
-| ---------------------------------------- | ------------------------------------------------ |
-| `harbor init [dir]`                      | 新しいプロジェクトをスキャフォールド             |
-| `harbor gen example-user-defined-plugin` | 例示用の user-defined post-collect plugin を生成 |
-| `harbor collect`                         | GitHub Organization からスキルを収集             |
-| `harbor post-collect`                    | collect 後プラグインを実行                       |
-| `harbor build`                           | 静的サイトをビルド                               |
-| `harbor deploy <target>`                 | ビルド済みカタログをデプロイ                     |
-| `harbor dev`                             | 開発サーバーを起動                               |
-| `harbor preview`                         | ビルド結果をプレビュー                           |
-
-### ビルドオプション
+collect 系コマンドは collector runtime 側にあります。
 
 ```bash
-# GitHub Pages デプロイ用のベースパスを設定
-harbor build --base=/my-repo-name
+pnpm --dir collector exec harbor-collector collect --project-root .
+pnpm --dir collector exec harbor-collector post-collect --project-root .
 ```
 
-## 組織へのセットアップ
+生成されたプロジェクトでは、これらは root scripts にラップ済みです。
 
-1. `npx agent-skill-harbor init` で新しいプロジェクトを作成
-2. GitHub リポジトリのシークレットを設定 (`GH_TOKEN`)
-3. GitHub Pages を有効化（Settings > Pages > Source: GitHub Actions）
-4. **重要:** Pages の Visibility を **Private** に設定し、Organization メンバーのみにアクセスを制限（GitHub Enterprise Cloud が必要）
-5. `CollectSkills` ワークフローを手動トリガーして初回収集を実行
-6. 生成される `CollectSkills` は、Harbor が publish している reusable workflow を `wf-v0` で参照する薄い caller workflow です
-7. reusable workflow 側で `collect`、`post-collect`、commit/push が別 job として実行されます
-8. deploy workflow は `tools/harbor/web` だけを install し、`CollectSkills` 成功後に自動実行されます
+- `pnpm collect`
+- `pnpm post-collect`
 
-詳細は [組織セットアップガイド](docs/01-organization-setup_ja.md) を参照してください。
+## 組織セットアップ
 
-## プロジェクト構成（ユーザープロジェクト）
+1. `npx agent-skill-harbor init` でプロジェクトを作成
+2. Organization 内の private repository に push
+3. GitHub Actions secret として `GH_TOKEN` を設定
+4. GitHub Pages または Cloudflare Pages を有効化
+5. 生成された `CollectSkills` workflow を一度実行
 
-```
+生成される `CollectSkills` workflow は、`wf-v0` に pin された Harbor の reusable workflow を呼ぶ薄い caller です。
+
+reusable workflow の中では:
+
+- `collect` job で `collector/` core だけを install して収集
+- `post_collect` job で収集 artifact を復元し、再度 `collector/` core を install した上で、有効な optional plugin manifest だけ追加 install
+- 最終的な `data/` を commit
+
+という構造になっています。これにより、GitHub 収集と optional な post-collect 依存を分離できます。
+
+詳細は [組織セットアップ](docs/01-organization-setup_ja.md) を参照してください。
+
+## プロジェクト構成
+
+```text
 my-skill-harbor/
-├── .env                    # GitHub トークンと Org 設定
+├── .env
 ├── config/
-│   ├── harbor.yaml         # 収集・カタログ設定
-│   └── governance.yaml     # スキル使用ポリシー
-├── plugins/                # 任意のユーザー定義 post_collect plugin
-├── tools/
-│   └── harbor/
-│       ├── collector/      # collect workflow 用の分離 install surface
-│       ├── post-collect/   # post-collect workflow 用の分離 install surface
-│       └── web/            # build/deploy workflow 用の分離 install surface
-├── data/                   # collect で生成（Git 管理）
-│   ├── assets/             # web ビルド成果物にコピーされる静的ファイル
-│   ├── collects.yaml       # 収集履歴
-│   ├── plugins/            # 生成された post_collect plugin 出力
-│   ├── skills.yaml         # スキルメタデータ
-│   └── skills/             # キャッシュされた SKILL.md ファイル
-├── .github/workflows/      # GitHub Actions (収集 + デプロイ)
-└── package.json            # ローカル開発用の便宜インストール（Harbor package 一式）
+│   ├── harbor.yaml
+│   └── governance.yaml
+├── collector/
+│   ├── package.json
+│   └── plugins/
+│       └── <plugin-id>/
+├── data/
+│   ├── assets/
+│   ├── collects.yaml
+│   ├── plugins/
+│   ├── skills.yaml
+│   └── skills/
+├── guide/
+├── .github/workflows/
+└── package.json
 ```
 
-## スキルの来歴追跡
+補足:
 
-Harbor は、ダウンロードしたスキルにコピー元メタデータが含まれていれば、その来歴を追跡できます。
+- root `package.json` は `agent-skill-harbor` だけに依存
+- `collector/package.json` は `agent-skill-harbor-collector` 用の Harbor 管理 manifest
+- optional plugin manifest と example user-defined plugin は `collector/plugins/<plugin-id>/` に置く
 
-主な連携先は [agent-skill-porter](https://github.com/skill-mill/agent-skill-porter) で、skill frontmatter の `_from` を使って来歴を解決します。加えて、[agent-skills](https://github.com/vercel-labs/skills) / `vercel-labs/agent-skills` が保存する GitHub ベースの `skills-lock.json` にも対応しています。
+## Post-Collect Plugins
 
-カタログ画面の構成と来歴追跡の挙動の詳細は [Skill Catalog Guide](docs/02-skill-catalog_ja.md) を参照してください。
+組み込み plugin は `config/harbor.yaml` で有効化します。
+
+例:
+
+- `builtin.detect-drift`
+- `builtin.notify-slack`
+- `builtin.audit-promptfoo-security`
+- `builtin.audit-skill-scanner`
+
+optional な runtime file は `harbor setup` で生成します。
+
+```bash
+harbor setup example-user-defined-plugin
+harbor setup builtin.audit-promptfoo-security
+harbor setup builtin.audit-skill-scanner
+```
+
+生成先は `collector/plugins/<plugin-id>/` です。
+
+詳細は [Post-Collect Plugins](docs/03-post-collect-plugins_ja.md) を参照してください。
 
 ## ドキュメント
 
 - [組織セットアップ](docs/01-organization-setup_ja.md)
-- [スキル カタログ ガイド](docs/02-skill-catalog_ja.md)
+- [スキルカタログガイド](docs/02-skill-catalog_ja.md)
 - [Post-Collect Plugins](docs/03-post-collect-plugins_ja.md)
-- [ガバナンス ガイド](docs/04-governance-guide_ja.md)
+- [ガバナンスガイド](docs/04-governance-guide_ja.md)
 - [ローカル開発](docs/91-local-development_ja.md)
 - [リリース](docs/92-release_ja.md)
 

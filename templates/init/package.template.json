@@ -1,0 +1,16 @@
+{
+	"name": "{{PROJECT_NAME}}",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"collect": "pnpm --dir collector exec harbor-collector collect --project-root .",
+		"post-collect": "pnpm --dir collector exec harbor-collector post-collect --project-root .",
+		"build": "harbor build",
+		"deploy:cloudflare": "harbor deploy cloudflare-pages",
+		"dev": "harbor dev",
+		"preview": "harbor preview"
+	},
+	"dependencies": {
+		"agent-skill-harbor": "{{PACKAGE_RANGE}}"
+	}
+}

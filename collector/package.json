@@ -1,0 +1,44 @@
+{
+	"name": "agent-skill-harbor-collector",
+	"version": "0.14.3",
+	"type": "module",
+	"description": "Collector and post-collect runtime package for Agent Skill Harbor.",
+	"license": "MIT",
+	"packageManager": "pnpm@10.32.1",
+	"engines": {
+		"node": ">=24"
+	},
+	"files": [
+		"dist/"
+	],
+	"bin": {
+		"harbor-collector": "./dist/bin/collector.js"
+	},
+	"exports": {
+		"./collect": "./dist/src/cli/commands/collect.js",
+		"./post-collect": "./dist/src/cli/commands/post-collect.js"
+	},
+	"scripts": {
+		"format": "prettier --write \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{json,md}\"",
+		"format:check": "prettier --check \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{json,md}\"",
+		"lint": "eslint --fix src",
+		"lint:check": "eslint src",
+		"check": "tsc --noEmit -p tsconfig.json",
+		"test": "node --import tsx --test \"src/**/*.test.ts\"",
+		"build": "tsup",
+		"verify": "pnpm run format:check && pnpm run lint:check && pnpm run check && pnpm run test"
+	},
+	"dependencies": {
+		"@octokit/rest": "^21.1.1",
+		"js-yaml": "^4.1.0",
+		"tsx": "^4.19.0"
+	},
+	"devDependencies": {
+		"@types/js-yaml": "^4.0.9",
+		"@types/node": "^22.15.0",
+		"eslint": "^9.18.0",
+		"tsup": "8.5.1",
+		"typescript": "^5.7.0",
+		"typescript-eslint": "^8.20.0"
+	}
+}

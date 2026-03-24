@@ -1,0 +1,7 @@
+{
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"promptfoo": "^0.116.2"
+	}
+}

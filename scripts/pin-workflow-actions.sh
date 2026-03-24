@@ -6,10 +6,10 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 DIFF_MODE="${1:-}"
 REUSABLE_GH_DIR="$REPO_ROOT/.github"
-TEMPLATE_GH_DIR="$REPO_ROOT/packages/cli/templates/init/.github"
+TEMPLATE_GH_DIR="$REPO_ROOT/templates/init/.github"
 ACTIONS_UP_MIN_AGE=7
 ACTIONS_UP_MODE=minor
-TEMPLATE_CALLER="$REPO_ROOT/packages/cli/templates/init/.github/workflows/collect-skills.yml"
+TEMPLATE_CALLER="$REPO_ROOT/templates/init/.github/workflows/collect-skills.yml"
 TEMPLATE_CALLER_REF='uses: skill-mill/agent-skill-harbor/.github/workflows/collect.yml@wf-v0'
 
 if [ -z "${GITHUB_TOKEN:-}" ] && [ -n "${GH_TOKEN:-}" ]; then

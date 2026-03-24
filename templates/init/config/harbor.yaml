@@ -1,0 +1,62 @@
+collector:
+  exclude_forks: true # skip forked repositories when collecting
+  # excluded_repos:    # repository names to skip when collecting
+  #   - some-repo-name
+  include_origin_repos: true # collect public repositories referenced by _from (1 level, deduped by owner/repo)
+  # included_extra_repos: # additional repositories to collect by URL
+  #   - https://github.com/owner/repo
+  history_limit: 50 # max entries kept in collects.yaml (0 = unlimited)
+
+post_collect:
+  plugins:
+    - id: builtin.detect-drift
+      short_label: Drift
+
+  # Run `harbor setup builtin.audit-skill-scanner` first.
+  # Then run `pip install -r collector/plugins/builtin.audit-skill-scanner/requirements.txt`.
+  # then uncomment the line below.
+  #   - id: builtin.audit-skill-scanner
+  #     short_label: Scanner
+  #     config:
+  #       command: skill-scanner
+  #       options: --policy balanced
+
+  # Run `harbor setup builtin.audit-promptfoo-security` first.
+  # Then run `pnpm install --dir collector/plugins/builtin.audit-promptfoo-security`.
+  # Then uncomment the line below.
+  #   - id: builtin.audit-promptfoo-security
+  #     short_label: Security
+  #     config:
+  #       model: openai:gpt-5
+  #       vulnerabilities:
+  #         - prompt-injection
+  #         - prompt-extraction
+  #         - jailbreak
+  #         - policy-violation
+  #       risk_threshold: 1
+  #       critical_threshold: 3
+
+  # Generate the example plugin first: harbor setup example-user-defined-plugin
+  # Then uncomment the line below.
+  #   - id: example-user-defined-plugin
+  #     short_label: Example
+
+  # builtin.notify-slack does not need additional setup files.
+  # Just uncomment the line below.
+  #   - id: builtin.notify-slack
+  #     short_label: Slack
+  #     config:
+  #       webhook_url: https://hooks.slack.com/services/...
+  #       disable_send: false
+  #       use_debug_message: false
+  #       highlight_intents:
+  #         - warn
+  #         - danger
+
+catalog:
+  skill:
+    fresh_period_days: 30 # 0 = disable "New" badge
+
+
+# ui:
+#   title: Agent Skill Harbor

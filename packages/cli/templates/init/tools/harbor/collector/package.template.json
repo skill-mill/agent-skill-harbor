@@ -1,8 +1,0 @@
-{
-	"private": true,
-	"type": "module",
-	"dependencies": {
-		"agent-skill-harbor": "{{PACKAGE_RANGE}}",
-		"agent-skill-harbor-collector": "{{COLLECTOR_RANGE}}"
-	}
-}
