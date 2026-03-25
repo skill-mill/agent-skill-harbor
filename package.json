@@ -1,6 +1,6 @@
 {
 	"name": "agent-skill-harbor",
-	"version": "0.15.5",
+	"version": "0.15.6",
 	"type": "module",
 	"description": "Skill governance for companies. Skill discovery for teams.",
 	"keywords": [
@@ -56,7 +56,7 @@
 		"actions:pin": "sh scripts/pin-workflow-actions.sh",
 		"actions:check": "sh scripts/pin-workflow-actions.sh --diff"
 	},
-	"harborCollectorRange": ">=0.15.5 <1",
+	"harborCollectorRange": ">=0.15.6 <1",
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"esbuild"

@@ -2,6 +2,12 @@
 
 ## [未リリース]
 
+## [cli 0.15.6] / [collector 0.15.6] - 2026-03-26
+
+### 修正
+
+- generated project の Graph 画面が Vite の dev/SSR で `ngraph.forcelayout` の default import エラーにより描画できない不具合を修正し、`3d-force-graph` 系依存の最適化設定を明示した
+
 ## [cli 0.15.5] / [collector 0.15.5] - 2026-03-26
 
 ### 修正

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [cli 0.15.6] / [collector 0.15.6] - 2026-03-26
+
+### Fixed
+
+- Fixed generated projects failing to render the Graph view in Vite dev/SSR because `3d-force-graph` dependencies were not being optimized consistently, causing `ngraph.forcelayout` default-import errors
+
 ## [cli 0.15.5] / [collector 0.15.5] - 2026-03-26
 
 ### Fixed
