@@ -83,7 +83,7 @@ pnpm dev
 `pnpm collect` calls:
 
 ```bash
-pnpm --dir collector exec harbor-collector collect --project-root .
+node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js
 ```
 
 ## 7. First Workflow Run

@@ -37,14 +37,19 @@ interface SettingsConfig {
 function loadSettings(projectRoot = getProjectRoot()): SettingsConfig {
 	const settingsPath = join(projectRoot, 'config', 'harbor.yaml');
 	if (!existsSync(settingsPath)) {
-		return {};
+		throw new Error(`config/harbor.yaml not found under project root: ${projectRoot}`);
 	}
 	try {
 		const raw = yamlLoad(readFileSync(settingsPath, 'utf-8'));
-		if (!raw || typeof raw !== 'object') return {};
+		if (!raw || typeof raw !== 'object') {
+			throw new Error(`config/harbor.yaml did not contain a YAML object: ${settingsPath}`);
+		}
 		return raw as SettingsConfig;
-	} catch {
-		return {};
+	} catch (error) {
+		if (error instanceof Error) {
+			throw error;
+		}
+		throw new Error(`Failed to parse config/harbor.yaml: ${settingsPath}`);
 	}
 }
 
@@ -794,7 +799,7 @@ export async function runCollectOrgSkills(options: CollectOptions = {}): Promise
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	// This direct entrypoint is mainly for debugging and advanced local use. The normal path is via harbor-collector.
+	// This direct entrypoint is mainly for debugging and advanced local use. Generated projects call the packaged module path directly.
 	try {
 		await runCollectOrgSkills();
 	} catch (error) {

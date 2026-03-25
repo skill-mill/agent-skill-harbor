@@ -47,22 +47,24 @@ pnpm dev
 | -------------------------- | ------------------------------------ |
 | `harbor init [dir]`        | 新しいプロジェクトを生成             |
 | `harbor setup <plugin-id>` | 任意 plugin 用の runtime file を生成 |
-| `harbor build`             | 静的カタログをビルド                 |
-| `harbor deploy <target>`   | カタログをデプロイ                   |
-| `harbor dev`               | 開発サーバーを起動                   |
-| `harbor preview`           | ビルド結果をプレビュー               |
 
-collect 系コマンドは collector runtime 側にあります。
+日常的な project 操作は、生成される root scripts から実行します。
 
 ```bash
-pnpm --dir collector exec harbor-collector collect --project-root .
-pnpm --dir collector exec harbor-collector post-collect --project-root .
+pnpm collect
+pnpm post-collect
+pnpm dev
+pnpm build
+pnpm preview
 ```
 
-生成されたプロジェクトでは、これらは root scripts にラップ済みです。
+内部的には、生成された project は package 同梱の runtime entry module を直接呼びます。
 
-- `pnpm collect`
-- `pnpm post-collect`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js`
+- `node node_modules/agent-skill-harbor/dist/src/runtime/dev.js`
+- `node node_modules/agent-skill-harbor/dist/src/runtime/build.js`
+- `node node_modules/agent-skill-harbor/dist/src/runtime/preview.js`
 
 ## 組織セットアップ
 

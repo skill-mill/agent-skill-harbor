@@ -1,3 +1,5 @@
+export { loadOptionalEnvFile } from '../../../shared/load-optional-env-file.js';
+
 export function getErrorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);
 }
@@ -9,7 +11,7 @@ export function getErrorExitCode(error: unknown): number {
 	return 1;
 }
 
-export function logCliErrorAndExit(error: unknown): never {
+export function logRuntimeErrorAndExit(error: unknown): never {
 	const message = getErrorMessage(error);
 	if (message) {
 		console.error(`Error: ${message}`);

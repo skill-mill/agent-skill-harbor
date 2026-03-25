@@ -3,12 +3,11 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"collect": "pnpm --dir collector exec harbor-collector collect --project-root .",
-		"post-collect": "pnpm --dir collector exec harbor-collector post-collect --project-root .",
-		"build": "harbor build",
-		"deploy:cloudflare": "harbor deploy cloudflare-pages",
-		"dev": "harbor dev",
-		"preview": "harbor preview"
+		"collect": "node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js",
+		"post-collect": "node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js",
+		"build": "node node_modules/agent-skill-harbor/dist/src/runtime/build.js",
+		"dev": "node node_modules/agent-skill-harbor/dist/src/runtime/dev.js",
+		"preview": "node node_modules/agent-skill-harbor/dist/src/runtime/preview.js"
 	},
 	"dependencies": {
 		"agent-skill-harbor": "{{PACKAGE_RANGE}}"

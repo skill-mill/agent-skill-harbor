@@ -1,14 +1,13 @@
 import { execFileSync } from 'node:child_process';
-import { dirname, resolve } from 'node:path';
 import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { packageRoot, userRoot } from '../paths.js';
-import { getExitCode, stageDataAssets } from '../utils.js';
+import { getExitCode, packageRoot, stageDataAssets, userRoot } from '../shared/runtime-support.js';
 
 const require = createRequire(import.meta.url);
 const viteCli = resolve(dirname(require.resolve('vite/package.json')), 'bin/vite.js');
 
-export function runDevCommand(): void {
+export function runDev(): void {
 	console.log('Starting development server...');
 	console.log(`  Project root: ${userRoot}`);
 
@@ -30,5 +29,5 @@ export function runDevCommand(): void {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	runDevCommand();
+	runDev();
 }

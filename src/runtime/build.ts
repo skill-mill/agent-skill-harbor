@@ -1,13 +1,12 @@
-import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { packageRoot, userRoot } from '../paths.js';
-import { getExitCode, stageDataAssets } from '../utils.js';
+import { getExitCode, packageRoot, stageDataAssets, userRoot } from '../shared/runtime-support.js';
 
 const require = createRequire(import.meta.url);
 
-export function runBuildCommand(argv: string[] = []): void {
+export function runBuild(argv: string[] = []): void {
 	const basePath = argv.find((arg) => arg.startsWith('--base='))?.split('=')[1] ?? '';
 	const outputDir = resolve(userRoot, 'build');
 	const viteCli = resolve(dirname(require.resolve('vite/package.json')), 'bin/vite.js');
@@ -37,5 +36,5 @@ export function runBuildCommand(argv: string[] = []): void {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	runBuildCommand(process.argv.slice(2));
+	runBuild(process.argv.slice(2));
 }

@@ -51,6 +51,10 @@ jobs:
         if: ${{ steps.preflight.outputs.enabled == 'true' }}
         run: pnpm install
 
+      - name: Build
+        if: ${{ steps.preflight.outputs.enabled == 'true' }}
+        run: pnpm build
+
       - name: Deploy to Cloudflare Pages
         if: ${{ steps.preflight.outputs.enabled == 'true' }}
-        run: pnpm exec harbor deploy cloudflare-pages --project-root "$GITHUB_WORKSPACE"
+        run: pnpm dlx wrangler pages deploy build --project-name "$CLOUDFLARE_PAGES_PROJECT_NAME"

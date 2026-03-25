@@ -86,7 +86,7 @@ plugin は追加ファイルを次へ書けます。
 
 - `data/assets/plugins/<plugin-id>/...`
 
-これらは `harbor build` 時に Web 出力へコピーされます。
+これらは `pnpm build` 時に Web 出力へコピーされます。
 
 代表例:
 

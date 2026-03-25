@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseArgs } from './collect.js';
+import { parseArgs } from '../../runtime/collect-command.js';
 
 test('parseArgs enables force mode', () => {
 	assert.deepEqual(parseArgs(['--force']), { force: true });

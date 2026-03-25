@@ -32,7 +32,7 @@ test('packed post-collect bundle does not publish shared-internal as a runtime d
 				encoding: 'utf-8',
 			}),
 		) as { dependencies?: Record<string, string> };
-		const builtPostCollect = readFileSync(join(buildOutDir, 'src', 'cli', 'commands', 'post-collect.js'), 'utf-8');
+		const builtPostCollect = readFileSync(join(buildOutDir, 'src', 'runtime', 'post-collect-command.js'), 'utf-8');
 
 		assert.equal(packedPackageJson.dependencies?.['agent-skill-harbor-shared-internal'], undefined);
 		assert.equal(builtPostCollect.includes('agent-skill-harbor-shared-internal'), false);

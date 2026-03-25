@@ -17,9 +17,11 @@ pnpm preview
 
 各 script の実体:
 
-- `pnpm collect` → `pnpm --dir collector exec harbor-collector collect --project-root .`
-- `pnpm post-collect` → `pnpm --dir collector exec harbor-collector post-collect --project-root .`
-- `pnpm dev` / `pnpm build` / `pnpm preview` → root の `harbor` コマンド
+- `pnpm collect` → `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js`
+- `pnpm post-collect` → `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js`
+- `pnpm dev` → `node node_modules/agent-skill-harbor/dist/src/runtime/dev.js`
+- `pnpm build` → `node node_modules/agent-skill-harbor/dist/src/runtime/build.js`
+- `pnpm preview` → `node node_modules/agent-skill-harbor/dist/src/runtime/preview.js`
 
 ## コントリビューター向け
 
@@ -40,7 +42,7 @@ pnpm setup:dev
 
 pnpm cli:build
 pnpm --dir collector build
-node dist/bin/cli.js dev
+pnpm dev
 ```
 
 開発サーバーは `http://localhost:5173` で起動します。
@@ -62,12 +64,12 @@ pnpm --dir collector build
 pnpm storybook
 pnpm storybook:build
 
-node dist/bin/cli.js dev
-node dist/bin/cli.js build
-node dist/bin/cli.js preview
+pnpm dev
+pnpm build
+pnpm preview
 
-GH_TOKEN=$(gh auth token) pnpm --dir collector exec harbor-collector collect --project-root .
-pnpm --dir collector exec harbor-collector post-collect --project-root . --collect-id <collect_id>
+GH_TOKEN=$(gh auth token) node collector/dist/src/runtime/collect-command.js
+node collector/dist/src/runtime/post-collect-command.js --collect-id <collect_id>
 ```
 
 ### 構成

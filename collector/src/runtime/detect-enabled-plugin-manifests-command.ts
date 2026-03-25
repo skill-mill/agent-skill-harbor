@@ -1,9 +1,9 @@
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { logCliErrorAndExit } from '../errors.js';
-import { userRoot } from '../paths.js';
-import { detectEnabledPluginManifests } from '../../runtime/post-collect/enabled-plugin-manifests.js';
+import { logRuntimeErrorAndExit } from '../shared/runtime-command-support.js';
+import { userRoot } from '../shared/runtime-paths.js';
+import { detectEnabledPluginManifests } from './post-collect/enabled-plugin-manifests.js';
 
 interface Args {
 	output?: string;
@@ -29,7 +29,7 @@ function parseArgs(argv: string[]): Args {
 	return { output };
 }
 
-export async function runCommand(argv: string[] = []): Promise<void> {
+export async function runDetectEnabledPluginManifestsCommand(argv: string[] = []): Promise<void> {
 	try {
 		const args = parseArgs(argv);
 		const info = detectEnabledPluginManifests(userRoot);
@@ -40,10 +40,10 @@ export async function runCommand(argv: string[] = []): Promise<void> {
 
 		process.stdout.write(JSON.stringify(info));
 	} catch (error: unknown) {
-		logCliErrorAndExit(error);
+		logRuntimeErrorAndExit(error);
 	}
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	await runCommand(process.argv.slice(2));
+	await runDetectEnabledPluginManifestsCommand(process.argv.slice(2));
 }

@@ -6,8 +6,8 @@ Collector and post-collect runtime package for Agent Skill Harbor.
 
 ## Purpose
 
-- provide the `harbor-collector collect` runtime
-- provide the `harbor-collector post-collect` runtime
+- provide the `collect` runtime module
+- provide the `post-collect` runtime module
 - keep GitHub collection dependencies separated from optional post-collect plugin dependencies
 
 ## Runtime Boundary
@@ -15,8 +15,8 @@ Collector and post-collect runtime package for Agent Skill Harbor.
 Generated projects install this package in `collector/`.
 
 - `pnpm install --dir collector`
-- `pnpm --dir collector exec harbor-collector collect --project-root .`
-- `pnpm --dir collector exec harbor-collector post-collect --project-root .`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js`
 
 Optional plugin manifests live under `collector/plugins/<plugin-id>/`, but they are installed separately from collector core.
 

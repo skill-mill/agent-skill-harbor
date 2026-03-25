@@ -35,17 +35,11 @@
 		"vite.config.ts",
 		"components.json"
 	],
-	"exports": {
-		"./build": "./dist/src/cli/commands/build.js",
-		"./deploy": "./dist/src/cli/commands/deploy.js",
-		"./dev": "./dist/src/cli/commands/dev.js",
-		"./preview": "./dist/src/cli/commands/preview.js"
-	},
 	"scripts": {
 		"setup:dev": "tsx scripts/setup-dev.ts",
-		"dev": "node --import tsx src/cli/commands/dev.ts",
-		"build": "node --import tsx src/cli/commands/build.ts",
-		"preview": "node --import tsx src/cli/commands/preview.ts",
+		"dev": "node --import tsx src/runtime/dev.ts",
+		"build": "node --import tsx src/runtime/build.ts",
+		"preview": "node --import tsx src/runtime/preview.ts",
 		"storybook": "storybook dev -p 6006 --ci",
 		"storybook:build": "storybook build",
 		"cli:build": "tsup",

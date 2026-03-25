@@ -60,6 +60,9 @@ test('harbor init scaffolds a new project into an empty directory', async () => 
 	const target = join(root, 'project');
 
 	const result = await invokeRunCommand([target], root);
+	const generatedPackageJson = readFileSync(join(target, 'package.json'), 'utf-8');
+	const generatedCollectorPackageJson = readFileSync(join(target, 'collector', 'package.json'), 'utf-8');
+	const generatedCollectWorkflow = readFileSync(join(target, '.github', 'workflows', 'collect-skills.yml'), 'utf-8');
 
 	assert.equal(result.status, 0, result.errors.join('\n'));
 	assert.equal(existsSync(join(target, 'package.json')), true);
@@ -68,15 +71,24 @@ test('harbor init scaffolds a new project into an empty directory', async () => 
 	assert.equal(existsSync(join(target, 'tools', 'harbor')), false);
 	const cliVersion = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf-8')).version as string;
 	const escapedCliVersion = cliVersion.replaceAll('.', '\\.');
+	assert.match(generatedPackageJson, new RegExp(`"agent-skill-harbor": ">=${escapedCliVersion} <1"`));
+	assert.match(generatedCollectorPackageJson, /"agent-skill-harbor-collector": ">=0\./);
 	assert.match(
-		readFileSync(join(target, 'package.json'), 'utf-8'),
-		new RegExp(`"agent-skill-harbor": ">=${escapedCliVersion} <1"`),
+		generatedPackageJson,
+		/"collect": "node collector\/node_modules\/agent-skill-harbor-collector\/dist\/src\/runtime\/collect-command\.js"/,
 	);
 	assert.match(
-		readFileSync(join(target, 'collector', 'package.json'), 'utf-8'),
-		/"agent-skill-harbor-collector": ">=0\./,
+		generatedPackageJson,
+		/"post-collect": "node collector\/node_modules\/agent-skill-harbor-collector\/dist\/src\/runtime\/post-collect-command\.js"/,
 	);
-	assert.match(readFileSync(join(target, '.github', 'workflows', 'collect-skills.yml'), 'utf-8'), /collect\.yml@wf-v0/);
+	assert.match(generatedPackageJson, /"build": "node node_modules\/agent-skill-harbor\/dist\/src\/runtime\/build\.js"/);
+	assert.match(generatedPackageJson, /"dev": "node node_modules\/agent-skill-harbor\/dist\/src\/runtime\/dev\.js"/);
+	assert.match(
+		generatedPackageJson,
+		/"preview": "node node_modules\/agent-skill-harbor\/dist\/src\/runtime\/preview\.js"/,
+	);
+	assert.doesNotMatch(generatedPackageJson, /deploy:cloudflare/);
+	assert.match(generatedCollectWorkflow, /collect\.yml@wf-v0/);
 });
 
 test('harbor init --workflows replaces the workflow directory contents', async () => {

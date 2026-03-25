@@ -1,10 +1,9 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { logCliErrorAndExit } from '../errors.js';
-import { loadOptionalEnvFile } from '../env.js';
-import { runCollectOrgSkills } from '../../runtime/collect-org-skills.js';
-import { userRoot } from '../paths.js';
+import { loadOptionalEnvFile, logRuntimeErrorAndExit } from '../shared/runtime-command-support.js';
+import { userRoot } from '../shared/runtime-paths.js';
+import { runCollectOrgSkills } from './collect-org-skills.js';
 
 export function parseArgs(argv: string[]): { force: boolean } {
 	let force = false;
@@ -20,7 +19,7 @@ export function parseArgs(argv: string[]): { force: boolean } {
 	return { force };
 }
 
-export async function runCommand(argv: string[] = []): Promise<void> {
+export async function runCollectCommand(argv: string[] = []): Promise<void> {
 	try {
 		const args = parseArgs(argv);
 		const envFile = resolve(userRoot, '.env');
@@ -31,18 +30,18 @@ export async function runCommand(argv: string[] = []): Promise<void> {
 			loadOptionalEnvFile(envFile);
 		}
 
-		console.log(`Collecting skills...`);
+		console.log('Collecting skills...');
 		console.log(`  Project root: ${userRoot}`);
 		if (args.force) {
-			console.log(`  Force:        enabled`);
+			console.log('  Force:        enabled');
 		}
 
 		await runCollectOrgSkills({ force: args.force });
 	} catch (error: unknown) {
-		logCliErrorAndExit(error);
+		logRuntimeErrorAndExit(error);
 	}
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	await runCommand(process.argv.slice(2));
+	await runCollectCommand(process.argv.slice(2));
 }

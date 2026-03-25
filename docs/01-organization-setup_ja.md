@@ -83,7 +83,7 @@ pnpm dev
 `pnpm collect` の実体は:
 
 ```bash
-pnpm --dir collector exec harbor-collector collect --project-root .
+node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js
 ```
 
 です。

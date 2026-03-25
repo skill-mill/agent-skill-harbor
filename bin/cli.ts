@@ -9,16 +9,11 @@ Usage: harbor <command> [options]
 Commands:
   init      Scaffold a new project
   setup     Scaffold optional plugin templates
-  build     Build the web catalog (static site)
-  deploy    Deploy the built catalog
-  dev       Start development server
-  preview   Preview the built site
 
 Options:
   --project-root <path>  Override the target Harbor project root
   --help    Show this help message`;
 
-// Keep this in sync with collector/bin/collector.ts. The two binaries are intentionally separate.
 function extractProjectRoot(argv: string[]): { projectRoot: string | null; argv: string[] } {
 	const nextArgv: string[] = [];
 	let projectRoot: string | null = null;
@@ -40,7 +35,6 @@ function extractProjectRoot(argv: string[]): { projectRoot: string | null; argv:
 	return { projectRoot, argv: nextArgv };
 }
 
-// Keep this in sync with collector/bin/collector.ts. The two binaries are intentionally separate.
 async function importLocalCommand(moduleName: string, exportName = 'runCommand'): Promise<void> {
 	const mod = await import(moduleName);
 	const run = mod[exportName];
@@ -64,18 +58,6 @@ switch (command) {
 		break;
 	case 'setup':
 		await importLocalCommand('../src/cli/commands/setup.js');
-		break;
-	case 'build':
-		await importLocalCommand('../src/cli/commands/build.js', 'runBuildCommand');
-		break;
-	case 'deploy':
-		await importLocalCommand('../src/cli/commands/deploy.js', 'runDeployCommand');
-		break;
-	case 'dev':
-		await importLocalCommand('../src/cli/commands/dev.js', 'runDevCommand');
-		break;
-	case 'preview':
-		await importLocalCommand('../src/cli/commands/preview.js', 'runPreviewCommand');
 		break;
 	default:
 		console.log(USAGE);

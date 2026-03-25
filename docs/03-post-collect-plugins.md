@@ -84,7 +84,7 @@ Plugins may write additional files under:
 
 - `data/assets/plugins/<plugin-id>/...`
 
-These files are copied into the built web output during `harbor build`.
+These files are copied into the built web output during `pnpm build`.
 
 Typical examples:
 

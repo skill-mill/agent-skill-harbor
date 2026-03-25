@@ -45,7 +45,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_ORG: ${{ vars.GH_ORG || github.repository_owner }}
-        run: pnpm --dir collector exec harbor-collector collect --project-root "$GITHUB_WORKSPACE"
+          SKILL_HARBOR_PROJECT_ROOT: ${{ github.workspace }}
+        run: node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js
 
       - name: Upload collect data artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -76,8 +77,10 @@ jobs:
       - name: Detect enabled plugin manifests
         id: detect_plugin_manifests
         shell: bash
+        env:
+          SKILL_HARBOR_PROJECT_ROOT: ${{ github.workspace }}
         run: |
-          manifest_info="$(pnpm --dir collector exec harbor-collector detect-enabled-plugin-manifests --project-root "$GITHUB_WORKSPACE" --output .harbor-enabled-post-collect-plugins)"
+          manifest_info="$(node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/detect-enabled-plugin-manifests-command.js --output .harbor-enabled-post-collect-plugins)"
           has_python="$(printf '%s' "$manifest_info" | node -e "const input = JSON.parse(require('node:fs').readFileSync(0, 'utf8')); process.stdout.write(input.hasPython ? 'true' : 'false');")"
           echo "has_python=${has_python:-false}" >> "$GITHUB_OUTPUT"
 
@@ -134,7 +137,8 @@ jobs:
       - name: Run post-collect plugins
         env:
           GH_ORG: ${{ vars.GH_ORG || github.repository_owner }}
-        run: pnpm --dir collector exec harbor-collector post-collect --project-root "$GITHUB_WORKSPACE" --collect-id "${{ needs.collect.outputs.collect_id }}"
+          SKILL_HARBOR_PROJECT_ROOT: ${{ github.workspace }}
+        run: node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js --collect-id "${{ needs.collect.outputs.collect_id }}"
 
       - name: Upload final data artifact
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0

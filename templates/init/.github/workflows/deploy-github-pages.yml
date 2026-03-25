@@ -36,7 +36,7 @@ jobs:
         run: pnpm install
 
       - name: Build
-        run: pnpm exec harbor build --project-root "$GITHUB_WORKSPACE" --base=/${{ github.event.repository.name }}
+        run: pnpm build --base=/${{ github.event.repository.name }}
 
       - name: Create Pages artifact
         run: |

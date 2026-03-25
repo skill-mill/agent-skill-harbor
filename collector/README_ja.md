@@ -6,8 +6,8 @@ Agent Skill Harbor の collect / post-collect 用 runtime package です。
 
 ## 目的
 
-- `harbor-collector collect` の実行基盤を提供する
-- `harbor-collector post-collect` の実行基盤を提供する
+- `collect` runtime module を提供する
+- `post-collect` runtime module を提供する
 - GitHub 収集依存と optional な post-collect plugin 依存を分離する
 
 ## Runtime 境界
@@ -15,8 +15,8 @@ Agent Skill Harbor の collect / post-collect 用 runtime package です。
 生成プロジェクトでは、この package を `collector/` に install して使います。
 
 - `pnpm install --dir collector`
-- `pnpm --dir collector exec harbor-collector collect --project-root .`
-- `pnpm --dir collector exec harbor-collector post-collect --project-root .`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js`
 
 optional plugin manifest は `collector/plugins/<plugin-id>/` に置きますが、collector core とは別 surface として install されます。
 

@@ -47,22 +47,24 @@ When installed, the main CLI is available as `harbor` or `agent-skill-harbor`.
 | -------------------------- | -------------------------------------- |
 | `harbor init [dir]`        | Scaffold a new project                 |
 | `harbor setup <plugin-id>` | Scaffold optional plugin runtime files |
-| `harbor build`             | Build the static catalog               |
-| `harbor deploy <target>`   | Deploy the catalog                     |
-| `harbor dev`               | Start the development server           |
-| `harbor preview`           | Preview the built site                 |
 
-Collection commands live in the collector runtime:
+Daily project operations are exposed through the generated root scripts:
 
 ```bash
-pnpm --dir collector exec harbor-collector collect --project-root .
-pnpm --dir collector exec harbor-collector post-collect --project-root .
+pnpm collect
+pnpm post-collect
+pnpm dev
+pnpm build
+pnpm preview
 ```
 
-Generated projects already wrap these through root scripts:
+Under the hood, generated projects call the packaged runtime entry modules directly:
 
-- `pnpm collect`
-- `pnpm post-collect`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js`
+- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js`
+- `node node_modules/agent-skill-harbor/dist/src/runtime/dev.js`
+- `node node_modules/agent-skill-harbor/dist/src/runtime/build.js`
+- `node node_modules/agent-skill-harbor/dist/src/runtime/preview.js`
 
 ## Organization Setup
 

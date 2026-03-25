@@ -11,13 +11,6 @@
 	"files": [
 		"dist/"
 	],
-	"bin": {
-		"harbor-collector": "./dist/bin/collector.js"
-	},
-	"exports": {
-		"./collect": "./dist/src/cli/commands/collect.js",
-		"./post-collect": "./dist/src/cli/commands/post-collect.js"
-	},
 	"scripts": {
 		"format:raw": "prettier \"src/**/*.{js,ts}\" \"*.{json,md}\"",
 		"format": "pnpm run -s format:raw --write",

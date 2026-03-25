@@ -1,10 +1,11 @@
 import { execSync } from 'node:child_process';
+import { resolve } from 'node:path';
 import { parseGitHubRemoteUrl } from '../../../../shared/github-remote.js';
 
 export { parseGitHubRemoteUrl } from '../../../../shared/github-remote.js';
 
 export function getProjectRoot(): string {
-	return process.env.SKILL_HARBOR_PROJECT_ROOT || process.cwd();
+	return resolve(process.env.SKILL_HARBOR_PROJECT_ROOT || process.cwd());
 }
 
 export function detectGitHubOrigin(projectRoot: string): { org: string | null; repo: string | null } {

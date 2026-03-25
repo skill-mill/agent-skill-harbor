@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import { sanitizeCatalogForSave } from './shared/catalog-store.js';
-import { collectFromResolvedFrom } from './collect-org-skills.js';
+import { collectFromResolvedFrom, runCollectOrgSkills } from './collect-org-skills.js';
 
 test('sanitizeCatalogForSave strips copied frontmatter from skills.yaml entries', () => {
 	assert.deepEqual(
@@ -79,4 +82,30 @@ test('collectFromResolvedFrom ignores already queued repos', () => {
 
 	assert.deepEqual(refs, []);
 	assert.equal(queuedRepoKeys.size, 1);
+});
+
+test('runCollectOrgSkills fails when config/harbor.yaml is missing', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'collect-missing-config-'));
+	const originalProjectRoot = process.env.SKILL_HARBOR_PROJECT_ROOT;
+	const originalToken = process.env.GH_TOKEN;
+	const originalOrg = process.env.GH_ORG;
+	const originalRepo = process.env.GH_REPO;
+
+	process.env.SKILL_HARBOR_PROJECT_ROOT = root;
+	process.env.GH_TOKEN = 'test-token';
+	process.env.GH_ORG = 'example';
+	process.env.GH_REPO = 'demo';
+
+	try {
+		await assert.rejects(runCollectOrgSkills(), /error: config\/harbor\.yaml not found/i);
+	} finally {
+		if (originalProjectRoot === undefined) delete process.env.SKILL_HARBOR_PROJECT_ROOT;
+		else process.env.SKILL_HARBOR_PROJECT_ROOT = originalProjectRoot;
+		if (originalToken === undefined) delete process.env.GH_TOKEN;
+		else process.env.GH_TOKEN = originalToken;
+		if (originalOrg === undefined) delete process.env.GH_ORG;
+		else process.env.GH_ORG = originalOrg;
+		if (originalRepo === undefined) delete process.env.GH_REPO;
+		else process.env.GH_REPO = originalRepo;
+	}
 });
