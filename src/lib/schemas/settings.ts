@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import { createDefaultPostCollectPlugins, DEFAULT_HISTORY_LIMIT } from '../../../shared/settings-defaults.js';
 
 const collectorSchema = z.object({
 	exclude_forks: z.boolean().default(true),
 	excluded_repos: z.array(z.string()).default([]),
 	include_origin_repos: z.boolean().default(true),
 	included_extra_repos: z.array(z.string()).default([]),
-	history_limit: z.number().default(50),
+	history_limit: z.number().default(DEFAULT_HISTORY_LIMIT),
 });
 
 const skillSchema = z.object({
@@ -27,7 +28,7 @@ const postCollectPluginSchema = z.object({
 });
 
 const postCollectSchema = z.object({
-	plugins: z.array(postCollectPluginSchema).default([{ id: 'builtin.detect-drift' }]),
+	plugins: z.array(postCollectPluginSchema).default(() => createDefaultPostCollectPlugins()),
 });
 
 export const settingsSchema = z.object({

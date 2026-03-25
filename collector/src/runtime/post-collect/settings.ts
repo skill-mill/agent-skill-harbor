@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { load as yamlLoad } from 'js-yaml';
-import type { PostCollectPluginConfig, PostCollectSettings } from './types.js';
+import { createDefaultPostCollectPlugins, DEFAULT_HISTORY_LIMIT } from '../../../../shared/settings-defaults.js';
+import type { PostCollectPluginConfig } from './types.js';
 
 interface RawSettings {
 	collector?: {
@@ -11,9 +12,6 @@ interface RawSettings {
 		plugins?: PostCollectPluginConfig[];
 	};
 }
-
-export const DEFAULT_POST_COLLECT_PLUGINS: PostCollectPluginConfig[] = [{ id: 'builtin.detect-drift' }];
-export const DEFAULT_HISTORY_LIMIT = 50;
 
 function loadRawSettings(projectRoot: string): RawSettings | null {
 	const settingsPath = join(projectRoot, 'config', 'harbor.yaml');
@@ -28,16 +26,15 @@ function loadRawSettings(projectRoot: string): RawSettings | null {
 	}
 }
 
-export function loadConfiguredPostCollectPlugins(projectRoot: string): PostCollectPluginConfig[] | null {
-	return loadRawSettings(projectRoot)?.post_collect?.plugins ?? null;
+export interface RuntimeSettings {
+	history_limit: number;
+	plugins: PostCollectPluginConfig[];
 }
 
-export function loadPostCollectSettings(projectRoot: string): PostCollectSettings {
+export function loadRuntimeSettings(projectRoot: string): RuntimeSettings {
+	const raw = loadRawSettings(projectRoot);
 	return {
-		plugins: loadConfiguredPostCollectPlugins(projectRoot) ?? DEFAULT_POST_COLLECT_PLUGINS,
+		history_limit: raw?.collector?.history_limit ?? DEFAULT_HISTORY_LIMIT,
+		plugins: raw?.post_collect?.plugins ?? createDefaultPostCollectPlugins(),
 	};
-}
-
-export function loadHistoryLimit(projectRoot: string): number {
-	return loadRawSettings(projectRoot)?.collector?.history_limit ?? DEFAULT_HISTORY_LIMIT;
 }

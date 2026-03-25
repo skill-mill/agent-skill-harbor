@@ -178,3 +178,38 @@ test('notify-slack fails when sending is enabled and no webhook URL is configure
 		}
 	}
 });
+
+test('notify-slack treats blank webhook env vars as missing', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'notify-slack-blank-webhook-'));
+	mkdirSync(join(root, 'data'), { recursive: true });
+
+	const previousWebhookUrl = process.env.HARBOR_SLACK_WEBHOOK_URL;
+	process.env.HARBOR_SLACK_WEBHOOK_URL = '   ';
+
+	try {
+		await assert.rejects(
+			async () =>
+				await notifySlackPlugin.run({
+					schema_version: 1,
+					plugin_id: 'builtin.notify-slack',
+					project_root: root,
+					collect_id: 'collect-blank-webhook',
+					paths: {
+						data_dir: join(root, 'data'),
+						catalog_yaml: join(root, 'data', 'skills.yaml'),
+						skills_dir: join(root, 'data', 'skills'),
+						collects_yaml: join(root, 'data', 'collects.yaml'),
+					},
+					catalog: { repositories: {} },
+					plugin_config: {},
+				}),
+			/HARBOR_SLACK_WEBHOOK_URL is required/,
+		);
+	} finally {
+		if (previousWebhookUrl === undefined) {
+			delete process.env.HARBOR_SLACK_WEBHOOK_URL;
+		} else {
+			process.env.HARBOR_SLACK_WEBHOOK_URL = previousWebhookUrl;
+		}
+	}
+});

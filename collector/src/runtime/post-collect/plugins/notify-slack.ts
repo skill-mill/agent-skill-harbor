@@ -49,7 +49,9 @@ function parseConfig(pluginConfig: Record<string, unknown> | undefined): NotifyS
 
 function resolveWebhookUrl(): string | undefined {
 	const envWebhookUrl = process.env[SLACK_WEBHOOK_ENV_VAR];
-	return typeof envWebhookUrl === 'string' && envWebhookUrl.length > 0 ? envWebhookUrl : undefined;
+	if (typeof envWebhookUrl !== 'string') return undefined;
+	const trimmed = envWebhookUrl.trim();
+	return trimmed.length > 0 ? trimmed : undefined;
 }
 
 function selectCollectEntry(entries: CollectEntry[], collectId: string | null): CollectEntry | undefined {

@@ -19,14 +19,16 @@
 		"./post-collect": "./dist/src/cli/commands/post-collect.js"
 	},
 	"scripts": {
-		"format": "prettier --write \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{json,md}\"",
-		"format:check": "prettier --check \"src/**/*.{js,ts,mjs,cjs,mts,cts}\" \"*.{json,md}\"",
-		"lint": "eslint --fix src",
-		"lint:check": "eslint src",
-		"check": "tsc --noEmit -p tsconfig.json",
+		"format:raw": "prettier \"src/**/*.{js,ts}\" \"*.{json,md}\"",
+		"format": "pnpm run -s format:raw --write",
+		"format:check": "pnpm run -s format:raw --check",
+		"lint": "eslint src",
+		"lint:fix": "eslint --fix src",
+		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"test": "node --import tsx --test \"src/**/*.test.ts\"",
 		"build": "tsup",
-		"verify": "pnpm run format:check && pnpm run lint:check && pnpm run check && pnpm run test"
+		"verify": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test",
+		"fix": "pnpm run format && pnpm run lint:fix && pnpm run typecheck && pnpm run test"
 	},
 	"dependencies": {
 		"@octokit/rest": "^21.1.1",

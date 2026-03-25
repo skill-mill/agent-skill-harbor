@@ -5,6 +5,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
+import { parseGitHubRemoteUrl } from '../../../shared/github-remote.js';
 import type {
 	CollectionEntry,
 	FlatSkillEntry,
@@ -105,16 +106,10 @@ function detectOrgRepo(): { org: string | null; repo: string | null } {
 			encoding: 'utf-8',
 			cwd: PROJECT_ROOT,
 		}).trim();
-		const sshMatch = remoteUrl.match(/^git@[^:]+:([^/]+)\/([^/.]+)/);
-		if (sshMatch) {
-			org = org ?? sshMatch[1];
-			repo = repo ?? sshMatch[2];
-			return { org, repo };
-		}
-		const httpsMatch = remoteUrl.match(/^https?:\/\/[^/]+\/([^/]+)\/([^/.]+)/);
-		if (httpsMatch) {
-			org = org ?? httpsMatch[1];
-			repo = repo ?? httpsMatch[2];
+		const parsed = parseGitHubRemoteUrl(remoteUrl);
+		if (parsed) {
+			org = org ?? parsed.org;
+			repo = repo ?? parsed.repo;
 			return { org, repo };
 		}
 	} catch {

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadConfiguredPostCollectPlugins } from './settings.js';
+import { loadRuntimeSettings } from './settings.js';
 
 export interface EnabledPluginManifestInfo {
 	enabledPluginIds: string[];
@@ -8,8 +8,8 @@ export interface EnabledPluginManifestInfo {
 }
 
 export function detectEnabledPluginManifests(projectRoot: string): EnabledPluginManifestInfo {
-	const enabledPluginIds = (loadConfiguredPostCollectPlugins(projectRoot) ?? [])
-		.map((plugin) => (plugin && typeof plugin === 'object' && typeof plugin.id === 'string' ? plugin.id : null))
+	const enabledPluginIds = loadRuntimeSettings(projectRoot)
+		.plugins.map((plugin) => (plugin && typeof plugin === 'object' && typeof plugin.id === 'string' ? plugin.id : null))
 		.filter((pluginId): pluginId is string => Boolean(pluginId));
 
 	const hasPython = enabledPluginIds.some((pluginId) =>

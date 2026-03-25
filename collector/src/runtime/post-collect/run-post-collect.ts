@@ -16,7 +16,7 @@ import type {
 	PostCollectPluginResult,
 } from './types.js';
 import { normalizeLabelIntent } from './label-intent.js';
-import { loadHistoryLimit, loadPostCollectSettings } from './settings.js';
+import { loadRuntimeSettings } from './settings.js';
 
 const BUILTIN_PLUGINS = new Map<string, BuiltinPostCollectPlugin>([
 	[detectDriftPlugin.id, detectDriftPlugin],
@@ -106,10 +106,10 @@ function savePluginOutput(
 	projectRoot: string,
 	pluginId: string,
 	collectId: string | null,
+	historyLimit: number,
 	result: PostCollectPluginResult,
 ): void {
 	const outputPath = getPluginOutputPath(projectRoot, pluginId);
-	const historyLimit = loadHistoryLimit(projectRoot);
 	mkdirSync(dirname(outputPath), { recursive: true });
 	const { persist: _persist, ...savedResult } = result;
 	const payload: SavedPluginOutputEntry = {
@@ -136,7 +136,7 @@ export interface RunPostCollectOptions {
 
 export async function runPostCollect(options: RunPostCollectOptions): Promise<void> {
 	const log = options.log ?? true;
-	const settings = loadPostCollectSettings(options.projectRoot);
+	const settings = loadRuntimeSettings(options.projectRoot);
 	const plugins = options.plugins ?? settings.plugins;
 	const contextBase: Omit<PostCollectPluginContext, 'plugin_id'> = {
 		schema_version: 1,
@@ -174,7 +174,13 @@ export async function runPostCollect(options: RunPostCollectOptions): Promise<vo
 		const normalizedResult = normalizePluginResult(result);
 		const shouldPersist = normalizedResult.persist !== false;
 		if (shouldPersist) {
-			savePluginOutput(options.projectRoot, plugin.id, options.collectId ?? null, normalizedResult);
+			savePluginOutput(
+				options.projectRoot,
+				plugin.id,
+				options.collectId ?? null,
+				settings.history_limit,
+				normalizedResult,
+			);
 		}
 		if (log) {
 			console.log(`     ${plugin.id} (done)`);
