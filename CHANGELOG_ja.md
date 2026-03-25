@@ -2,6 +2,19 @@
 
 ## [未リリース]
 
+## [cli 0.15.2] / [collector 0.15.2] - 2026-03-26
+
+### 変更
+
+- 生成プロジェクトでは `collect` / `post-collect` / `dev` / `build` / `preview` を project-local な npm script として扱い、package に含まれる runtime entrypoint を直接呼ぶ構成へ整理した。あわせて公開 CLI の責務は `init` と `setup` に絞った
+- collector / web の内部実行経路を `src/runtime/*` 中心に再構成し、shared runtime helper を導入して `cli/commands` wrapper への依存をなくした
+- reusable workflow と生成 workflow をインストール済み runtime module の直接実行へ更新し、Cloudflare Pages の deploy template は `pnpm build` 後に `wrangler pages deploy` を呼ぶ構成へ変更した
+
+### 修正
+
+- 生成プロジェクトの collect / post-collect が誤った project root を見てしまう不具合を修正し、`config/harbor.yaml` を実際の project から読むようにした。設定がない場合は明示的に fail-fast する
+- init のクイックスタート案内と生成される workflow / script template を修正し、現在の package 構成に沿った install・collect・preview 手順と一致させた
+
 ## [cli 0.15.1] / [collector 0.15.1] - 2026-03-25
 
 ### 追加

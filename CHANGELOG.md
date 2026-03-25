@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [cli 0.15.2] / [collector 0.15.2] - 2026-03-26
+
+### Changed
+
+- Simplified generated project execution by treating `collect`, `post-collect`, `dev`, `build`, and `preview` as project-local npm scripts that call packaged runtime entrypoints directly, while narrowing the public CLI surface to `init` and `setup`
+- Reworked the collector and web runtime entry layout around `src/runtime/*` modules and shared runtime helpers so internal execution no longer depends on `cli/commands` wrappers
+- Updated reusable and generated GitHub workflows to call installed runtime modules directly, and changed the Cloudflare Pages deploy template to run `pnpm build` followed by `wrangler pages deploy`
+
+### Fixed
+
+- Fixed generated projects resolving the wrong project root during collect/post-collect runs, so `config/harbor.yaml` is read from the actual project and missing config now fails fast with a clear error
+- Fixed init quick-start guidance and generated workflow/script templates so the documented install, collect, and preview flows match the current package layout
+
 ## [cli 0.15.1] / [collector 0.15.1] - 2026-03-25
 
 ### Added
