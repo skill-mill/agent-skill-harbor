@@ -7,13 +7,18 @@
 
 Agent Skill Harbor は、GitHub Organization 内の Agent Skill (`SKILL.md`) を収集し、社内向けのカタログとして公開するためのツールです。
 
-## 概要
+## 機能
 
 - ガバナンス: 推奨・非推奨・禁止スキルを明示できる
 - 来歴追跡: コピー元や導入元を追跡できる
-- Git ネイティブ: 収集結果は `data/` に YAML/JSON で保存し、Git に commit する
-- バックエンド不要: カタログ UI は prerender 済みの静的 Web アプリ
-- ワークフロー向き: collect と post-collect を別 job で実行する
+- スキル解析: `builtin.audit-skill-scanner` plugin が収集したスキルを解析し安全性を監査
+- Slack 通知: `builtin.notify-slack` plugin で収集・集計後のサマリを通知
+
+## 特長
+
+- Serverless: カタログ UI は prerender 済みの静的 Web アプリ
+- DB-less ＆ Git Native: 収集結果は `data/` に YAML/JSON で保存し、Git に commit する
+- GitHub Native: GitHub Actions でデータ更新し GitHub Pages でホストする
 
 デモサイト:
 
@@ -58,14 +63,6 @@ pnpm build
 pnpm preview
 ```
 
-内部的には、生成された project は package 同梱の runtime entry module を直接呼びます。
-
-- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js`
-- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js`
-- `node node_modules/agent-skill-harbor/dist/src/runtime/dev.js`
-- `node node_modules/agent-skill-harbor/dist/src/runtime/build.js`
-- `node node_modules/agent-skill-harbor/dist/src/runtime/preview.js`
-
 ## 組織セットアップ
 
 1. `npx agent-skill-harbor init` でプロジェクトを作成
@@ -88,25 +85,31 @@ reusable workflow の中では:
 
 ## プロジェクト構成
 
-```text
+```sh
 my-skill-harbor/
-├── .env
+├── .github/workflows/
+│
 ├── config/
-│   ├── harbor.yaml
-│   └── governance.yaml
-├── collector/
+│   ├── harbor.yaml         # アプリケーションの全般的設定
+│   └── governance.yaml     # 追加のガバナンス設定
+│
+├── collector/              # スキル収集バッチ処理
 │   ├── package.json
 │   └── plugins/
-│       └── <plugin-id>/
+│       └── <plugin-id>/    # プラグインごとのマニフェストやコード
+│
 ├── data/
 │   ├── assets/
-│   ├── collects.yaml
-│   ├── plugins/
-│   ├── skills.yaml
-│   └── skills/
+│   ├── collects.yaml       # スキル収集処理の履歴
+│   ├── plugins/            # プラグインごとの成果物
+│   ├── skills.yaml         # 収集したスキルの一覧
+│   └── skills/             # 収集したスキルのファイルのキャッシュ
+│
+├── .env
+│
 ├── guide/
-├── .github/workflows/
-└── package.json
+│
+└── package.json            # Web UI のマニフェスト
 ```
 
 補足:

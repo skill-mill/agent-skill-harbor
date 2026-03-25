@@ -7,13 +7,18 @@
 
 Agent Skill Harbor catalogs Agent Skills (`SKILL.md`) across your GitHub organization and publishes a browsable internal catalog.
 
-## Overview
+## Functions
 
 - Governance: mark skills as recommended, discouraged, or prohibited
 - Provenance: track copied or installed skills back to their origin
-- Git-native: collected data is stored in `data/` as YAML/JSON and committed back to Git
-- Backend-less: the catalog site is a prerendered web app
-- Workflow-friendly: collection and post-collection processing run as separate jobs
+- Skill analysis: `builtin.audit-skill-scanner` analyzes collected skills and audits safety
+- Slack notification: `builtin.notify-slack` sends post-collection summaries
+
+## Features
+
+- Serverless: the catalog UI is a prerendered static web app
+- DB-less & Git-native: collected data is stored in `data/` as YAML/JSON and committed back to Git
+- GitHub-native: data is updated with GitHub Actions and hosted on GitHub Pages
 
 Demo site:
 
@@ -58,14 +63,6 @@ pnpm build
 pnpm preview
 ```
 
-Under the hood, generated projects call the packaged runtime entry modules directly:
-
-- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/collect-command.js`
-- `node collector/node_modules/agent-skill-harbor-collector/dist/src/runtime/post-collect-command.js`
-- `node node_modules/agent-skill-harbor/dist/src/runtime/dev.js`
-- `node node_modules/agent-skill-harbor/dist/src/runtime/build.js`
-- `node node_modules/agent-skill-harbor/dist/src/runtime/preview.js`
-
 ## Organization Setup
 
 1. Create a new project with `npx agent-skill-harbor init`.
@@ -88,25 +85,31 @@ See [Organization Setup](docs/01-organization-setup.md) for details.
 
 ## Project Structure
 
-```text
+```sh
 my-skill-harbor/
-├── .env
+├── .github/workflows/
+│
 ├── config/
-│   ├── harbor.yaml
-│   └── governance.yaml
-├── collector/
+│   ├── harbor.yaml         # General application settings
+│   └── governance.yaml     # Additional governance settings
+│
+├── collector/              # Batch processing for skill collection
 │   ├── package.json
 │   └── plugins/
-│       └── <plugin-id>/
+│       └── <plugin-id>/    # Per-plugin manifests and code
+│
 ├── data/
 │   ├── assets/
-│   ├── collects.yaml
-│   ├── plugins/
-│   ├── skills.yaml
-│   └── skills/
+│   ├── collects.yaml       # History of skill collection runs
+│   ├── plugins/            # Outputs produced by each plugin
+│   ├── skills.yaml         # Index of collected skills
+│   └── skills/             # Cached files for collected skills
+│
+├── .env
+│
 ├── guide/
-├── .github/workflows/
-└── package.json
+│
+└── package.json            # Manifest for the web UI
 ```
 
 Notes:
