@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor?tab=readme-ov-file#agent-skill-harbor">project</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/docs/92-release.md">release</a></p>
+<p align="center"><a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/collector/README.md">en</a> | <a href="https://github.com/skill-mill/agent-skill-harbor/blob/main/collector/README_ja.md">ja</a></p>
 
 # agent-skill-harbor-collector
 
