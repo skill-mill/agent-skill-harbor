@@ -3,7 +3,7 @@ import svelte from 'eslint-plugin-svelte';
 
 export default tseslint.config(
 	{
-		ignores: ['dist/**', '.svelte-kit/**', 'build/**', 'collector/dist/**'],
+		ignores: ['dist/**', '.svelte-kit/**', 'build/**', 'storybook-static/**', 'collector/dist/**'],
 	},
 	...tseslint.configs.recommended,
 	...svelte.configs['flat/recommended'],

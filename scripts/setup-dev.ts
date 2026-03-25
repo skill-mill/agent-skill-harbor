@@ -88,7 +88,7 @@ try {
 
 console.log(
 	'\nDone! Edit .env (uncomment and set GH_TOKEN, GH_ORG) and run from the repository root:\n' +
-		'  pnpm build:cli\n' +
+			'  pnpm cli:build\n' +
 		'  pnpm --dir collector build\n' +
 		'  GH_TOKEN=$(gh auth token) node collector/dist/bin/collector.js collect\n' +
 		"  COLLECT_ID=$(grep -m1 '^- collect_id:' data/collects.yaml | sed 's/^- collect_id: //')\n" +

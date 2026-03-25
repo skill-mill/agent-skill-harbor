@@ -2,6 +2,7 @@
 agent-skill-harbor-*.tgz
 build/
 dist/
+storybook-static/
 node_modules/
 collector/dist/
 collector/node_modules/

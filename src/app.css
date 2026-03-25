@@ -18,6 +18,12 @@
 }
 
 @layer base {
+	html,
+	body {
+		background-color: var(--color-background);
+		color: var(--color-foreground);
+	}
+
 	.dark {
 		--color-background: oklch(0.145 0.004 285.82);
 		--color-foreground: oklch(0.985 0 0);

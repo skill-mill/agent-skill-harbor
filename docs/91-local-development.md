@@ -38,7 +38,7 @@ pnpm install
 pnpm --dir collector install
 pnpm setup:dev
 
-pnpm build:cli
+pnpm cli:build
 pnpm --dir collector build
 node dist/bin/cli.js dev
 ```
@@ -57,8 +57,10 @@ pnpm verify
 pnpm --dir collector verify
 
 pnpm build
-pnpm build:cli
+pnpm cli:build
 pnpm --dir collector build
+pnpm storybook
+pnpm storybook:build
 
 node dist/bin/cli.js dev
 node dist/bin/cli.js build

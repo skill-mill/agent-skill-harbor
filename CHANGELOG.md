@@ -12,7 +12,7 @@
 ### Changed
 
 - **Starting with 0.15.0, the publishable package layout changed from four packages (`cli`, `collector`, `post-collect`, `web`) to two packages: the root `agent-skill-harbor` package and `collector/`.** The older `packages/*` split was removed, and related templates, workflows, and docs were updated accordingly
-- Reorganized root scripts around `dev` / `build` / `preview` for web flows, `build:cli` for the packaged CLI build, and `typecheck` / `verify` / `fix` for repository maintenance
+- Reorganized root scripts around `dev` / `build` / `preview` for web flows, `cli:build` for the packaged CLI build, and `typecheck` / `verify` / `fix` for repository maintenance
 - Updated contributor and release documentation to match the current package layout, command names, and local development flow
 
 ### Fixed

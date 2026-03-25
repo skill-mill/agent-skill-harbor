@@ -37,7 +37,7 @@ git tag collector-v<version>
 ```bash
 pnpm install --no-frozen-lockfile
 pnpm verify
-pnpm build:cli
+pnpm cli:build
 
 npm publish --access public
 

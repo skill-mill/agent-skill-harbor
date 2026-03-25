@@ -46,7 +46,9 @@
 		"dev": "node --import tsx src/cli/commands/dev.ts",
 		"build": "node --import tsx src/cli/commands/build.ts",
 		"preview": "node --import tsx src/cli/commands/preview.ts",
-		"build:cli": "tsup",
+		"storybook": "storybook dev -p 6006 --ci",
+		"storybook:build": "storybook build",
+		"cli:build": "tsup",
 		"format:raw": "prettier \"bin/**/*.{js,ts}\" \"shared/**/*.{js,ts}\" \"src/**/*.{js,ts,svelte}\" \"scripts/**/*.{js,ts}\" \"guide/**/*.md\" \"docs/**/*.md\" \"*.{js,ts,json,md,yaml,yml}\"",
 		"format": "pnpm run -s format:raw --write",
 		"format:check": "pnpm run -s format:raw --check",
@@ -91,6 +93,9 @@
 		"zod": "4.3.6"
 	},
 	"devDependencies": {
+		"@storybook/addon-svelte-csf": "5.1.0",
+		"@storybook/addon-themes": "10.3.3",
+		"@storybook/sveltekit": "10.3.3",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^22.15.0",
 		"@types/three": "0.183.1",
@@ -99,6 +104,7 @@
 		"eslint-plugin-svelte": "^3.0.0",
 		"prettier": "3.8.1",
 		"prettier-plugin-svelte": "3.5.1",
+		"storybook": "10.3.3",
 		"svelte-check": "^4.0.0",
 		"sveltekit-view-transition": "0.5.3",
 		"tsup": "8.5.1",

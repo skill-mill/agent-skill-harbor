@@ -13,10 +13,12 @@
 		items,
 		selected,
 		onSelect,
+		expandOnFocus = true,
 	}: {
 		items: ToggleItem<T>[];
 		selected: T;
 		onSelect: (value: T) => void;
+		expandOnFocus?: boolean;
 	} = $props();
 
 	let expanded = $state(false);
@@ -51,7 +53,7 @@
 			return `${base} min-h-6 min-w-8 px-1.5 text-gray-500 opacity-100 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200`;
 		}
 
-		return `${base} max-w-0 overflow-hidden px-0 opacity-0`;
+		return `${base} w-0 min-w-0 max-w-0 overflow-hidden border-transparent px-0 opacity-0 pointer-events-none`;
 	}
 </script>
 
@@ -59,8 +61,12 @@
 	role="group"
 	onmouseenter={show}
 	onmouseleave={hide}
-	onfocusin={show}
-	onfocusout={hide}
+	onfocusin={() => {
+		if (expandOnFocus) show();
+	}}
+	onfocusout={() => {
+		if (expandOnFocus) hide();
+	}}
 	class="flex items-center rounded-lg border border-gray-200 bg-gray-100 p-0.5 dark:border-gray-700 dark:bg-gray-800"
 >
 	{#each items as item (item.value)}

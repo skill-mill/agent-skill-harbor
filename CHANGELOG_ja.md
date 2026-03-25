@@ -12,7 +12,7 @@
 ### 変更
 
 - **0.15.0 から、publish 対象の package 構成を従来の 4 つ（`cli`, `collector`, `post-collect`, `web`）から 2 つ、すなわち root の `agent-skill-harbor` package と `collector/` へ変更した。** 以前の `packages/*` 分割は廃止し、あわせて template、workflow、関連ドキュメントも現行構成に更新
-- root scripts を、Web 用の `dev` / `build` / `preview`、配布用 CLI build の `build:cli`、保守用の `typecheck` / `verify` / `fix` を中心とした構成に整理
+- root scripts を、Web 用の `dev` / `build` / `preview`、配布用 CLI build の `cli:build`、保守用の `typecheck` / `verify` / `fix` を中心とした構成に整理
 - コントリビューター向け・リリース向けドキュメントを、現在の package 構成、command 名、ローカル開発フローに合わせて更新
 
 ### 修正
