@@ -16,11 +16,12 @@ interface SavedPluginEntry {
 }
 
 interface NotifySlackConfig {
-	webhook_url?: string;
 	disable_send?: boolean;
 	use_debug_message?: boolean;
 	highlight_intents?: LabelIntent[];
 }
+
+const SLACK_WEBHOOK_ENV_VAR = 'HARBOR_SLACK_WEBHOOK_URL';
 
 interface SlackTextObject {
 	type: 'mrkdwn' | 'plain_text';
@@ -40,11 +41,15 @@ function parseConfig(pluginConfig: Record<string, unknown> | undefined): NotifyS
 		: undefined;
 
 	return {
-		webhook_url: typeof pluginConfig?.webhook_url === 'string' ? pluginConfig.webhook_url : undefined,
 		disable_send: pluginConfig?.disable_send === true,
 		use_debug_message: pluginConfig?.use_debug_message === true,
 		highlight_intents: highlightIntents && highlightIntents.length > 0 ? highlightIntents : undefined,
 	};
+}
+
+function resolveWebhookUrl(): string | undefined {
+	const envWebhookUrl = process.env[SLACK_WEBHOOK_ENV_VAR];
+	return typeof envWebhookUrl === 'string' && envWebhookUrl.length > 0 ? envWebhookUrl : undefined;
 }
 
 function selectCollectEntry(entries: CollectEntry[], collectId: string | null): CollectEntry | undefined {
@@ -202,6 +207,7 @@ export const notifySlackPlugin: BuiltinPostCollectPlugin = {
 	id: 'builtin.notify-slack',
 	async run(context) {
 		const config = parseConfig(context.plugin_config);
+		const webhookUrl = resolveWebhookUrl();
 		const highlightIntents = new Set(config.highlight_intents ?? DEFAULT_HIGHLIGHT_INTENTS);
 		const collectEntries = loadYamlArray<CollectEntry>(context.paths.collects_yaml);
 		const collectEntry = selectCollectEntry(collectEntries, context.collect_id);
@@ -226,11 +232,10 @@ export const notifySlackPlugin: BuiltinPostCollectPlugin = {
 		if (config.disable_send) {
 			console.log('[builtin.notify-slack] Slack send disabled by config.disable_send=true');
 			console.log(notification.text);
-		} else if (!config.webhook_url) {
-			console.log('[builtin.notify-slack] Slack webhook_url is not configured; skipping send');
-			console.log(notification.text);
+		} else if (!webhookUrl) {
+			throw new Error(`[builtin.notify-slack] ${SLACK_WEBHOOK_ENV_VAR} is required`);
 		} else {
-			await postToSlack(config.webhook_url, {
+			await postToSlack(webhookUrl, {
 				text: notification.text,
 				blocks: notification.blocks,
 			});

@@ -165,7 +165,6 @@ post_collect:
     - id: builtin.notify-slack
       short_label: Slack
       config:
-        webhook_url: https://hooks.slack.com/services/...
         disable_send: false
         use_debug_message: false
         highlight_intents:
@@ -174,3 +173,5 @@ post_collect:
 
 `highlight_intents` は省略可能です。既定では `warn` と `danger` を強調対象にします。
 ```
+
+送信を有効にする場合は `HARBOR_SLACK_WEBHOOK_URL` が必須です。

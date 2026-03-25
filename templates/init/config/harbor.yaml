@@ -42,11 +42,10 @@ post_collect:
   #     short_label: Example
 
   # builtin.notify-slack does not need additional setup files.
-  # Just uncomment the line below.
+  # Just uncomment the line below, then set HARBOR_SLACK_WEBHOOK_URL in .env or CI secrets.
   #   - id: builtin.notify-slack
   #     short_label: Slack
   #     config:
-  #       webhook_url: https://hooks.slack.com/services/...
   #       disable_send: false
   #       use_debug_message: false
   #       highlight_intents:

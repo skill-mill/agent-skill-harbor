@@ -99,3 +99,82 @@ test('notify-slack debug message clearly includes DEBUG text', async () => {
 		console.log = originalLog;
 	}
 });
+
+test('notify-slack sends using HARBOR_SLACK_WEBHOOK_URL', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'notify-slack-env-'));
+	mkdirSync(join(root, 'data'), { recursive: true });
+
+	const previousWebhookUrl = process.env.HARBOR_SLACK_WEBHOOK_URL;
+	const previousFetch = globalThis.fetch;
+	const requests: { url: string; body: string }[] = [];
+	process.env.HARBOR_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/services/from-env';
+	globalThis.fetch = (async (input, init) => {
+		requests.push({
+			url: String(input),
+			body: typeof init?.body === 'string' ? init.body : '',
+		});
+		return new Response('ok', { status: 200 });
+	}) as typeof fetch;
+
+	try {
+		await notifySlackPlugin.run({
+			schema_version: 1,
+			plugin_id: 'builtin.notify-slack',
+			project_root: root,
+			collect_id: 'collect-env',
+			paths: {
+				data_dir: join(root, 'data'),
+				catalog_yaml: join(root, 'data', 'skills.yaml'),
+				skills_dir: join(root, 'data', 'skills'),
+				collects_yaml: join(root, 'data', 'collects.yaml'),
+			},
+			catalog: { repositories: {} },
+			plugin_config: {},
+		});
+
+		assert.equal(requests.length, 1);
+		assert.equal(requests[0]?.url, 'https://hooks.slack.com/services/from-env');
+	} finally {
+		if (previousWebhookUrl === undefined) {
+			delete process.env.HARBOR_SLACK_WEBHOOK_URL;
+		} else {
+			process.env.HARBOR_SLACK_WEBHOOK_URL = previousWebhookUrl;
+		}
+		globalThis.fetch = previousFetch;
+	}
+});
+
+test('notify-slack fails when sending is enabled and no webhook URL is configured', async () => {
+	const root = mkdtempSync(join(tmpdir(), 'notify-slack-missing-webhook-'));
+	mkdirSync(join(root, 'data'), { recursive: true });
+
+	const previousWebhookUrl = process.env.HARBOR_SLACK_WEBHOOK_URL;
+	delete process.env.HARBOR_SLACK_WEBHOOK_URL;
+
+	try {
+		await assert.rejects(
+			async () =>
+				await notifySlackPlugin.run({
+					schema_version: 1,
+					plugin_id: 'builtin.notify-slack',
+					project_root: root,
+					collect_id: 'collect-missing-webhook',
+					paths: {
+						data_dir: join(root, 'data'),
+						catalog_yaml: join(root, 'data', 'skills.yaml'),
+						skills_dir: join(root, 'data', 'skills'),
+						collects_yaml: join(root, 'data', 'collects.yaml'),
+					},
+					catalog: { repositories: {} },
+					plugin_config: {},
+				}),
+			/HARBOR_SLACK_WEBHOOK_URL is required/,
+		);
+	} finally {
+		if (previousWebhookUrl === undefined) {
+			delete process.env.HARBOR_SLACK_WEBHOOK_URL;
+		} else {
+			process.env.HARBOR_SLACK_WEBHOOK_URL = previousWebhookUrl;
+		}
+	}
+});

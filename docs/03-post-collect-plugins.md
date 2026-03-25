@@ -163,7 +163,6 @@ post_collect:
     - id: builtin.notify-slack
       short_label: Slack
       config:
-        webhook_url: https://hooks.slack.com/services/...
         disable_send: false
         use_debug_message: false
         highlight_intents:
@@ -172,3 +171,5 @@ post_collect:
 
 `highlight_intents` is optional. By default, `builtin.notify-slack` highlights `warn` and `danger`.
 ```
+
+`HARBOR_SLACK_WEBHOOK_URL` is required when sending is enabled.
