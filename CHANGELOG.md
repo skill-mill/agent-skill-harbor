@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [cli 0.15.5] / [collector 0.15.5] - 2026-03-26
+
+### Fixed
+
+- Fixed generated projects failing to start the web app because published root packages did not include the top-level `shared/` modules referenced from `src/`
+- Fixed `harbor init .` next-step output so it no longer prints the meaningless `cd .` step
+
 ## [cli 0.15.4] / [collector 0.15.4] - 2026-03-26
 
 ### Fixed

@@ -2,6 +2,13 @@
 
 ## [未リリース]
 
+## [cli 0.15.5] / [collector 0.15.5] - 2026-03-26
+
+### 修正
+
+- root package の publish 対象に top-level `shared/` が含まれておらず、`src/` から参照している shared module が generated project の `pnpm dev` で解決できない不具合を修正した
+- `harbor init .` 後の next steps で意味のない `cd .` を表示しないようにした
+
 ## [cli 0.15.4] / [collector 0.15.4] - 2026-03-26
 
 ### 修正
