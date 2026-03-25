@@ -5,7 +5,7 @@ declare const __PROJECT_ROOT__: string;
 declare const __WEB_PACKAGE_ROOT__: string;
 
 const PROJECT_GUIDE_DIR = join(__PROJECT_ROOT__, 'guide');
-const DEFAULT_GUIDE_DIR = join(__WEB_PACKAGE_ROOT__, 'guide');
+const DEFAULT_GUIDE_DIR = join(__WEB_PACKAGE_ROOT__, 'src', 'lib', 'server', 'default-guide');
 
 const SOURCE_DIRS = [PROJECT_GUIDE_DIR, DEFAULT_GUIDE_DIR];
 
@@ -24,10 +24,7 @@ function fileExists(path: string): boolean {
 }
 
 function resolveIndexPath(locale: string): string | null {
-	const localizedNames =
-		locale === 'en'
-			? ['index.md', 'README.md']
-			: [`index_${locale}.md`, `${locale === 'ja' ? 'README_ja.md' : `README_${locale}.md`}`, 'index.md', 'README.md'];
+	const localizedNames = locale === 'en' ? ['index.md'] : [`index_${locale}.md`, 'index.md'];
 
 	for (const dir of SOURCE_DIRS) {
 		for (const name of localizedNames) {
@@ -35,11 +32,6 @@ function resolveIndexPath(locale: string): string | null {
 			if (fileExists(candidate)) return candidate;
 		}
 	}
-
-	const projectReadme =
-		locale === 'en' ? join(__PROJECT_ROOT__, 'README.md') : join(__PROJECT_ROOT__, `README_${locale}.md`);
-	if (fileExists(projectReadme)) return projectReadme;
-	if (locale !== 'en' && fileExists(join(__PROJECT_ROOT__, 'README.md'))) return join(__PROJECT_ROOT__, 'README.md');
 	return null;
 }
 
@@ -77,6 +69,7 @@ function stripPreamble(content: string): string {
 
 function rewriteGuideLinks(content: string): string {
 	return content
+		.replace(/\((?:\.\/)?docs\/(?:\d+-)?([^)\/]+?)(?:_[a-z]{2})?\.md\)/g, '(/guide/$1)')
 		.replace(/\(guide\/(?:\d+-)?([^)]+?)(?:_[a-z]{2})?\.md\)/g, '(/guide/$1)')
 		.replace(/\((?:\.\/)?README(?:_[a-z]{2})?\.md\)/g, '(/guide)');
 }
