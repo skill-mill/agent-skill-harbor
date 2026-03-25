@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [cli 0.15.3] / [collector 0.15.3] - 2026-03-26
+
+### Fixed
+
+- Fixed packaged runtime entrypoints such as `pnpm collect`, `pnpm post-collect`, `pnpm build`, `pnpm dev`, and `pnpm preview` so they execute correctly when Node runs them through pnpm-managed symlinked paths
+- Shared direct-execution detection in a common helper and updated init next-step output to show `gh auth login` and `pnpm collect` as separate lines
+
 ## [cli 0.15.2] / [collector 0.15.2] - 2026-03-26
 
 ### Changed

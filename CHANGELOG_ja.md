@@ -2,6 +2,13 @@
 
 ## [未リリース]
 
+## [cli 0.15.3] / [collector 0.15.3] - 2026-03-26
+
+### 修正
+
+- `pnpm collect` / `pnpm post-collect` / `pnpm build` / `pnpm dev` / `pnpm preview` など、package 化された runtime entrypoint を pnpm 管理下の symlink 経由で実行したときに起動判定が外れて何も実行されない不具合を修正した
+- direct execution 判定を共通 helper にまとめ、init 後の next steps では `gh auth login` と `pnpm collect` を別行で表示するようにした
+
 ## [cli 0.15.2] / [collector 0.15.2] - 2026-03-26
 
 ### 変更
