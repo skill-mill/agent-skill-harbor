@@ -182,11 +182,12 @@ function replaceConfig(targetDir: string): void {
 }
 
 function printNextSteps(targetArg?: string): void {
+	const changeDirectoryStep = targetArg && targetArg !== '.' ? `  1. cd ${targetArg}\n` : '';
+
 	console.log(`
 Done! Next steps:
 
-  1. cd ${targetArg || '.'}
-  2. Edit .env: uncomment and set GH_ORG
+${changeDirectoryStep}  2. Edit .env: uncomment and set GH_ORG
   3. Install dependencies:
      pnpm install
   4. Install collector runtime dependencies:

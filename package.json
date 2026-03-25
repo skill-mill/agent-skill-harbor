@@ -27,6 +27,7 @@
 	"files": [
 		"dist/",
 		"templates/",
+		"shared/",
 		"src/",
 		"static/.nojekyll",
 		"svelte.config.js",
