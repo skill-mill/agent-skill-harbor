@@ -2,6 +2,7 @@
 	import type { FlatSkillEntry, UsagePolicy } from '$lib/types';
 	import GovernanceBadge from './GovernanceBadge.svelte';
 	import PluginLabelBadge from './PluginLabelBadge.svelte';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { t } from '$lib/i18n';
 	import { base } from '$app/paths';
 	import { isSkillNew } from '$lib/utils/skills';
@@ -37,9 +38,7 @@
 
 <a
 	href="{base}/skills/{skill.key}"
-	class="block min-w-0 overflow-hidden rounded-lg border border-l-4 border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-900 dark:shadow-gray-900/50 dark:hover:shadow-gray-900/80 {skill.isOrgOwned
-		? 'border-l-blue-500 dark:border-l-blue-400'
-		: 'border-l-transparent'}"
+	class="block min-w-0 overflow-hidden rounded-xl border border-gray-200/80 bg-white p-5 shadow-sm ring-1 ring-gray-950/5 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-lg hover:shadow-gray-200/70 dark:border-gray-700/80 dark:bg-gray-900 dark:ring-white/8 dark:hover:border-gray-600 dark:hover:shadow-gray-950/80"
 >
 	<div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 		<div class="min-w-0 flex-1">
@@ -53,14 +52,18 @@
 					{skillName}
 				</span>
 			</h3>
-			<p class="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
-				{skillDescription}
-			</p>
-			{#if skill.excerpt}
-				<p class="mt-1.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-500">
-					{skill.excerpt}
-				</p>
-			{/if}
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					{#snippet child({ props })}
+						<p {...props} class="mt-1 line-clamp-4 text-sm leading-6 text-gray-600 dark:text-gray-400">
+							{skillDescription}
+						</p>
+					{/snippet}
+				</Tooltip.Trigger>
+				<Tooltip.Content class="max-w-md whitespace-pre-line text-sm leading-6">
+					{skillDescription}
+				</Tooltip.Content>
+			</Tooltip.Root>
 		</div>
 		<div class="flex shrink-0 flex-row flex-wrap items-start gap-1.5 sm:flex-col sm:items-end">
 			{#if isNew}
