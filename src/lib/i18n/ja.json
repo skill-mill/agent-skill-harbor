@@ -12,7 +12,7 @@
 		"clearAll": "すべて解除",
 		"allStatus": "ステータス",
 		"allVisibility": "公開範囲",
-		"allOrigin": "Origin",
+		"allOrigin": "コピー元",
 		"allOwner": "オーナー",
 		"all": "すべて",
 		"originYes": "あり",
@@ -74,12 +74,6 @@
 		"message": "お探しのページは存在しないか、移動された可能性があります。",
 		"backToCatalog": "カタログに戻る"
 	},
-	"viewTabs": {
-		"card": "カード",
-		"list": "リスト",
-		"graph": "グラフ",
-		"stats": "統計"
-	},
 	"skillTable": {
 		"name": "名前",
 		"description": "説明",
@@ -105,7 +99,7 @@
 		"owner": "オーナー"
 	},
 	"originTable": {
-		"origin": "オリジン",
+		"origin": "コピー元",
 		"skills": "スキル数",
 		"unique": "ユニーク数",
 		"owner": "オーナー"
@@ -221,7 +215,7 @@
 		},
 		"field": {
 			"owner": "オーナー:",
-			"origin": "オリジン:",
+			"origin": "コピー元:",
 			"repository": "リポジトリ:",
 			"skillPath": "スキルパス:",
 			"platform": "プラットフォーム:",

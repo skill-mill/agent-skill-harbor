@@ -2,7 +2,6 @@
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
-	import { t } from '$lib/i18n';
 	import { VIEW_TABS_TRANSITION_NAME } from '$lib/utils/view-transition';
 	import { setupViewTransition } from 'sveltekit-view-transition';
 	import Grid2x2 from '@lucide/svelte/icons/grid-2x2';
@@ -21,11 +20,11 @@
 	let { activeView, onchange, showBottomBorder = true }: Props = $props();
 	const { transition: viewTransition } = setupViewTransition();
 
-	const tabs: { key: ViewMode; icon: 'grid' | 'list' | 'graph' | 'stats' }[] = [
-		{ key: 'stats', icon: 'stats' },
-		{ key: 'card', icon: 'grid' },
-		{ key: 'list', icon: 'list' },
-		{ key: 'graph', icon: 'graph' },
+	const tabs: { key: ViewMode; icon: 'grid' | 'list' | 'graph' | 'stats'; label: string }[] = [
+		{ key: 'stats', icon: 'stats', label: 'Stats' },
+		{ key: 'card', icon: 'grid', label: 'Card' },
+		{ key: 'list', icon: 'list', label: 'List' },
+		{ key: 'graph', icon: 'graph', label: 'Graph' },
 	];
 
 	function getFilterParams(): { owner?: string; visibility?: string } {
@@ -103,7 +102,7 @@
 			{:else}
 				<BarChart3 class="h-4 w-4" />
 			{/if}
-			{$t(`viewTabs.${tab.key}`)}
+			{tab.label}
 			{#if isActive}
 				<span class="absolute bottom-0 left-1 right-1 h-0.5 rounded-full bg-blue-500 dark:bg-blue-400"></span>
 			{/if}

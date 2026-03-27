@@ -103,7 +103,7 @@
 		{/if}
 		<span class="min-w-0 break-all">{skill.owner}/{skill.repo}</span>
 		{#if showOrigin}
-			<span class="min-w-0 break-all">Origin: {origin}</span>
+			<span class="min-w-0 break-all">{$t('detail.field.origin')} {origin}</span>
 		{/if}
 		{#if metadata.author}
 			<span class="break-all">by {metadata.author}</span>

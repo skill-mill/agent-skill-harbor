@@ -74,12 +74,6 @@
 		"message": "The page you're looking for doesn't exist or has been moved.",
 		"backToCatalog": "Back to Catalog"
 	},
-	"viewTabs": {
-		"card": "Card",
-		"list": "List",
-		"graph": "Graph",
-		"stats": "Stats"
-	},
 	"skillTable": {
 		"name": "Name",
 		"description": "Description",
