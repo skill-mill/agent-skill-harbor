@@ -137,12 +137,19 @@ function loadGovernance(): Record<string, GovernanceEntry> {
 }
 
 function loadSettingsRaw(): SettingsConfig {
-	if (!existsSync(HARBOR_PATH)) return settingsSchema.parse({});
+	if (!existsSync(HARBOR_PATH)) {
+		throw new Error(
+			`Missing required config file: config/harbor.yaml\nExpected path: ${HARBOR_PATH}\nCreate this file or run \`harbor init\` / \`harbor setup\` to generate project config.`,
+		);
+	}
 	try {
 		const raw = yamlLoad(readFileSync(HARBOR_PATH, 'utf-8'));
 		return settingsSchema.parse(raw ?? {});
-	} catch {
-		return settingsSchema.parse({});
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		throw new Error(
+			`Failed to load config/harbor.yaml\nPath: ${HARBOR_PATH}\nCheck the YAML syntax and schema.\nDetails: ${message}`,
+		);
 	}
 }
 
@@ -328,12 +335,17 @@ export function loadSettingsConfig(): SettingsConfig {
 	return loadSettingsRaw();
 }
 
-export function loadSettingsConfigRaw(): string | null {
-	if (!existsSync(HARBOR_PATH)) return null;
+export function loadSettingsConfigRaw(): string {
+	if (!existsSync(HARBOR_PATH)) {
+		throw new Error(
+			`Missing required config file: config/harbor.yaml\nExpected path: ${HARBOR_PATH}\nCreate this file or run \`harbor init\` / \`harbor setup\` to generate project config.`,
+		);
+	}
 	try {
 		return readFileSync(HARBOR_PATH, 'utf-8');
-	} catch {
-		return null;
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		throw new Error(`Failed to read config/harbor.yaml\nPath: ${HARBOR_PATH}\nDetails: ${message}`);
 	}
 }
 
