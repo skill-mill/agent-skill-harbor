@@ -69,6 +69,24 @@
 		"skillCount_other": "{count} 件のスキルが登録済み",
 		"showing": "{total} 件中 {displayed} 件を表示"
 	},
+	"findings": {
+		"title": "Findings",
+		"pageTitle": "Findings - Agent Skill Harbor",
+		"pageDescription": "最新収集で強調対象になった Plugin Results 一覧",
+		"descriptionCurrent": "ここではプラグインが検出した重要な Findings を一覧表示しています。",
+		"descriptionMore": "Findings の説明を表示",
+		"descriptionDetail": "現在表示する intent は {intents} です。ここで表示する対象は `catalog.skill.highlight_intents` で指定できます。デフォルトは `danger` です。",
+		"items": "件の findings",
+		"empty": "条件に一致する findings はありません。",
+		"jumpToPluginOutputs": "Plugin Outputs へ移動",
+		"noSummary": "要約はありません",
+		"columns": {
+			"finding": "Finding",
+			"skill": "スキル",
+			"repository": "リポジトリ",
+			"plugin": "プラグイン"
+		}
+	},
 	"error": {
 		"title": "ページが見つかりません",
 		"message": "お探しのページは存在しないか、移動された可能性があります。",

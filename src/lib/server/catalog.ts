@@ -8,6 +8,7 @@ import { env } from '$env/dynamic/private';
 import { parseGitHubRemoteUrl } from '../../../shared/github-remote.js';
 import type {
 	CollectionEntry,
+	FindingEntry,
 	FlatSkillEntry,
 	LabelIntent,
 	PluginFilterOption,
@@ -387,6 +388,7 @@ let cachedPluginOutputs: PluginOutputEntry[] | null = null;
 let cachedLatestPluginOutputs: PluginOutputEntry[] | null = null;
 let cachedPluginHistoryColumns: PluginHistoryColumn[] | null = null;
 let cachedPluginHistorySummaries: Record<string, PluginHistorySummary> | null = null;
+let cachedLatestHighlightedFindings: FindingEntry[] | null = null;
 
 export function loadPluginOutputHistory(): PluginOutputEntry[] {
 	if (!dev && cachedPluginOutputs) return cachedPluginOutputs;
@@ -437,6 +439,81 @@ export function loadLatestPluginOutputs(): PluginOutputEntry[] {
 	}
 	cachedLatestPluginOutputs = [...latestByPlugin.values()].sort((a, b) => a.plugin_id.localeCompare(b.plugin_id));
 	return cachedLatestPluginOutputs;
+}
+
+function getIntentOrder(intent: LabelIntent, highlightedIntents: LabelIntent[]): number {
+	const highlightedIndex = highlightedIntents.indexOf(intent);
+	if (highlightedIndex >= 0) return highlightedIndex;
+
+	switch (intent) {
+		case 'danger':
+			return 100;
+		case 'warn':
+			return 101;
+		case 'info':
+			return 102;
+		case 'success':
+			return 103;
+		default:
+			return 104;
+	}
+}
+
+export function loadLatestHighlightedFindings(): FindingEntry[] {
+	if (!dev && cachedLatestHighlightedFindings) return cachedLatestHighlightedFindings;
+
+	const { skills } = loadCatalog();
+	const settings = loadSettingsConfig();
+	const highlightIntents = settings.catalog?.skill?.highlight_intents ?? ['danger'];
+	const configuredPlugins = settings.post_collect.plugins;
+	const pluginSettings = new Map(configuredPlugins.map((plugin) => [plugin.id, plugin]));
+	const pluginOrder = new Map(configuredPlugins.map((plugin, index) => [plugin.id, index]));
+	const skillsByKey = new Map(skills.map((skill) => [skill.key, skill]));
+
+	const findings: FindingEntry[] = [];
+
+	for (const output of loadLatestPluginOutputs()) {
+		const labelIntents = output.label_intents ?? {};
+		for (const [skillKey, result] of Object.entries(output.results ?? {})) {
+			if (!result?.label) continue;
+
+			const intent = labelIntents[result.label] ?? 'neutral';
+			if (!highlightIntents.includes(intent)) continue;
+
+			const skill = skillsByKey.get(skillKey);
+			if (!skill) continue;
+
+			const shortLabel = pluginSettings.get(output.plugin_id)?.short_label;
+			findings.push({
+				skill,
+				plugin_id: output.plugin_id,
+				...(shortLabel ? { plugin_short_label: shortLabel } : {}),
+				label: result.label,
+				intent,
+				...(output.summary ? { summary: output.summary } : {}),
+				...(typeof result.raw === 'string' && result.raw.length > 0 ? { raw: result.raw } : {}),
+			});
+		}
+	}
+
+	findings.sort((a, b) => {
+		const pluginOrderA = pluginOrder.get(a.plugin_id) ?? Number.MAX_SAFE_INTEGER;
+		const pluginOrderB = pluginOrder.get(b.plugin_id) ?? Number.MAX_SAFE_INTEGER;
+		if (pluginOrderA !== pluginOrderB) return pluginOrderA - pluginOrderB;
+
+		const intentOrderA = getIntentOrder(a.intent, highlightIntents);
+		const intentOrderB = getIntentOrder(b.intent, highlightIntents);
+		if (intentOrderA !== intentOrderB) return intentOrderA - intentOrderB;
+
+		const skillNameA = String(a.skill.frontmatter.name ?? a.skill.key).toLowerCase();
+		const skillNameB = String(b.skill.frontmatter.name ?? b.skill.key).toLowerCase();
+		if (skillNameA !== skillNameB) return skillNameA.localeCompare(skillNameB);
+
+		return a.label.localeCompare(b.label);
+	});
+
+	cachedLatestHighlightedFindings = findings;
+	return cachedLatestHighlightedFindings;
 }
 
 export function loadPluginFilterOptions(): PluginFilterOption[] {

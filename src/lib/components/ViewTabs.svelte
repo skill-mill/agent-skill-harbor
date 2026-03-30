@@ -8,8 +8,9 @@
 	import List from '@lucide/svelte/icons/list';
 	import Network from '@lucide/svelte/icons/network';
 	import BarChart3 from '@lucide/svelte/icons/bar-chart-3';
+	import CircleAlert from '@lucide/svelte/icons/circle-alert';
 
-	export type ViewMode = 'card' | 'list' | 'graph' | 'stats';
+	export type ViewMode = 'card' | 'list' | 'graph' | 'stats' | 'findings';
 
 	interface Props {
 		activeView: ViewMode;
@@ -20,10 +21,11 @@
 	let { activeView, onchange, showBottomBorder = true }: Props = $props();
 	const { transition: viewTransition } = setupViewTransition();
 
-	const tabs: { key: ViewMode; icon: 'grid' | 'list' | 'graph' | 'stats'; label: string }[] = [
-		{ key: 'stats', icon: 'stats', label: 'Stats' },
+	const tabs: { key: ViewMode; icon: 'grid' | 'list' | 'graph' | 'stats' | 'findings'; label: string }[] = [
 		{ key: 'card', icon: 'grid', label: 'Card' },
 		{ key: 'list', icon: 'list', label: 'List' },
+		{ key: 'findings', icon: 'findings', label: 'Findings' },
+		{ key: 'stats', icon: 'stats', label: 'Stats' },
 		{ key: 'graph', icon: 'graph', label: 'Graph' },
 	];
 
@@ -57,6 +59,14 @@
 			return;
 		}
 
+		if (tab === 'findings') {
+			const params = new URLSearchParams();
+			if (owner && owner !== 'all') params.set('owner', owner);
+			const search = params.toString();
+			goto(`${base}/findings/${search ? '?' + search : ''}`);
+			return;
+		}
+
 		// Navigating to card or list
 		const params = new URLSearchParams();
 		if (tab === 'list') params.set('view', 'list');
@@ -64,7 +74,7 @@
 		if (visibility) params.set('visibility', visibility);
 		const search = params.toString();
 
-		if (activeView === 'graph' || activeView === 'stats') {
+		if (activeView === 'graph' || activeView === 'stats' || activeView === 'findings') {
 			goto(`${base}/skills/${search ? '?' + search : ''}`);
 		} else {
 			onchange?.(tab);
@@ -99,6 +109,8 @@
 				<List class="h-4 w-4" />
 			{:else if tab.icon === 'graph'}
 				<Network class="h-4 w-4" />
+			{:else if tab.icon === 'findings'}
+				<CircleAlert class="h-4 w-4" />
 			{:else}
 				<BarChart3 class="h-4 w-4" />
 			{/if}

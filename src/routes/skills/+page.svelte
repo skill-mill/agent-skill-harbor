@@ -185,7 +185,7 @@
 	}
 
 	function handleViewChange(newView: ViewMode) {
-		if (newView === 'graph' || newView === 'stats') return;
+		if (newView !== 'card' && newView !== 'list') return;
 		view = newView;
 		const newGroupMode: GroupMode = newView === 'card' ? 'none' : 'origin';
 		groupMode = newGroupMode;

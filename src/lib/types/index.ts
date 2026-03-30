@@ -105,6 +105,16 @@ export interface PluginLabelEntry {
 	intent: LabelIntent;
 }
 
+export interface FindingEntry {
+	skill: FlatSkillEntry;
+	plugin_id: string;
+	plugin_short_label?: string;
+	label: string;
+	intent: LabelIntent;
+	summary?: string;
+	raw?: string;
+}
+
 export interface FlatSkillEntry {
 	key: string;
 	repoKey: string;

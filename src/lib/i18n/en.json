@@ -69,6 +69,24 @@
 		"skillCount_other": "{count} skills registered",
 		"showing": "Showing {displayed} of {total} skills"
 	},
+	"findings": {
+		"title": "Findings",
+		"pageTitle": "Findings - Agent Skill Harbor",
+		"pageDescription": "Highlighted plugin results from the latest collection",
+		"descriptionCurrent": "This page shows important findings detected by plugins.",
+		"descriptionMore": "More information about Findings",
+		"descriptionDetail": "The intents currently shown here are {intents}. Which findings appear here can be configured with `catalog.skill.highlight_intents`. The default is `danger`.",
+		"items": "findings",
+		"empty": "No findings found matching your criteria.",
+		"jumpToPluginOutputs": "Jump to plugin outputs",
+		"noSummary": "No summary available",
+		"columns": {
+			"finding": "Finding",
+			"skill": "Skill",
+			"repository": "Repository",
+			"plugin": "Plugin"
+		}
+	},
 	"error": {
 		"title": "Page not found",
 		"message": "The page you're looking for doesn't exist or has been moved.",
